@@ -39,8 +39,26 @@ app.use(cors());
 const refereeRoutes = require('./routes/referee');
 app.use('/referee', refereeRoutes);
 
+const matchesRoutes = require('./routes/matches');
+app.use('/api/matches', matchesRoutes);
+
+const teamRoutes = require('./routes/team');
+app.use('/api/team', teamRoutes);
+
 app.get('/', (req, res)=>{
   res.render('index');
+});
+
+app.get('/matches', (req, res)=>{
+  res.render('matches');
+});
+
+app.get('/match/:matchId', (req, res)=>{
+  res.render('match-detail', { matchId: req.params.matchId });
+});
+
+app.get('/team', (req, res)=>{
+  res.render('team');
 });
 
 // Start server
