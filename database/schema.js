@@ -19,6 +19,7 @@ const collegeInfoSchema = new mongoose.Schema({
 const playerInfoIdSchema = new mongoose.Schema({
     playerName: String,
     email: String,
+    collegeEmail: String, // College email to link player to college
     gender: String,
     phone: String
 });

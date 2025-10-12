@@ -10,7 +10,7 @@ const watchBtns = document.querySelectorAll('.watch_btn');
 const modalOverlay = document.querySelector('.modal_overlay');
 
 // API Base URL (adjust as needed)
-const API_BASE_URL = 'http://localhost:3000';
+const API_BASE_URL = 'http://localhost:8080';
 
 // Initialize homepage functionality
 document.addEventListener('DOMContentLoaded', function() {

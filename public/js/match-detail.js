@@ -29,7 +29,7 @@ async function loadMatchDetail() {
             console.log('Match data loaded:', matchData);
         } else {
             console.log('Fetching from API for matchId:', matchId);
-            const apiUrl = typeof API_BASE_URL !== 'undefined' ? API_BASE_URL : 'http://localhost:3000';
+            const apiUrl = typeof API_BASE_URL !== 'undefined' ? API_BASE_URL : 'http://localhost:8080';
             const response = await fetch(`${apiUrl}/api/matches/${matchId}`);
             
             if (!response.ok) {

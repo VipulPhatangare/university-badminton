@@ -1,5 +1,5 @@
 // Configuration
-const API_BASE_URL = 'http://localhost:3000';
+const API_BASE_URL = 'http://localhost:8080';
 let currentCollegeEmail = '';
 let currentUserData = null;
 let currentGender = 'boys';
@@ -23,7 +23,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                 currentCollegeEmail = data.user.email;
                 
                 // Update UI with user info
-                document.getElementById('collegeName').textContent = data.user.collegeName || data.user.email;
+                const collegeName = data.user.collegeName || data.user.email;
+                document.getElementById('collegeName').textContent = collegeName;
+                
+                // Also update profile popup if it exists
+                const profileCollegeName = document.getElementById('profileCollegeName');
+                if (profileCollegeName) {
+                    profileCollegeName.textContent = collegeName;
+                }
                 
                 showMainContent();
             } else {
@@ -47,8 +54,39 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 function setupEventListeners() {
-    // Logout button
-    document.querySelector('.btn-logout-top')?.addEventListener('click', handleLogout);
+    // Profile popup functionality
+    const profileButton = document.getElementById('profileButton');
+    const profilePopup = document.getElementById('profilePopup');
+    const closeProfile = document.getElementById('closeProfile');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const changePasswordBtn = document.getElementById('changePasswordBtn');
+
+    // Open profile popup
+    profileButton?.addEventListener('click', () => {
+        profilePopup.style.display = 'flex';
+        // Update profile college name
+        const profileCollegeName = document.getElementById('profileCollegeName');
+        const collegeName = document.getElementById('collegeName').textContent;
+        profileCollegeName.textContent = collegeName;
+    });
+
+    // Close profile popup
+    closeProfile?.addEventListener('click', () => {
+        profilePopup.style.display = 'none';
+    });
+
+    // Close popup when clicking outside
+    profilePopup?.addEventListener('click', (e) => {
+        if (e.target === profilePopup) {
+            profilePopup.style.display = 'none';
+        }
+    });
+
+    // Logout button in profile
+    logoutBtn?.addEventListener('click', handleLogout);
+
+    // Change password button
+    changePasswordBtn?.addEventListener('click', handlePasswordChange);
     
     // Tab navigation
     document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -166,6 +204,146 @@ async function handleLogout() {
     }
 }
 
+async function handlePasswordChange() {
+    try {
+        // Close the profile popup
+        const profilePopup = document.getElementById('profilePopup');
+        profilePopup.style.display = 'none';
+        
+        // Show loading/sending message
+        showPasswordResetMessage('Sending password reset link...', 'info');
+        
+        // Send password reset request
+        const response = await fetch(`${API_BASE_URL}/api/auth/forgot-password`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                email: currentUserData.email
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showPasswordResetMessage(
+                'Password reset link has been sent to your email address. Please check your email and click the link to reset your password.',
+                'success'
+            );
+        } else {
+            showPasswordResetMessage(
+                data.message || 'Failed to send password reset link. Please try again.',
+                'error'
+            );
+        }
+    } catch (error) {
+        console.error('Password reset request error:', error);
+        showPasswordResetMessage(
+            'Failed to send password reset link. Please check your internet connection and try again.',
+            'error'
+        );
+    }
+}
+
+function showPasswordResetMessage(message, type) {
+    // Remove existing notifications
+    const existingNotification = document.querySelector('.password-reset-notification');
+    if (existingNotification) {
+        existingNotification.remove();
+    }
+    
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = `password-reset-notification notification-${type}`;
+    
+    // Notification styles
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        max-width: 400px;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+        z-index: 10000;
+        font-family: Arial, sans-serif;
+        font-size: 14px;
+        line-height: 1.5;
+        animation: slideIn 0.3s ease-out;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    `;
+    
+    // Set colors based on type
+    if (type === 'success') {
+        notification.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+        notification.style.color = 'white';
+    } else if (type === 'error') {
+        notification.style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
+        notification.style.color = 'white';
+    } else {
+        notification.style.background = 'linear-gradient(135deg, #3b82f6, #2563eb)';
+        notification.style.color = 'white';
+    }
+    
+    // Add icon based on type
+    let icon = '';
+    if (type === 'success') icon = '✅';
+    else if (type === 'error') icon = '❌';
+    else icon = '📧';
+    
+    notification.innerHTML = `
+        <div style="display: flex; align-items: flex-start; gap: 12px;">
+            <span style="font-size: 20px; flex-shrink: 0;">${icon}</span>
+            <div style="flex: 1;">
+                <div style="font-weight: 600; margin-bottom: 4px;">
+                    ${type === 'success' ? 'Success!' : type === 'error' ? 'Error!' : 'Sending...'}
+                </div>
+                <div>${message}</div>
+            </div>
+            <button onclick="this.parentElement.parentElement.remove()" 
+                    style="background: rgba(255,255,255,0.2); border: none; color: inherit; 
+                           border-radius: 50%; width: 24px; height: 24px; cursor: pointer; 
+                           display: flex; align-items: center; justify-content: center; 
+                           font-size: 16px; flex-shrink: 0;">×</button>
+        </div>
+    `;
+    
+    // Add CSS animation
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(100%);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+    `;
+    
+    if (!document.querySelector('style[data-notification-styles]')) {
+        style.setAttribute('data-notification-styles', 'true');
+        document.head.appendChild(style);
+    }
+    
+    // Add to document
+    document.body.appendChild(notification);
+    
+    // Auto remove after 8 seconds for success/error messages
+    if (type !== 'info') {
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.style.animation = 'slideIn 0.3s ease-out reverse';
+                setTimeout(() => notification.remove(), 300);
+            }
+        }, 8000);
+    }
+}
+
 function showMainContent() {
     document.getElementById('loginSection').style.display = 'none';
     document.getElementById('mainContent').style.display = 'block';
@@ -183,7 +361,14 @@ async function loadCollegeInfo() {
     try {
         const response = await fetch(`${API_BASE_URL}/team/college/${currentCollegeEmail}`);
         const college = await response.json();
-        document.getElementById('collegeName').textContent = college.collegeName || currentCollegeEmail;
+        const collegeName = college.collegeName || currentCollegeEmail;
+        document.getElementById('collegeName').textContent = collegeName;
+        
+        // Also update profile popup if it exists
+        const profileCollegeName = document.getElementById('profileCollegeName');
+        if (profileCollegeName) {
+            profileCollegeName.textContent = collegeName;
+        }
     } catch (error) {
         console.error('Error loading college info:', error);
     }

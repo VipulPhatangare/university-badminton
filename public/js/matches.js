@@ -1,7 +1,7 @@
 
 // Configuration
 const USE_DUMMY_DATA = false; // Set to false to use real API data
-const API_BASE_URL = 'http://localhost:3000';
+const API_BASE_URL = 'http://localhost:8080';
 
 // Global state
 let currentMatchId = null;
