@@ -20,13 +20,18 @@ body {
 
 /* Header */
 .header {
-    text-align: center;
-    padding: 30px 20px;
+    position: relative;
+    padding: 30px;
     background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
     color: white;
     border-radius: 12px;
     margin-bottom: 30px;
     box-shadow: 0 4px 6px rgba(37, 99, 235, 0.3);
+    text-align: center;
+}
+
+.header-content {
+    width: 100%;
 }
 
 .header h1 {
@@ -38,6 +43,34 @@ body {
 .college-name {
     font-size: 1.2em;
     opacity: 0.9;
+}
+
+/* Top Right Logout Button */
+.btn-logout-top {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    padding: 10px 18px;
+    background: rgba(239, 68, 68, 0.2);
+    border: 2px solid rgba(239, 68, 68, 0.4);
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.9em;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    white-space: nowrap;
+    z-index: 10;
+    min-width: fit-content;
+}
+
+.btn-logout-top:hover {
+    background: rgba(239, 68, 68, 0.3);
+    border-color: rgba(239, 68, 68, 0.6);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
 }
 
 /* Login Section */
@@ -295,6 +328,7 @@ input:checked + .slider:before {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 20px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Match Card */
@@ -302,6 +336,7 @@ input:checked + .slider:before {
     background: white;
     padding: 20px;
     border-radius: 12px;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     cursor: pointer;
     transition: all 0.3s;
@@ -406,25 +441,104 @@ input:checked + .slider:before {
 
 .player-gender-tabs {
     display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
+    background: white;
+    border-radius: 16px;
+    padding: 6px;
+    margin-bottom: 25px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e5e7eb;
 }
 
 .player-tab-btn {
-    padding: 10px 24px;
-    background: white;
-    border: 2px solid #e5e7eb;
-    border-radius: 8px;
-    color: #374151;
+    flex: 1;
+    padding: 14px 24px;
+    background: transparent;
+    border: none;
+    border-radius: 12px;
+    color: #6b7280;
     font-weight: 600;
+    font-size: 0.95em;
     cursor: pointer;
-    transition: all 0.3s;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    text-align: center;
 }
 
 .player-tab-btn.active {
-    background: #2563eb;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
     color: white;
-    border-color: #2563eb;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+    transform: translateY(-1px);
+}
+
+.player-tab-btn:hover:not(.active) {
+    color: #10b981;
+    background: rgba(16, 185, 129, 0.05);
+}
+
+/* Match Gender Tabs */
+.match-gender-tabs {
+    display: flex;
+    background: white;
+    border-radius: 16px;
+    padding: 6px;
+    margin-bottom: 25px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e5e7eb;
+}
+
+.match-tab-btn {
+    flex: 1;
+    padding: 14px 24px;
+    background: transparent;
+    border: none;
+    border-radius: 12px;
+    color: #6b7280;
+    font-weight: 600;
+    font-size: 0.95em;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    text-align: center;
+}
+
+.match-tab-btn.active {
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+    transform: translateY(-1px);
+}
+
+.match-tab-btn:hover:not(.active) {
+    color: #3b82f6;
+    background: rgba(59, 130, 246, 0.05);
+}
+
+
+
+/* Section Headers */
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    padding: 20px;
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    border-radius: 16px;
+    border: 1px solid #e2e8f0;
+}
+
+.section-header h2 {
+    margin: 0;
+    color: #1e293b;
+    font-size: 1.5em;
+    font-weight: 700;
+}
+
+.section-header .subtitle {
+    color: #64748b;
+    font-size: 0.9em;
+    margin-top: 4px;
 }
 
 /* Players Container */
@@ -432,6 +546,7 @@ input:checked + .slider:before {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
     gap: 20px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Player Card */
@@ -440,7 +555,7 @@ input:checked + .slider:before {
     padding: 20px;
     border-radius: 12px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .player-card:hover {
@@ -615,6 +730,14 @@ input:checked + .slider:before {
 
     .header h1 {
         font-size: 1.8em;
+        margin-right: 80px; /* Make space for logout button */
+    }
+
+    .btn-logout-top {
+        top: 15px;
+        right: 15px;
+        padding: 8px 14px;
+        font-size: 0.8em;
     }
 
     .college-name {
@@ -659,6 +782,24 @@ input:checked + .slider:before {
         padding: 10px 15px;
         font-size: 0.9em;
     }
+
+    /* Header responsive - Extra small screens */
+    .header {
+        padding: 15px 10px;
+    }
+
+    .header h1 {
+        font-size: 1.4em;
+        margin-right: 70px; /* More space for logout on small screens */
+        line-height: 1.2;
+    }
+
+    .btn-logout-top {
+        padding: 6px 12px;
+        font-size: 0.75em;
+        top: 12px;
+        right: 10px;
+    }
 }
 
 @media (max-width: 480px) {
@@ -697,5 +838,51 @@ input:checked + .slider:before {
 
     .modal form {
         padding: 20px;
+    }
+}
+
+/* Very small screens */
+@media (max-width: 360px) {
+    .header {
+        padding: 12px 8px;
+    }
+
+    .header h1 {
+        font-size: 1.2em;
+        margin-right: 65px;
+    }
+
+    .btn-logout-top {
+        padding: 5px 10px;
+        font-size: 0.7em;
+        top: 10px;
+        right: 8px;
+    }
+
+    .college-name {
+        font-size: 0.9em;
+    }
+}
+
+/* Landscape orientation on mobile */
+@media (max-height: 500px) and (orientation: landscape) {
+    .header {
+        padding: 10px 15px;
+    }
+
+    .header h1 {
+        font-size: 1.3em;
+        margin-bottom: 5px;
+    }
+
+    .btn-logout-top {
+        top: 8px;
+        right: 12px;
+        padding: 6px 12px;
+        font-size: 0.75em;
+    }
+
+    .college-name {
+        font-size: 0.85em;
     }
 }

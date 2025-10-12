@@ -1,3 +1,4 @@
+
 const express = require("express");
 const cors = require("cors");
 const path = require("path");
@@ -44,6 +45,7 @@ app.use('/api/matches', matchesRoutes);
 
 const teamRoutes = require('./routes/team');
 app.use('/api/team', teamRoutes);
+app.use('/team', teamRoutes);
 
 app.get('/', (req, res)=>{
   res.render('index');
@@ -57,9 +59,6 @@ app.get('/match/:matchId', (req, res)=>{
   res.render('match-detail', { matchId: req.params.matchId });
 });
 
-app.get('/team', (req, res)=>{
-  res.render('team');
-});
 
 // Start server
 app.listen(PORT, () => {

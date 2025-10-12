@@ -6,10 +6,34 @@ let currentFilter = 'all';
 let currentPlayerGender = 'boys';
 
 // Initialize
-document.addEventListener('DOMContentLoaded', () => {
-    if (currentCollegeEmail) {
-        showMainContent();
-    } else {
+document.addEventListener('DOMContentLoaded', async () => {
+    // Hide both sections until authentication check completes
+    document.getElementById('loginSection').style.display = 'none';
+    document.getElementById('mainContent').style.display = 'none';
+    
+    if (!currentCollegeEmail) {
+        showLoginSection();
+        setupEventListeners();
+        return;
+    }
+
+    // Validate stored email with server before showing main content
+    try {
+        const response = await fetch(`${API_BASE_URL}/team/college/${encodeURIComponent(currentCollegeEmail)}`);
+        if (response.ok) {
+            // Server confirms email is valid
+            showMainContent();
+        } else {
+            // Invalid on server: clear localStorage and show login
+            localStorage.removeItem('collegeEmail');
+            currentCollegeEmail = '';
+            showLoginSection();
+        }
+    } catch (error) {
+        // On network error, prefer showing login so user can re-auth
+        console.error('Auth validation error:', error);
+        localStorage.removeItem('collegeEmail');
+        currentCollegeEmail = '';
         showLoginSection();
     }
     
@@ -35,19 +59,61 @@ function setupEventListeners() {
         });
     });
     
-    // Gender switch
-    const genderSwitch = document.getElementById('genderSwitch');
-    if (genderSwitch) {
-        genderSwitch.addEventListener('change', toggleGender);
-    }
+    // Match gender tabs with smooth transition
+    document.querySelectorAll('.match-tab-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            
+            const newGender = btn.dataset.gender;
+            if (newGender === currentGender) return; // Don't reload if same tab
+            
+            // Add loading animation to button
+            btn.style.opacity = '0.7';
+            
+            currentGender = newGender;
+            document.querySelectorAll('.match-tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            
+            // Smooth transition effect
+            const container = document.getElementById('matchesContainer');
+            container.style.opacity = '0.5';
+            container.style.transform = 'translateY(10px)';
+            
+            setTimeout(() => {
+                loadMatches();
+                btn.style.opacity = '1';
+                container.style.opacity = '1';
+                container.style.transform = 'translateY(0)';
+            }, 150);
+        });
+    });
     
-    // Player gender tabs
+    // Player gender tabs with smooth transition
     document.querySelectorAll('.player-tab-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            currentPlayerGender = btn.dataset.gender;
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            
+            const newPlayerGender = btn.dataset.gender;
+            if (newPlayerGender === currentPlayerGender) return; // Don't reload if same tab
+            
+            // Add loading animation to button
+            btn.style.opacity = '0.7';
+            
+            currentPlayerGender = newPlayerGender;
             document.querySelectorAll('.player-tab-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
-            displayPlayers();
+            
+            // Smooth transition effect
+            const container = document.getElementById('playersContainer');
+            container.style.opacity = '0.5';
+            container.style.transform = 'translateY(10px)';
+            
+            setTimeout(() => {
+                displayPlayers();
+                btn.style.opacity = '1';
+                container.style.opacity = '1';
+                container.style.transform = 'translateY(0)';
+            }, 150);
         });
     });
     
@@ -87,11 +153,20 @@ async function handleLogin(e) {
 function showLoginSection() {
     document.getElementById('loginSection').style.display = 'flex';
     document.getElementById('mainContent').style.display = 'none';
+    
+    // Hide logout button during login
+    const logoutBtn = document.querySelector('.btn-logout-top');
+    if (logoutBtn) logoutBtn.style.display = 'none';
 }
 
 function showMainContent() {
     document.getElementById('loginSection').style.display = 'none';
     document.getElementById('mainContent').style.display = 'block';
+    
+    // Show logout button after login
+    const logoutBtn = document.querySelector('.btn-logout-top');
+    if (logoutBtn) logoutBtn.style.display = 'block';
+    
     loadCollegeInfo();
     loadMatches();
 }
@@ -131,24 +206,7 @@ function switchTab(tabName) {
     }
 }
 
-// Toggle gender
-function toggleGender() {
-    const switchInput = document.getElementById('genderSwitch');
-    const boysLabel = document.getElementById('boysLabel');
-    const girlsLabel = document.getElementById('girlsLabel');
-    
-    if (switchInput.checked) {
-        currentGender = 'girls';
-        girlsLabel.classList.add('active');
-        boysLabel.classList.remove('active');
-    } else {
-        currentGender = 'boys';
-        boysLabel.classList.add('active');
-        girlsLabel.classList.remove('active');
-    }
-    
-    loadMatches();
-}
+
 
 // Load matches
 async function loadMatches() {
@@ -203,15 +261,36 @@ async function loadMatches() {
     }
 }
 
-// Display matches
+// Display matches with smooth transitions
 function displayMatches(matches) {
     const container = document.getElementById('matchesContainer');
-    container.innerHTML = '';
     
-    matches.forEach(match => {
-        const card = createMatchCard(match);
-        container.appendChild(card);
+    // Add fade-out animation to existing cards
+    const existingCards = container.querySelectorAll('.match-card');
+    existingCards.forEach((card, index) => {
+        setTimeout(() => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(-10px)';
+        }, index * 50);
     });
+    
+    // Clear container after animation
+    setTimeout(() => {
+        container.innerHTML = '';
+        
+        // Add new cards with fade-in animation
+        matches.forEach((match, index) => {
+            const card = createMatchCard(match);
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            container.appendChild(card);
+            
+            setTimeout(() => {
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, index * 100 + 50);
+        });
+    }, existingCards.length * 50 + 100);
 }
 
 // Create match card
@@ -290,27 +369,106 @@ async function loadPlayers() {
     }
 }
 
-// Display players
+// Display players with smooth transitions
 function displayPlayers() {
     const container = document.getElementById('playersContainer');
     const noPlayers = document.getElementById('noPlayers');
     
-    container.innerHTML = '';
-    
     const players = currentPlayerGender === 'boys' ? allPlayers.boys : allPlayers.girls;
+    const maxPlayers = currentPlayerGender === 'boys' ? 7 : 5;
+    const remainingSlots = maxPlayers - players.length;
     
-    if (players.length === 0) {
-        noPlayers.style.display = 'block';
-        container.style.display = 'none';
-    } else {
-        noPlayers.style.display = 'none';
-        container.style.display = 'grid';
+    // Update player count display
+    updatePlayerCountDisplay(players.length, maxPlayers, remainingSlots);
+    
+    // Update add player button state
+    updateAddPlayerButton(remainingSlots);
+    
+    // Add fade-out animation to existing cards
+    const existingCards = container.querySelectorAll('.player-card');
+    existingCards.forEach((card, index) => {
+        setTimeout(() => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(-10px)';
+        }, index * 30);
+    });
+    
+    // Clear and update after animation
+    setTimeout(() => {
+        container.innerHTML = '';
         
-        players.forEach(player => {
-            const card = createPlayerCard(player);
-            container.appendChild(card);
-        });
+        if (players.length === 0) {
+            noPlayers.style.display = 'block';
+            container.style.display = 'none';
+        } else {
+            noPlayers.style.display = 'none';
+            container.style.display = 'grid';
+            
+            // Add new cards with fade-in animation
+            players.forEach((player, index) => {
+                const card = createPlayerCard(player);
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                container.appendChild(card);
+                
+                setTimeout(() => {
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 80 + 50);
+            });
+        }
+    }, existingCards.length * 30 + 100);
+}
+
+// Update player count display
+function updatePlayerCountDisplay(current, max, remaining) {
+    // Find or create the count display element
+    let countDisplay = document.getElementById('playerCountDisplay');
+    if (!countDisplay) {
+        countDisplay = document.createElement('div');
+        countDisplay.id = 'playerCountDisplay';
+        countDisplay.style.cssText = `
+            margin: 15px 0;
+            padding: 10px 15px;
+            background: ${remaining === 0 ? '#fef2f2' : '#f0f9ff'};
+            border: 1px solid ${remaining === 0 ? '#fecaca' : '#bae6fd'};
+            border-radius: 8px;
+            font-weight: 600;
+            color: ${remaining === 0 ? '#dc2626' : '#0369a1'};
+        `;
+        
+        // Insert before players container
+        const playersContainer = document.getElementById('playersContainer');
+        playersContainer.parentNode.insertBefore(countDisplay, playersContainer);
     }
+    
+    const genderText = currentPlayerGender === 'boys' ? 'Boys' : 'Girls';
+    countDisplay.innerHTML = `
+        ${genderText} Team: ${current}/${max} players 
+        ${remaining > 0 ? `(${remaining} slots remaining)` : '(Team Full!)'}
+    `;
+}
+
+// Update add player button state
+function updateAddPlayerButton(remainingSlots) {
+    // Find all add player buttons
+    const addButtons = document.querySelectorAll('button[onclick="openAddPlayerModal()"]');
+    
+    addButtons.forEach(button => {
+        if (remainingSlots === 0) {
+            button.disabled = true;
+            button.style.cssText = `
+                background-color: #9ca3af !important;
+                cursor: not-allowed !important;
+                opacity: 0.6;
+            `;
+            button.textContent = '+ Team Full';
+        } else {
+            button.disabled = false;
+            button.style.cssText = '';
+            button.textContent = `+ Add Player (${remainingSlots} left)`;
+        }
+    });
 }
 
 // Create player card
@@ -349,8 +507,23 @@ function createPlayerCard(player) {
 
 // Add player modal
 function openAddPlayerModal() {
+    const players = currentPlayerGender === 'boys' ? allPlayers.boys : allPlayers.girls;
+    const maxPlayers = currentPlayerGender === 'boys' ? 7 : 5;
+    
+    if (players.length >= maxPlayers) {
+        const genderText = currentPlayerGender === 'boys' ? 'Boys' : 'Girls';
+        alert(`${genderText} team is full! Maximum ${maxPlayers} players allowed.`);
+        return;
+    }
+    
     document.getElementById('addPlayerModal').style.display = 'block';
     document.getElementById('addPlayerForm').reset();
+    
+    // Set default gender in modal
+    const genderSelect = document.getElementById('playerGender');
+    if (genderSelect) {
+        genderSelect.value = currentPlayerGender === 'boys' ? 'male' : 'female';
+    }
 }
 
 function closeAddPlayerModal() {
@@ -426,5 +599,22 @@ window.onclick = function(event) {
     const modal = document.getElementById('addPlayerModal');
     if (event.target === modal) {
         closeAddPlayerModal();
+    }
+}
+
+// Navigation functions
+function logout() {
+    if (confirm('Are you sure you want to logout?')) {
+        // Clear stored credentials
+        localStorage.removeItem('collegeEmail');
+        currentCollegeEmail = '';
+        
+        // Show login section
+        showLoginSection();
+        
+        // Optional: Redirect to home page
+        // window.location.href = '/';
+        
+        alert('Logged out successfully!');
     }
 }

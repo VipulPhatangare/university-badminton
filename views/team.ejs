@@ -10,12 +10,15 @@
     <div class="container">
         <!-- Header -->
         <header class="header">
-            <h1>🏸 Team Management</h1>
-            <p id="collegeName" class="college-name">-</p>
+            <button class="btn-logout-top" onclick="logout()">Logout</button>
+            <div class="header-content">
+                <h1>🏸 Team Management</h1>
+                <p id="collegeName" class="college-name">-</p>
+            </div>
         </header>
 
         <!-- Login Section (if not logged in) -->
-        <div id="loginSection" class="login-section">
+        <div id="loginSection" class="login-section" style="display: none;">
             <div class="login-card">
                 <h2>College Login</h2>
                 <form id="loginForm">
@@ -39,23 +42,19 @@
 
             <!-- Matches Tab -->
             <div id="matchesTab" class="tab-content active">
-                <!-- Gender & Filter Section -->
+                <!-- Gender Tabs for Matches -->
+                <div class="match-gender-tabs">
+                    <button class="match-tab-btn active" data-gender="boys">Boys Matches</button>
+                    <button class="match-tab-btn" data-gender="girls">Girls Matches</button>
+                </div>
+
+                <!-- Filter Section -->
                 <div class="filter-section">
                     <div class="filter-tabs">
                         <button class="filter-btn active" data-filter="all">All</button>
                         <button class="filter-btn" data-filter="live">Live</button>
                         <button class="filter-btn" data-filter="upcoming">Upcoming</button>
                         <button class="filter-btn" data-filter="complete">Complete</button>
-                    </div>
-                    
-                    <!-- Gender Switch -->
-                    <div class="gender-switch-container">
-                        <span id="boysLabel" class="gender-label active">Boys</span>
-                        <label class="switch">
-                            <input type="checkbox" id="genderSwitch">
-                            <span class="slider round"></span>
-                        </label>
-                        <span id="girlsLabel" class="gender-label">Girls</span>
                     </div>
                 </div>
 
