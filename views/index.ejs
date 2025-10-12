@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shuttle Showdown</title>
+    <link rel="icon" type="image/png" href="\assets\badminton-shuttle-1000x1000-removebg-preview.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/index.css">
+    <style>
+        /* All your existing CSS remains the same */
+        /* I'm adding just the new styles for the date/venue section */
+        
+        /* Date and Venue Section */
+        .date-venue {
+            padding: 80px 0;
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 50%, #ffffff 100%);
+            text-align: center;
+        }
+        
+        .date-venue-container {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-top: 40px;
+            flex-wrap: wrap;
+        }
+        
+        .date-venue-item {
+            background: white;
+            border-radius: var(--border-radius-lg);
+            padding: 30px;
+            min-width: 280px;
+            box-shadow: var(--shadow-light);
+            border: 2px solid transparent;
+            transition: var(--transition);
+        }
+        
+        .date-venue-item:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-heavy);
+            border-color: var(--primary-red);
+        }
+        
+        .date-venue-icon {
+            width: 70px;
+            height: 70px;
+            background: var(--gradient-red);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            transition: var(--transition);
+        }
+        
+        .date-venue-item:hover .date-venue-icon {
+            transform: scale(1.1);
+        }
+        
+        .date-venue-icon i {
+            font-size: 1.8rem;
+            color: white;
+        }
+        
+        .date-venue-item h3 {
+            font-size: 1.4rem;
+            margin-bottom: 10px;
+            color: var(--primary-red);
+            font-weight: 700;
+        }
+        
+        .date-venue-item p {
+            color: var(--gray);
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .whatsapp-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background-color: #25D366;
+            color: white !important;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .whatsapp-link:hover {
+            background-color: #128C7E;
+            transform: scale(1.05);
+        }
+        
+        @media (max-width: 768px) {
+            .date-venue-container {
+                gap: 25px;
+            }
+            
+            .date-venue-item {
+                min-width: 250px;
+                padding: 25px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header & Navigation -->
+    <header>
+        <div class="container nav-container">
+            <div class="logo">
+                <i class="fas fa-shuttlecock"></i>
+                <span>Shuttle Showdown 2025</span>
+            </div>
+            <nav class="desktop-nav">
+                <a href="#" class="active">Home</a>
+                <!-- <a href="#">Schedule</a> -->
+                <a href="#" class="login-btn">Login</a>
+                <a href="#" class="register-btn">Sign Up</a>
+            </nav>
+            <div class="menu-toggle">
+                <i class="fas fa-bars"></i>
+            </div>
+        </div>
+    </header>
+
+    <!-- Mobile Navigation -->
+    <div class="mobile-nav" id="mobileNav">
+        <div class="close-nav">
+            <i class="fas fa-times" ></i>
+        </div>
+        <a href="#" class="active">Home</a>
+        <!-- <a href="#">Schedule</a> -->
+        <a href="#" class="login-btn">Login</a>
+        <a href="#" class="register-btn">Sign Up</a>
+    </div>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <!-- Animated Shuttlecocks -->
+        <div class="shuttlecock-animation shuttlecock-1"></div>
+        <div class="shuttlecock-animation shuttlecock-2"></div>
+        <div class="shuttlecock-animation shuttlecock-3"></div>
+        <div class="shuttlecock-animation shuttlecock-4"></div>
+        <div class="shuttlecock-animation shuttlecock-5"></div>
+        
+        <div class="container">
+            <h1>Shuttle Showdown 2025</h1>
+            <p>Join the most exciting badminton competition of the year on September 28-29 at PCCOE Badminton Hall. Show your skills, compete with the best, and win amazing prizes!</p>
+            <button class="cta-button register-btn">🏸 Register Now</button>
+        </div>
+    </section>
+
+    <!-- Date and Venue Section -->
+    <section class="date-venue">
+        <div class="container">
+            <h2 class="section-title">Event Details</h2>
+            <div class="date-venue-container">
+                <div class="date-venue-item">
+                    <div class="date-venue-icon">
+                        <i class="fas fa-calendar-day"></i>
+                    </div>
+                    <h3>Dates</h3>
+                    <p>September 28 - 29, 2025</p>
+                </div>
+                <div class="date-venue-item">
+                    <div class="date-venue-icon">
+                        <i class="fas fa-map-marker-alt"></i>
+                    </div>
+                    <h3>Venue</h3>
+                    <p>Badminton Hall, PCCOE</p>
+                </div>
+                <div class="date-venue-item">
+                    <div class="date-venue-icon">
+                        <i class="fab fa-whatsapp"></i>
+                    </div>
+                    <h3>Join WhatsApp Group</h3>
+                    <p>
+                        <a href="https://chat.whatsapp.com/DFbskJXCl167h2YeH5ZIPc?mode=ems_share_t" 
+                           target="_blank" 
+                           class="whatsapp-link"
+                           style="color: #25D366; text-decoration: none; font-weight: 600;">
+                            <i class="fab fa-whatsapp"></i> Click to Join
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features">
+        <div class="container">
+            <h2 class="section-title">Why Participate?</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-trophy"></i>
+                    </div>
+                    <h3>Prize Pool: 7k+</h3>
+                    <p>Cash prizes, trophies, and certificates for winners.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3>Showcase Your Talent</h3>
+                    <p>Compete with the best players from our college and prove your skills.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-calendar-alt"></i>
+                    </div>
+                    <h3>Well Organized Schedule</h3>
+                    <p>Properly scheduled matches to avoid clashes with your academic routine.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Countdown Section -->
+    <section class="countdown">
+        <div class="container">
+            <h2 class="section-title" style="color: white;">Competition Starts In</h2>
+            <div class="countdown-container">
+                <div class="countdown-item">
+                    <div class="countdown-number" id="days">12</div>
+                    <div class="countdown-label">Days</div>
+                </div>
+                <div class="countdown-item">
+                    <div class="countdown-number" id="hours">18</div>
+                    <div class="countdown-label">Hours</div>
+                </div>
+                <div class="countdown-item">
+                    <div class="countdown-number" id="minutes">45</div>
+                    <div class="countdown-label">Minutes</div>
+                </div>
+                <div class="countdown-item">
+                    <div class="countdown-number" id="seconds">30</div>
+                    <div class="countdown-label">Seconds</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Registration Modal -->
+    <div class="modal-overlay" id="registerModal">
+        <div class="modal">
+            <div class="close-modal">
+                <i class="fas fa-times"></i>
+            </div>
+            <h2 class="modal-title">Sign Up</h2>
+            
+            <form id="registrationForm">
+                <!-- Step 1 -->
+                <div class="form-step active" id="step1">
+                    <div class="form-group">
+                        <label for="fullName">Full Name</label>
+                        <input type="text" id="fullName" class="form-control" placeholder="Enter your full name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="gender">Gender</label>
+                        <select id="gender" class="form-control" required>
+                            <option value="">Select Gender</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="prn">PRN Number</label>
+                        <input type="text" id="prn" class="form-control" placeholder="Enter your PRN number" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Phone Number</label>
+                        <input type="tel" id="phone" class="form-control" placeholder="Enter your phone number" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="branch">Branch</label>
+                        <select id="branch" class="form-control" required>
+                            <option value="">Select Branch</option>
+                            <option value="Computer ">Computer </option>
+                            <option value="CSE AIML">CSE AIML</option>
+                            <option value="Computer Regional">Computer Regional</option>
+                            <option value="IT">IT</option>
+                            <option value="AS&H (FY)">AS&H (FY)</option>
+                            <option value="Mechanical">Mechanical Engineering</option>
+                            <option value="Civil">Civil Engineering</option>
+                            <option value="ENTC">ENTC</option>
+                            <option value="MCA">MCA</option>
+                            <option value="BVoc">BVoc</option>
+                            <option value="MBA">MBA</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="year">Year</label>
+                        <select id="year" class="form-control" required>
+                            <option value="">Select Year</option>
+                            <option value="FE">First Year</option>
+                            <option value="SE">Second Year</option>
+                            <option value="TE">Third Year</option>
+                            <option value="BE">Final Year</option>
+                        </select>
+                    </div>
+                
+                    <button type="button" class="btn btn-block" id="nextToStep2">Next</button>
+                </div>
+                
+                <!-- Step 2 -->
+                <div class="form-step" id="step2">
+                    <div class="form-group">
+                        <label for="email">College Email</label>
+                        <input type="email" id="email" class="form-control" placeholder="username@pccoepune.org" required>
+                        <small>Must end with @pccoepune.org or @sbpatilmba.com</small>
+                    </div>
+                    <div class="form-group password-toggle">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" class="form-control" placeholder="Create a password" required>
+                        <button type="button" class="toggle-password" id="togglePassword">
+                            <i class="fas fa-eye" ></i>
+                        </button>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirmPassword">Confirm Password</label>
+                        <input type="password" id="confirmPassword" class="form-control" placeholder="Confirm your password" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="otp">OTP Verification</label>
+                        <div class="otp-verify">
+                            <input type="text" id="otp" class="form-control" placeholder="Enter OTP" disabled>
+                            <button type="button" class="btn" id="sendOtp">Send OTP</button>
+                        </div>
+                        <div class="otp-actions">
+                            <button type="button" class="btn btn-secondary" id="verifyOtp" style="display: none;">Verify OTP</button>
+                            <a href="#" class="resend-otp" id="resendOtp" style="display: none;">Resend OTP</a>
+                        </div>
+                        <span class="verified" id="verifiedText"><i class="fas fa-check-circle"></i> Verified</span>
+                    </div>
+                    <div class="form-group">
+                        <!-- <button type="button" class="btn btn-secondary" id="backToStep1">Back</button> -->
+                        <button type="submit" class="btn btn-block" id="signUpBtn" disabled>Sign Up</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div class="modal-overlay" id="loginModal">
+        <div class="modal">
+            <div class="close-modal">
+                <i class="fas fa-times"></i>
+            </div>
+            <h2 class="modal-title">Login</h2>
+            
+            <div class="login-toggle">
+                <div class="toggle-option active" id="playerLoginToggle">Player</div>
+                <div class="toggle-option" id="adminLoginToggle">Refree</div>
+            </div>
+            
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="loginEmail">Email</label>
+                    <input type="email" id="loginEmail" class="form-control" placeholder="Enter your email" required>
+                </div>
+                <div class="form-group password-toggle">
+                    <label for="loginPassword">Password</label>
+                    <input type="password" id="loginPassword" class="form-control" placeholder="Enter your password" required>
+                    <button type="button" class="toggle-password" id="toggleLoginPassword">
+                        <i class="fas fa-eye" ></i>
+                    </button>
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-block">Login</button>
+                </div>
+                <!-- In the login form, replace the existing Forgot Password link -->
+                <div class="form-group text-center">
+                    <a href="#" class="forgot-password-link" style="color: var(--accent);">Forgot Password?</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div class="modal-overlay" id="successModal">
+        <div class="modal">
+            <div class="close-modal">
+                <i class="fas fa-times"></i>
+            </div>
+            <div style="text-align: center; padding: 20px;">
+                <div style="font-size: 4rem; color: var(--success);">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <h2 class="modal-title">Thank You for Registration!</h2>
+                <p>Your registration for the PCCOE Badminton Championship 2025 has been successfully submitted.</p>
+                <button class="btn" style="margin-top: 20px;" id="successOk">Okay</button>
+            </div>
+        </div>
+    </div>
+
+        <!-- Forgot Password Modal -->
+    <div class="modal-overlay" id="forgotPasswordModal">
+        <div class="modal">
+            <div class="close-modal">
+                <i class="fas fa-times"></i>
+            </div>
+            <h2 class="modal-title">Send Password on Mail</h2>
+            
+            <form id="forgotPasswordForm">
+                <div class="form-group">
+                    <label for="resetEmail">College Email</label>
+                    <input type="email" id="resetEmail" class="form-control" placeholder="username@pccoepune.org" required>
+                    <small>Must end with @pccoepune.org or @sbpatilmba.com</small>
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-block" id="sendResetLink">Send</button>
+                </div>
+                <div class="form-group text-center">
+                    <a href="#" class="back-to-login" style="color: var(--accent);">Back to Login</a>
+                </div>
+            </form>
+            
+            <div id="resetSuccess" style="display: none; text-align: center; padding: 20px;">
+                <div style="font-size: 4rem; color: var(--success);">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <h3>Password Sent!</h3>
+                <p>We've sent a password to your email. Please check your inbox.</p>
+                <button class="btn" style="margin-top: 20px;" id="goToLogin">Go to Login</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add this notification container right after the body tag -->
+    <div class="notification-container" id="notificationContainer"></div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <i class="fas fa-shuttlecock"></i>
+                    <span>Shuttle Showdown 2025</span>
+                </div>
+                <div class="social-links">
+                    <a href="https://www.linkedin.com/in/your-profile" target="_blank" title="LinkedIn">
+                        <i class="fab fa-linkedin"></i>
+                    </a>
+                    <a href="https://www.linkedin.com/company/pccoe-s-aimsa/" target="_blank" title="Instagram">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                    <a href="https://chat.whatsapp.com/DFbskJXCl167h2YeH5ZIPc?mode=ems_share_t" target="_blank" title="WhatsApp">
+                        <i class="fab fa-whatsapp"></i>
+                    </a>
+                </div>
+
+                <div class="footer-contact">
+                    <!-- <p>📧 contact@pccoe.edu.in</p> -->
+                    <p>Vipul Phanagare: +91 8999741641</p>
+                    <p>Sandesh Phad: +91 9307093365</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Shuttle Showdown. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/js/index.js"></script>
+</body>
+</html>

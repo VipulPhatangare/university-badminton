@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Referee Dashboard - Badminton Tournament</title>
+    <link rel="icon" type="image/png" href="/assets/badminton-shuttle-1000x1000-removebg-preview.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Enhanced CSS with new color scheme and animations */
+        :root {
+            --primary-red: #B22222;
+            --dark-red: #8B0000;
+            --light-red: #DC143C;
+            --crimson: #DC143C;
+            --burgundy: #800020;
+            --white: #ffffff;
+            --light-gray: #f8f9fa;
+            --gray: #6c757d;
+            --dark-gray: #343a40;
+            --black: #000000;
+            --accent-gold: #FFD700;
+            --accent-orange: #ff6600;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --shadow-light: 0 2px 10px rgba(178, 34, 34, 0.1);
+            --shadow-medium: 0 4px 20px rgba(178, 34, 34, 0.15);
+            --shadow-heavy: 0 8px 30px rgba(178, 34, 34, 0.25);
+            --gradient-red: linear-gradient(135deg, #B22222 0%, #DC143C 50%, #8B0000 100%);
+            --gradient-dark: linear-gradient(135deg, #8B0000 0%, #B22222 50%, #800020 100%);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-fast: all 0.2s ease;
+            --border-radius: 12px;
+            --border-radius-lg: 20px;
+            
+            /* Additional variables for layout */
+            --sidebar-width: 250px;
+            --header-height: 70px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--light-gray);
+            color: var(--dark-gray);
+            line-height: 1.6;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--gradient-dark);
+            color: var(--white);
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            transition: var(--transition);
+            z-index: 1000;
+            left: 0;
+            box-shadow: var(--shadow-medium);
+        }
+
+        .main-content {
+            margin-left: var(--sidebar-width);
+            width: calc(100% - var(--sidebar-width));
+            transition: var(--transition);
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                left: -250px;
+            }
+            .sidebar.active {
+                left: 0;
+            }
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+            }
+            .main-content.sidebar-active {
+                margin-left: var(--sidebar-width);
+            }
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-header .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+
+        .logo i {
+            margin-right: 10px;
+            color: var(--accent-gold);
+            animation: pulse 2s infinite;
+        }
+
+        .sidebar-menu {
+            padding: 20px 0;
+        }
+
+        .menu-item {
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: var(--transition);
+            border-left: 4px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .menu-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: var(--transition);
+        }
+
+        .menu-item:hover::before {
+            left: 100%;
+        }
+
+        .menu-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            transform: translateX(5px);
+        }
+
+        .menu-item.active {
+            background-color: rgba(255, 255, 255, 0.15);
+            border-left-color: var(--accent-gold);
+        }
+
+        .menu-item i {
+            margin-right: 15px;
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Main Content */
+        .main-content {
+            position: relative;
+        }
+
+        /* Header */
+        .header {
+            background: var(--gradient-red);
+            height: var(--header-height);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+            box-shadow: var(--shadow-medium);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            flex-wrap: nowrap;
+            color: var(--white);
+        }
+
+        .page-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--accent-gold);
+            color: var(--dark-red);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .user-avatar:hover {
+            transform: scale(1.1);
+        }
+
+        /* Content Area */
+        .content {
+            padding: 30px;
+        }
+
+        /* Section Styles */
+        .section {
+            background-color: var(--white);
+            border-radius: var(--border-radius);
+            padding: 25px;
+            box-shadow: var(--shadow-light);
+            margin-bottom: 30px;
+            transition: var(--transition);
+        }
+
+        .section:hover {
+            box-shadow: var(--shadow-medium);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            color: var(--primary-red);
+            font-weight: 600;
+        }
+
+        .section-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-red);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--dark-red);
+            transform: translateY(-2px);
+        }
+
+        /* Search Box */
+        .search-box {
+            position: relative;
+            margin-left: auto;
+        }
+
+        .search-box input {
+            padding: 8px 12px 8px 35px;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        .search-box .search-icon {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray);
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--primary-red);
+            box-shadow: 0 0 0 3px rgba(178, 34, 34, 0.1);
+        }
+
+        /* Match Cards */
+        .match-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .match-card {
+            background-color: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-light);
+            overflow: hidden;
+            transition: var(--transition);
+            cursor: pointer;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .match-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .match-card-header {
+            background: var(--gradient-red);
+            color: var(--white);
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .match-number {
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        .match-round {
+            background-color: var(--accent-gold);
+            color: var(--dark-red);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .match-card-body {
+            padding: 15px;
+        }
+
+        .match-teams {
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .team {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: var(--dark-gray);
+        }
+
+        .vs-text {
+            font-size: 1.5rem;
+            color: var(--primary-red);
+            font-weight: 700;
+            margin: 10px 0;
+        }
+
+        .match-details {
+            display: flex;
+            justify-content: space-between;
+            color: var(--gray);
+            font-size: 0.9rem;
+            border-top: 1px solid #eee;
+            padding-top: 10px;
+        }
+
+        .match-info {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .logout-btn {
+            background-color: var(--danger);
+            color: var(--white);
+            border: none;
+            padding: 10px 20px;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+            margin-top: 20px;
+            width: calc(100% - 40px);
+            margin-left: 20px;
+            margin-right: 20px;
+            justify-content: center;
+            box-shadow: var(--shadow-light);
+        }
+
+        .logout-btn:hover {
+            background-color: #c82333;
+            transform: translateY(-2px);
+        }
+
+        /* Toggle for mobile sidebar */
+        .menu-toggle {
+            display: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            margin-left: auto;
+            transition: var(--transition);
+        }
+
+        .menu-toggle:hover {
+            color: var(--accent-gold);
+        }
+
+        @media (max-width: 768px) {
+            .menu-toggle {
+                display: block;
+                order: 2;
+                position: absolute;
+                right: 20px;
+            }
+            .header {
+                justify-content: center;
+                position: relative;
+            }
+            .page-title {
+                order: 1;
+                text-align: center;
+            }
+            .header-actions {
+                order: 3;
+            }
+            .sidebar {
+                left: -250px;
+            }
+            .sidebar.active {
+                left: 0;
+            }
+            
+            .match-cards {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Overlay for when sidebar is open */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            display: none;
+        }
+
+        .overlay.active {
+            display: block;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        /* Badminton shuttlecock icon animation */
+        .shuttlecock {
+            display: inline-block;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+
+        /* No matches message */
+        .no-matches {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--gray);
+        }
+
+        .no-matches i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: var(--primary-red);
+            opacity: 0.5;
+        }
+
+        .no-matches h3 {
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Overlay for sidebar -->
+    <div class="overlay" id="overlay"></div>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <i class="fas fa-table-tennis shuttlecock"></i>
+                <span>Badminton Referee</span>
+            </div>
+        </div>
+        <div class="sidebar-menu">
+            <div class="menu-item active" data-page="dashboard">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+            </div>
+            <div class="menu-item" data-page="completed-matches">
+                <i class="fas fa-history"></i>
+                <span>Completed Matches</span>
+            </div>
+        </div>
+        <div class="logout-btn" id="logout-btn">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Log Out</span>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content" id="main-content">
+        <!-- Header -->
+        <div class="header">
+            <div class="menu-toggle" id="menu-toggle">
+                <i class="fas fa-bars"></i>
+            </div>
+            <div class="page-title">Referee Dashboard</div>
+        </div>
+
+        <!-- Content Area -->
+        <div class="content">
+            <!-- Dashboard Page -->
+            <div id="dashboard-page">
+                <!-- Upcoming Matches Section -->
+                <div class="section" id="upcomingMatchesSection">
+                    <div class="section-header">
+                        <div class="section-title">Upcoming Matches</div>
+                        <div class="section-actions">
+                            <div class="search-box">
+                                <i class="fas fa-search search-icon"></i>
+                                <input type="text" placeholder="Search matches..." id="search-matches">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Match Cards -->
+                    <div class="match-cards" id="matches-container">
+                        <!-- Match cards will be dynamically inserted here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Completed Matches Page -->
+            <div id="completed-matches-page" style="display: none;">
+                <div class="section">
+                    <div class="section-header">
+                        <div class="section-title">Completed Matches</div>
+                    </div>
+                    <div class="table-container">
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <thead>
+                                <tr style="background-color: var(--light-gray);">
+                                    <th style="padding: 12px; text-align: left; border-bottom: 1px solid #eee; color: var(--primary-red);">Match ID</th>
+                                    <th style="padding: 12px; text-align: left; border-bottom: 1px solid #eee; color: var(--primary-red);">Teams</th>
+                                    <th style="padding: 12px; text-align: left; border-bottom: 1px solid #eee; color: var(--primary-red);">Winner</th>
+                                    <th style="padding: 12px; text-align: left; border-bottom: 1px solid #eee; color: var(--primary-red);">Date</th>
+                                    <th style="padding: 12px; text-align: left; border-bottom: 1px solid #eee; color: var(--primary-red);">Court</th>
+                                </tr>
+                            </thead>
+                            <tbody id="completed-matches-table">
+                                <!-- Completed matches will be dynamically inserted here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/referee.js"></script>
+</body>
+</html>
