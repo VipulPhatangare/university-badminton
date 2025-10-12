@@ -1,6 +1,18 @@
 /* ===========================
    GLOBAL STYLES
    =========================== */
+@font-face {
+    font-family: 'font1';
+    src: url("../fonts/BwGradualDEMO-Medium.otf") format("opentype");
+}
+
+@font-face {
+    font-family: "panchang";
+    src: url("../fonts/Panchang-Variable.ttf");
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Titillium+Web:ital,wght@0,200;0,300;0,400;0,600;0,700;0,900;1,200;1,300;1,400;1,600;1,700&display=swap');
+
 * {
     margin: 0;
     padding: 0;
@@ -8,9 +20,17 @@
 }
 
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #ffffff;
-    color: #333;
+    font-family: "Titillium Web", sans-serif;
+    background-color: #e3f2fd;
+    color: #2c3e50;
+    overflow-x: hidden;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+body::-webkit-scrollbar {
+    display: none;
 }
 
 .container {
@@ -35,17 +55,34 @@ body {
 /* Header */
 .header {
     text-align: center;
-    padding: 30px 0;
-    background: linear-gradient(135deg, #64b5f6 0%, #42a5f5 100%);
-    color: white;
-    border-radius: 10px;
+    padding: 30px;
+    background: rgba(21, 101, 192, 0.15);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #2c3e50;
+    border-radius: 20px;
     margin-bottom: 30px;
-    box-shadow: 0 4px 6px rgba(100, 181, 246, 0.3);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
 .header h1 {
+    font-family: "panchang", sans-serif;
     font-size: 2.5em;
-    font-weight: 600;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    background: linear-gradient(
+        135deg,
+        #1a1a1a 0%,
+        #2c3e50 20%,
+        #34495e 40%,
+        #1565c0 60%,
+        #0d47a1 80%,
+        #0a1929 100%
+    );
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
 }
 
 /* Filter Section - Container for both filters and gender switch */
@@ -69,36 +106,44 @@ body {
 .gender-toggle-section {
     display: flex;
     gap: 0;
-    background: #f5f5f5;
-    border-radius: 0;
-    padding: 0;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 16px;
+    padding: 6px;
     margin: 0 0 2rem 0;
     max-width: 100%;
     width: 100%;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .gender-toggle-btn {
     flex: 1;
-    padding: 18px 40px;
+    padding: 14px 40px;
     border: none;
     background: transparent;
-    color: #666;
+    color: rgba(44, 62, 80, 0.7);
+    font-family: "Titillium Web", sans-serif;
     font-size: 1.1rem;
     font-weight: 600;
-    border-radius: 0;
+    border-radius: 12px;
     cursor: pointer;
     transition: all 0.3s ease;
     white-space: nowrap;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
-.gender-toggle-btn:hover {
-    color: #333;
+.gender-toggle-btn:hover:not(.active) {
+    color: #2c3e50;
+    background: rgba(255, 255, 255, 0.1);
 }
 
 .gender-toggle-btn.active {
-    background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+    background: rgba(21, 101, 192, 0.8);
     color: white;
-    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+    box-shadow: 0 4px 12px rgba(21, 101, 192, 0.4);
+    transform: translateY(-1px);
 }
 
 /* Filter Section */
@@ -118,87 +163,112 @@ body {
 
 .tab-btn {
     padding: 10px 24px;
-    border: 2px solid #e5e7eb;
-    background-color: white;
-    color: #6b7280;
-    border-radius: 0;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.1);
+    color: rgba(44, 62, 80, 0.7);
+    border-radius: 8px;
     cursor: pointer;
+    font-family: "Titillium Web", sans-serif;
     font-size: 0.95rem;
     font-weight: 600;
     transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
-.tab-btn:hover {
-    border-color: #3b82f6;
-    color: #3b82f6;
-    background-color: #eff6ff;
+.tab-btn:hover:not(.active) {
+    border-color: rgba(21, 101, 192, 0.3);
+    color: #1565c0;
+    background: rgba(255, 255, 255, 0.2);
 }
 
 .tab-btn.active {
-    background-color: #3b82f6;
+    background: rgba(21, 101, 192, 0.8);
     color: white;
-    border-color: #3b82f6;
+    border-color: rgba(21, 101, 192, 0.6);
+    box-shadow: 0 2px 8px rgba(21, 101, 192, 0.3);
 }
 
 /* Matches Container */
 .matches-container {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-    gap: 20px;
+    grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+    gap: 25px;
     margin-bottom: 30px;
+    padding: 10px;
+    justify-items: center;
 }
 
 /* Match Card */
 .match-card {
-    background: white;
-    border: 2px solid #e0e0e0;
-    border-radius: 15px;
-    padding: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    padding: 25px;
     cursor: pointer;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    width: 100%;
+    max-width: 420px;
+    min-height: 180px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow: hidden;
 }
 
 .match-card:hover {
-    box-shadow: 0 8px 24px rgba(100, 181, 246, 0.4);
-    border-color: #64b5f6;
-    transform: translateY(-3px);
-    background: linear-gradient(135deg, rgba(100, 181, 246, 0.05) 0%, white 100%);
+    transform: translateY(-8px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+    border-color: rgba(21, 101, 192, 0.3);
 }
 
 .match-card-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
+    margin-bottom: 15px;
 }
 
 .match-status {
-    padding: 6px 15px;
-    border-radius: 20px;
-    font-size: 0.85em;
-    font-weight: 600;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-family: "Titillium Web", sans-serif;
+    font-size: 0.8em;
+    font-weight: 700;
     text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
 }
 
 .match-status.live {
-    background-color: #ff5252;
+    background: rgba(239, 68, 68, 0.9);
     color: white;
+    animation: pulse 2s infinite;
 }
 
 .match-status.upcoming {
-    background-color: #ffa726;
+    background: rgba(245, 158, 11, 0.9);
     color: white;
 }
 
 .match-status.complete {
-    background-color: #66bb6a;
+    background: rgba(16, 185, 129, 0.9);
     color: white;
 }
 
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+}
+
 .match-date-time {
-    font-size: 0.9em;
-    color: #666;
+    font-family: "Titillium Web", sans-serif;
+    font-size: 0.85em;
+    color: rgba(44, 62, 80, 0.8);
+    font-weight: 500;
 }
 
 .match-teams {
@@ -206,31 +276,40 @@ body {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 15px;
+    padding: 5px 0;
 }
 
 .team {
     flex: 1;
     text-align: center;
+    min-width: 0; /* Allows content to shrink */
 }
 
 .team-name {
-    font-size: 1.3em;
+    font-family: "Titillium Web", sans-serif;
+    font-size: 1.1em;
     font-weight: 700;
-    color: #333;
+    color: #2c3e50;
     margin-bottom: 8px;
+    line-height: 1.2;
+    word-wrap: break-word;
 }
 
 .team-score {
-    font-size: 2em;
-    font-weight: 700;
-    color: #64b5f6;
+    font-family: "Titillium Web", sans-serif;
+    font-size: 1.8em;
+    font-weight: 800;
+    color: #1565c0;
+    text-shadow: 0 2px 4px rgba(21, 101, 192, 0.2);
 }
 
 .vs {
-    font-size: 1.5em;
+    font-family: "Titillium Web", sans-serif;
+    font-size: 1.2em;
     font-weight: 700;
-    color: #64b5f6;
-    padding: 0 20px;
+    color: #1565c0;
+    padding: 0 15px;
+    opacity: 0.8;
 }
 
 /* Loading Spinner */
@@ -242,17 +321,25 @@ body {
 .spinner {
     width: 50px;
     height: 50px;
-    border: 5px solid #e0e0e0;
-    border-top: 5px solid #64b5f6;
+    border: 5px solid rgba(255, 255, 255, 0.2);
+    border-top: 5px solid #1565c0;
     border-radius: 50%;
     margin: 0 auto 20px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }
 
 .no-matches {
     text-align: center;
     padding: 50px;
+    font-family: "Titillium Web", sans-serif;
     font-size: 1.2em;
-    color: #999;
+    color: rgba(44, 62, 80, 0.6);
+    font-weight: 500;
 }
 
 /* ===========================
@@ -262,29 +349,37 @@ body {
 /* Back Button */
 .back-btn {
     padding: 10px 25px;
-    background-color: white;
-    border: 2px solid #64b5f6;
-    color: #64b5f6;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(21, 101, 192, 0.3);
+    color: #1565c0;
     border-radius: 25px;
+    font-family: "Titillium Web", sans-serif;
     font-size: 1em;
     font-weight: 600;
     cursor: pointer;
     margin-bottom: 20px;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
 }
 
 .back-btn:hover {
-    background-color: #64b5f6;
+    background: rgba(21, 101, 192, 0.8);
     color: white;
+    border-color: rgba(21, 101, 192, 0.6);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(21, 101, 192, 0.3);
 }
 
 /* Match Header */
 .match-header {
-    background: linear-gradient(135deg, #64b5f6 0%, #42a5f5 100%);
-    border-radius: 15px;
+    background: rgba(21, 101, 192, 0.15);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
     padding: 30px;
     margin-bottom: 30px;
-    box-shadow: 0 4px 6px rgba(100, 181, 246, 0.3);
-    color: white;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    color: #2c3e50;
 }
 
 .match-title {
@@ -295,28 +390,48 @@ body {
 }
 
 .colleges {
-    font-size: 2.5em;
+    font-family: "panchang", sans-serif;
+    font-size: 2.2em;
     font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    background: linear-gradient(
+        135deg,
+        #1a1a1a 0%,
+        #2c3e50 20%,
+        #34495e 40%,
+        #1565c0 60%,
+        #0d47a1 80%,
+        #0a1929 100%
+    );
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
 }
 
 .match-status-badge {
     padding: 8px 20px;
     border-radius: 25px;
+    font-family: "Titillium Web", sans-serif;
     font-size: 0.9em;
     font-weight: 600;
     text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .match-status-badge.live {
-    background-color: #ff5252;
+    background: rgba(239, 68, 68, 0.9);
+    color: white;
 }
 
 .match-status-badge.upcoming {
-    background-color: #ffa726;
+    background: rgba(245, 158, 11, 0.9);
+    color: white;
 }
 
 .match-status-badge.complete {
-    background-color: #66bb6a;
+    background: rgba(16, 185, 129, 0.9);
+    color: white;
 }
 
 .match-details-info {
@@ -324,6 +439,7 @@ body {
     justify-content: flex-start;
     flex-wrap: wrap;
     gap: 40px;
+    font-family: "Titillium Web", sans-serif;
     font-size: 1.1em;
 }
 
@@ -332,33 +448,39 @@ body {
     flex-direction: row;
     align-items: center;
     gap: 10px;
-    color: white;
+    color: #2c3e50;
 }
 
 .match-details-info strong {
     font-weight: 600;
     margin-bottom: 0;
-    opacity: 0.9;
+    opacity: 0.8;
 }
 
 .match-details-info span {
-    color: white;
+    color: #2c3e50;
     font-weight: 500;
 }
 
 /* Overall Score */
 .overall-score {
-    background: white;
-    border-radius: 15px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
     padding: 25px;
     margin-bottom: 30px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     text-align: center;
 }
 
 .overall-score h2 {
-    color: #64b5f6;
+    font-family: "panchang", sans-serif;
+    color: #1565c0;
     margin-bottom: 20px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
 .score-display-overall {
@@ -369,16 +491,17 @@ body {
 }
 
 .college-score {
+    font-family: "Titillium Web", sans-serif;
     font-size: 2.5em;
     font-weight: 700;
 }
 
 .college-score.winner {
-    color: #66bb6a;
+    color: #10b981;
 }
 
 .college-score.loser {
-    color: #999;
+    color: rgba(44, 62, 80, 0.5);
 }
 
 /* Submatches Container */
@@ -393,26 +516,34 @@ body {
 }
 
 .submatch-section h2 {
-    color: #64b5f6;
+    font-family: "panchang", sans-serif;
+    color: #1565c0;
     margin-bottom: 20px;
     font-size: 1.8em;
+    font-weight: 700;
     padding-bottom: 10px;
-    border-bottom: 3px solid #64b5f6;
+    border-bottom: 3px solid rgba(21, 101, 192, 0.3);
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
 /* Submatch Card */
 .submatch-card {
-    background: white;
-    border: 2px solid #e0e0e0;
-    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 16px;
     padding: 20px;
     margin-bottom: 15px;
     cursor: pointer;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
 }
 
 .submatch-card:hover {
-    box-shadow: 0 6px 12px rgba(100, 181, 246, 0.3);
-    border-color: #64b5f6;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    border-color: rgba(21, 101, 192, 0.3);
 }
 
 .submatch-header {
@@ -423,31 +554,34 @@ body {
 }
 
 .submatch-title {
+    font-family: "Titillium Web", sans-serif;
     font-size: 1.2em;
     font-weight: 700;
-    color: #333;
+    color: #2c3e50;
 }
 
 .submatch-status {
     padding: 5px 15px;
     border-radius: 15px;
+    font-family: "Titillium Web", sans-serif;
     font-size: 0.85em;
     font-weight: 600;
     text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .submatch-status.live {
-    background-color: #ff5252;
+    background: rgba(239, 68, 68, 0.9);
     color: white;
 }
 
 .submatch-status.upcoming {
-    background-color: #ffa726;
+    background: rgba(245, 158, 11, 0.9);
     color: white;
 }
 
 .submatch-status.complete {
-    background-color: #66bb6a;
+    background: rgba(16, 185, 129, 0.9);
     color: white;
 }
 
@@ -467,32 +601,35 @@ body {
 }
 
 .player-row .player-name {
+    font-family: "Titillium Web", sans-serif;
     font-size: 1.05em;
     font-weight: 600;
-    color: #333;
+    color: #2c3e50;
     flex: 1;
 }
 
 .player-row .player-name.winner {
-    color: #66bb6a;
+    color: #10b981;
     font-weight: 700;
 }
 
 .player-row .player-score {
+    font-family: "Titillium Web", sans-serif;
     font-size: 1.8em;
     font-weight: 700;
-    color: #64b5f6;
+    color: #1565c0;
     min-width: 40px;
     text-align: right;
 }
 
 .winner-announcement {
-    color: #4caf50;
+    color: #10b981;
     padding: 8px 0;
+    font-family: "Titillium Web", sans-serif;
     font-size: 0.95em;
     font-weight: 700;
     text-align: center;
-    text-shadow: 0 2px 4px rgba(76, 175, 80, 0.3);
+    text-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);
     margin-top: 5px;
 }
 
@@ -509,25 +646,28 @@ body {
 }
 
 .player-name {
+    font-family: "Titillium Web", sans-serif;
     font-size: 1.1em;
     font-weight: 600;
-    color: #333;
+    color: #2c3e50;
 }
 
 .player-name.winner {
-    color: #66bb6a;
+    color: #10b981;
 }
 
 .submatch-score {
+    font-family: "Titillium Web", sans-serif;
     font-size: 1.5em;
     font-weight: 700;
-    color: #64b5f6;
+    color: #1565c0;
     padding: 0 20px;
 }
 
 .court-info {
+    font-family: "Titillium Web", sans-serif;
     font-size: 0.9em;
-    color: #555;
+    color: rgba(44, 62, 80, 0.7);
     margin-top: 10px;
     font-weight: 500;
 }
@@ -538,31 +678,55 @@ body {
 
 /* Match Info Header */
 .match-info {
-    background: linear-gradient(135deg, #1e3a5f 0%, #2c5282 100%);
-    border-radius: 15px;
+    background: rgba(21, 101, 192, 0.15);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
     padding: 40px;
     margin-bottom: 30px;
-    color: white;
+    color: #2c3e50;
     text-align: center;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
 .match-info h1 {
+    font-family: "panchang", sans-serif;
     font-size: 2em;
     margin-bottom: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    background: linear-gradient(
+        135deg,
+        #1a1a1a 0%,
+        #2c3e50 20%,
+        #34495e 40%,
+        #1565c0 60%,
+        #0d47a1 80%,
+        #0a1929 100%
+    );
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
 }
 
 .match-type {
+    font-family: "Titillium Web", sans-serif;
     font-size: 1.2em;
-    color: #e0e0e0;
+    color: rgba(44, 62, 80, 0.8);
+    font-weight: 500;
 }
 
 /* Score Section */
 .score-section {
-    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-    border-radius: 15px;
+    background: rgba(21, 101, 192, 0.15);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
     padding: 40px;
     margin-bottom: 20px;
-    color: white;
+    color: #2c3e50;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
 .players-score {

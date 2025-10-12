@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="/css/homepage.css">
+</head>
+<body>
+    
+
+    <nav>
+        <div class="left_nav">
+            <img src="https://imgs.search.brave.com/5X28Tn65XcL0ddmlHA2cD4Hid5szvXvdXcpCcP0SiN0/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly91cGxv/YWQud2lraW1lZGlh/Lm9yZy93aWtpcGVk/aWEvY29tbW9ucy8w/LzAwL1BDQ09FLUxv/Z28tMjQucG5n" alt="">
+            <h3>Shuttle showdown</h3>
+        </div>
+
+        <div class="right_nav">
+            <button id="loginBtn">Log<button>LogOut</button>
+        </div>
+    </nav>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal">
+        <div class="modal_overlay"></div>
+        <div class="modal_content">
+            <div class="modal_header">
+                <h2>Login to Shuttle Showdown</h2>
+                <button class="close_btn" id="closeModal">&times;</button>
+            </div>
+            
+            <div class="login_tabs">
+                <button class="tab_btn active" data-tab="player">Player</button>
+                <button class="tab_btn" data-tab="referee">Referee</button>
+            </div>
+            
+            <div class="login_form_container">
+                <form class="login_form" id="playerForm">
+                    <div class="form_group">
+                        <label for="playerEmail">Email</label>
+                        <input type="email" id="playerEmail" name="email" placeholder="Enter your email" required>
+                    </div>
+                    
+                    <div class="form_group">
+                        <label for="playerPassword">Password</label>
+                        <input type="password" id="playerPassword" name="password" placeholder="Enter your password" required>
+                    </div>
+                    
+                    <button type="submit" class="submit_btn">Login as Player</button>
+                </form>
+                
+                <form class="login_form hidden" id="refereeForm">
+                    <div class="form_group">
+                        <label for="refereeEmail">Email</label>
+                        <input type="email" id="refereeEmail" name="email" placeholder="Enter your email" required>
+                    </div>
+                    
+                    <div class="form_group">
+                        <label for="refereePassword">Password</label>
+                        <input type="password" id="refereePassword" name="password" placeholder="Enter your password" required>
+                    </div>
+                    
+                    <button type="submit" class="submit_btn">Login as Referee</button>
+                </form>
+            </div>
+            
+        </div>
+    </div>
+
+
+    <div id="hero_section">
+        <div class="hero_left">
+            <h1>SHUTTLE SHOWDOWN</h1>
+            <p>Join the most exciting badminton competition of the year on September 28-29 at PCCOE Badminton Hall. Show your skills, compete with the best, and win amazing prizes!</p>
+            <button>Matches</button>
+        </div>
+        
+        <div class="hero_right">
+            <div class="svg_container">
+                <!-- SVG image of person playing badminton will go here -->
+                <svg width="400" height="400" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Placeholder for badminton player SVG -->
+                    <circle cx="200" cy="200" r="150" fill="#e0e0e0" opacity="0.3"/>
+                    <text x="200" y="200" text-anchor="middle" fill="#666" font-size="16">Badminton Player SVG</text>
+                </svg>
+            </div>
+        </div>
+    </div>
+
+
+    <section id="live_section">
+        <div class="section_bg_element"></div>
+        <div class="live_heading">
+            <h1>Live Matches</h1>
+        </div>
+        
+        <div class="match_cards_container">
+            <div class="match_card">
+                <div class="card_bg_image"></div>
+                <h2>Team Thunder vs Team Lightning</h2>
+                <div class="card_bottom">
+                    <div class="live_score">
+                        <span class="score">15-12</span>
+                        <span class="live_indicator">LIVE</span>
+                    </div>
+                    <button class="watch_btn">Watch Live</button>
+                </div>
+            </div>
+
+            <div class="match_card">
+                <div class="card_bg_image"></div>
+                <h2>Team Eagles vs Team Hawks</h2>
+                <div class="card_bottom">
+                    <div class="live_score">
+                        <span class="score">21-18</span>
+                        <span class="live_indicator">LIVE</span>
+                    </div>
+                    <button class="watch_btn">Watch Live</button>
+                </div>
+            </div>
+
+            <div class="match_card">
+                <div class="card_bg_image"></div>
+                <h2>Team Smash vs Team Rally</h2>
+                <div class="card_bottom">
+                    <div class="live_score">
+                        <span class="score">8-11</span>
+                        <span class="live_indicator">LIVE</span>
+                    </div>
+                    <button class="watch_btn">Watch Live</button>
+                </div>
+            </div>
+
+            <div class="match_card">
+                <div class="card_bg_image"></div>
+                <h2>Team Ace vs Team Strike</h2>
+                <div class="card_bottom">
+                    <div class="live_score">
+                        <span class="score">19-16</span>
+                        <span class="live_indicator">LIVE</span>
+                    </div>
+                    <button class="watch_btn">Watch Live</button>
+                </div>
+            </div>
+
+            <div class="match_card">
+                <div class="card_bg_image"></div>
+                <h2>Team Shuttle vs Team Court</h2>
+                <div class="card_bottom">
+                    <div class="live_score">
+                        <span class="score">12-9</span>
+                        <span class="live_indicator">LIVE</span>
+                    </div>
+                    <button class="watch_btn">Watch Live</button>
+                </div>
+            </div>
+
+            <div class="match_card">
+                <div class="card_bg_image"></div>
+                <h2>Team Flash vs Team Bolt</h2>
+                <div class="card_bottom">
+                    <div class="live_score">
+                        <span class="score">14-13</span>
+                        <span class="live_indicator">LIVE</span>
+                    </div>
+                    <button class="watch_btn">Watch Live</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    
+
+    <footer class="footer">
+        <div class="footer_container">
+            <div class="footer_top">
+                <div class="footer_section">
+                    <h3>Shuttle Showdown</h3>
+                    <p>The premier badminton competition bringing together the best players for an unforgettable tournament experience.</p>
+                </div>
+                
+                <div class="footer_section">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="#hero_section">Home</a></li>
+                        <li><a href="#live_section">Live Matches</a></li>
+                        <li><a href="#">Register</a></li>
+                        <li><a href="#">Results</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer_section">
+                    <h4>Contact Info</h4>
+                    <ul>
+                        <li>PCCOE Badminton Hall</li>
+                        <li>Pune, Maharashtra</li>
+                        <li>Email: info@shuttleshowdown.com</li>
+                        <li>Phone: +91 98765 43210</li>
+                    </ul>
+                </div>
+
+                <div class="footer_section">
+                    <h4>Follow Us</h4>
+                    <div class="social_links">
+                        <a href="#">Instagram</a>
+                        <a href="#">Twitter</a>
+                        <a href="#">Facebook</a>
+                        <a href="#">YouTube</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer_bottom">
+                <div class="footer_bottom_content">
+                    <p>&copy; 2025 Shuttle Showdown. All rights reserved.</p>
+                    <div class="footer_links">
+                        <a href="#">Privacy Policy</a>
+                        <a href="#">Terms of Service</a>
+                        <a href="#">Cookie Policy</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="./scripts.js"></script>
+</body>
+</html>

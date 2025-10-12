@@ -2,24 +2,36 @@
    MODERN MATCH DETAIL PAGE STYLES
    =========================== */
 
+@font-face {
+    font-family: 'font1';
+    src: url("../fonts/BwGradualDEMO-Medium.otf") format("opentype");
+}
+
+@font-face {
+    font-family: "panchang";
+    src: url("../fonts/Panchang-Variable.ttf");
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Titillium+Web:ital,wght@0,200;0,300;0,400;0,600;0,700;0,900;1,200;1,300;1,400;1,600;1,700&display=swap');
+
 :root {
-    --primary-color: #2563eb;
-    --primary-dark: #1e40af;
+    --primary-color: #1565c0;
+    --primary-dark: #0d47a1;
     --primary-light: #3b82f6;
     --secondary-color: #10b981;
     --accent-color: #f59e0b;
     --danger-color: #ef4444;
-    --text-primary: #1f2937;
-    --text-secondary: #6b7280;
-    --text-light: #9ca3af;
-    --bg-primary: #ffffff;
-    --bg-secondary: #f9fafb;
-    --bg-tertiary: #f3f4f6;
-    --border-color: #e5e7eb;
-    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    --text-primary: #2c3e50;
+    --text-secondary: rgba(44, 62, 80, 0.7);
+    --text-light: rgba(44, 62, 80, 0.5);
+    --bg-primary: rgba(255, 255, 255, 0.1);
+    --bg-secondary: rgba(255, 255, 255, 0.05);
+    --bg-tertiary: rgba(255, 255, 255, 0.15);
+    --border-color: rgba(255, 255, 255, 0.2);
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 15px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 8px 25px rgba(0, 0, 0, 0.15);
+    --shadow-xl: 0 15px 35px rgba(0, 0, 0, 0.2);
     --radius-sm: 8px;
     --radius-md: 12px;
     --radius-lg: 16px;
@@ -33,11 +45,19 @@
 }
 
 body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background: linear-gradient(135deg, #f5f7fa 0%, #e4e9f2 100%);
+    font-family: "Titillium Web", sans-serif;
+    background-color: #e3f2fd;
     color: var(--text-primary);
     line-height: 1.6;
     min-height: 100vh;
+    overflow-x: hidden;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+body::-webkit-scrollbar {
+    display: none;
 }
 
 /* ===========================
@@ -45,7 +65,8 @@ body {
    =========================== */
 .navbar {
     background: var(--bg-primary);
-    box-shadow: var(--shadow-sm);
+    backdrop-filter: blur(15px);
+    box-shadow: var(--shadow-md);
     position: sticky;
     top: 0;
     z-index: 100;
@@ -65,9 +86,12 @@ body {
     display: flex;
     align-items: center;
     gap: 0.75rem;
+    font-family: "panchang", sans-serif;
     font-weight: 700;
     font-size: 1.25rem;
     color: var(--text-primary);
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
 .brand-icon {
@@ -88,20 +112,23 @@ body {
     gap: 0.5rem;
     padding: 0.625rem 1.25rem;
     background: var(--bg-secondary);
+    backdrop-filter: blur(10px);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-md);
     color: var(--text-secondary);
+    font-family: "Titillium Web", sans-serif;
     font-weight: 500;
     font-size: 0.9375rem;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.3s ease;
 }
 
 .nav-back-btn:hover {
     background: var(--primary-color);
     color: white;
     border-color: var(--primary-color);
-    transform: translateX(-4px);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(21, 101, 192, 0.3);
 }
 
 /* ===========================
@@ -117,11 +144,13 @@ body {
    MATCH HEADER SECTION
    =========================== */
 .match-header-section {
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+    background: rgba(21, 101, 192, 0.15);
+    backdrop-filter: blur(15px);
+    border: 1px solid var(--border-color);
     border-radius: var(--radius-xl);
     padding: 3rem;
     margin-bottom: 2rem;
-    box-shadow: var(--shadow-xl);
+    box-shadow: var(--shadow-lg);
     position: relative;
     overflow: hidden;
 }
@@ -133,7 +162,7 @@ body {
     right: 0;
     width: 300px;
     height: 300px;
-    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(21, 101, 192, 0.1) 0%, transparent 70%);
     border-radius: 50%;
     transform: translate(30%, -30%);
 }
@@ -149,19 +178,23 @@ body {
     gap: 0.5rem;
     background: rgba(255, 255, 255, 0.15);
     backdrop-filter: blur(10px);
+    border: 1px solid var(--border-color);
     padding: 0.5rem 1rem;
     border-radius: var(--radius-lg);
-    color: white;
+    color: var(--text-primary);
+    font-family: "Titillium Web", sans-serif;
     font-size: 0.875rem;
     font-weight: 600;
     margin-bottom: 1.5rem;
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .match-title {
-    font-size: 3rem;
+    font-family: "panchang", sans-serif;
+    font-size: 2.5rem;
     font-weight: 800;
-    color: white;
+    color: var(--text-primary);
     margin-bottom: 1.5rem;
     display: flex;
     align-items: center;
@@ -169,20 +202,44 @@ body {
     gap: 1.5rem;
     flex-wrap: wrap;
     text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    background: linear-gradient(
+        135deg,
+        #1a1a1a 0%,
+        #2c3e50 20%,
+        #34495e 40%,
+        #1565c0 60%,
+        #0d47a1 80%,
+        #0a1929 100%
+    );
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
 }
 
 .team-name {
-    background: linear-gradient(135deg, #ffffff 0%, #e0e7ff 100%);
+    font-family: "panchang", sans-serif;
+    background: linear-gradient(
+        135deg,
+        #1a1a1a 0%,
+        #2c3e50 20%,
+        #34495e 40%,
+        #1565c0 60%,
+        #0d47a1 80%,
+        #0a1929 100%
+    );
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    text-shadow: 0 2px 10px rgba(0,0,0,0.1);
 }
 
 .vs-text {
-    font-size: 2rem;
+    font-family: "panchang", sans-serif;
+    font-size: 1.5rem;
     opacity: 0.7;
     font-weight: 600;
+    color: var(--text-secondary);
 }
 
 .match-meta-info {
@@ -200,10 +257,11 @@ body {
     background: rgba(255, 255, 255, 0.15);
     backdrop-filter: blur(10px);
     border-radius: var(--radius-md);
-    color: white;
+    color: var(--text-primary);
+    font-family: "Titillium Web", sans-serif;
     font-size: 1rem;
     font-weight: 500;
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid var(--border-color);
 }
 
 .status-badge {
@@ -232,6 +290,7 @@ body {
    =========================== */
 .overall-score-card {
     background: var(--bg-primary);
+    backdrop-filter: blur(15px);
     border-radius: var(--radius-xl);
     padding: 2.5rem;
     margin-bottom: 2rem;
@@ -240,6 +299,7 @@ body {
 }
 
 .section-title {
+    font-family: "panchang", sans-serif;
     font-size: 1.5rem;
     font-weight: 700;
     color: var(--text-primary);
@@ -247,6 +307,8 @@ body {
     display: flex;
     align-items: center;
     gap: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
 .score-display-wrapper {
@@ -259,10 +321,11 @@ body {
 .team-score-card {
     text-align: center;
     padding: 2rem;
-    background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
+    background: var(--bg-secondary);
+    backdrop-filter: blur(10px);
     border-radius: var(--radius-lg);
     transition: all 0.3s ease;
-    border: 2px solid transparent;
+    border: 1px solid var(--border-color);
 }
 
 .team-score-card:hover {
@@ -289,6 +352,7 @@ body {
 }
 
 .team-display-name {
+    font-family: "Titillium Web", sans-serif;
     font-size: 1.25rem;
     font-weight: 700;
     color: var(--text-primary);
@@ -296,6 +360,7 @@ body {
 }
 
 .score-number {
+    font-family: "panchang", sans-serif;
     font-size: 4rem;
     font-weight: 800;
     background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
@@ -307,6 +372,7 @@ body {
 }
 
 .score-label {
+    font-family: "Titillium Web", sans-serif;
     font-size: 0.875rem;
     color: var(--text-secondary);
     font-weight: 500;
@@ -332,6 +398,7 @@ body {
     color: white;
     padding: 0.625rem 1.25rem;
     border-radius: var(--radius-lg);
+    font-family: "Titillium Web", sans-serif;
     font-weight: 700;
     font-size: 1.125rem;
     box-shadow: var(--shadow-md);
@@ -342,6 +409,7 @@ body {
    =========================== */
 .info-card {
     background: var(--bg-primary);
+    backdrop-filter: blur(15px);
     border-radius: var(--radius-lg);
     padding: 1.5rem;
     margin-bottom: 2rem;
@@ -350,12 +418,13 @@ body {
     display: flex;
     align-items: center;
     gap: 1rem;
-    transition: all 0.2s ease;
+    transition: all 0.3s ease;
 }
 
 .info-card:hover {
     box-shadow: var(--shadow-md);
-    transform: translateY(-2px);
+    transform: translateY(-4px);
+    border-color: var(--primary-light);
 }
 
 .info-icon {
@@ -377,6 +446,7 @@ body {
 }
 
 .info-label {
+    font-family: "Titillium Web", sans-serif;
     font-size: 0.875rem;
     color: var(--text-secondary);
     font-weight: 500;
@@ -385,6 +455,7 @@ body {
 }
 
 .info-value {
+    font-family: "Titillium Web", sans-serif;
     font-size: 1.125rem;
     color: var(--text-primary);
     font-weight: 600;
@@ -395,6 +466,7 @@ body {
    =========================== */
 .submatches-section {
     background: var(--bg-primary);
+    backdrop-filter: blur(15px);
     border-radius: var(--radius-xl);
     padding: 2.5rem;
     box-shadow: var(--shadow-lg);
@@ -409,8 +481,10 @@ body {
 
 .section-subtitle {
     color: var(--text-secondary);
+    font-family: "Titillium Web", sans-serif;
     font-size: 0.9375rem;
     margin-top: 0.5rem;
+    font-weight: 500;
 }
 
 .matches-grid {
@@ -423,8 +497,9 @@ body {
    MATCH ITEM CARDS
    =========================== */
 .match-item {
-    background: linear-gradient(135deg, var(--bg-secondary) 0%, white 100%);
-    border: 2px solid var(--border-color);
+    background: var(--bg-secondary);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--border-color);
     border-radius: var(--radius-lg);
     padding: 1.5rem;
     cursor: pointer;
@@ -446,7 +521,7 @@ body {
 }
 
 .match-item:hover {
-    transform: translateY(-4px) scale(1.02);
+    transform: translateY(-6px);
     box-shadow: var(--shadow-xl);
     border-color: var(--primary-light);
 }
@@ -463,6 +538,7 @@ body {
 }
 
 .match-type {
+    font-family: "Titillium Web", sans-serif;
     font-weight: 700;
     font-size: 1.125rem;
     background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
@@ -477,6 +553,7 @@ body {
 .match-item-status {
     padding: 0.375rem 0.875rem;
     border-radius: var(--radius-md);
+    font-family: "Titillium Web", sans-serif;
     font-size: 0.75rem;
     font-weight: 700;
     text-transform: uppercase;
@@ -484,28 +561,28 @@ body {
 }
 
 .match-item-status.live {
-    background: linear-gradient(135deg, var(--secondary-color) 0%, #059669 100%);
+    background: rgba(239, 68, 68, 0.9);
     color: white;
-    box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+    box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1);
     animation: statusPulse 2s infinite;
 }
 
 .match-item-status.complete {
-    background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+    background: rgba(16, 185, 129, 0.9);
     color: white;
 }
 
 .match-item-status.upcoming {
-    background: linear-gradient(135deg, var(--accent-color) 0%, #ea580c 100%);
+    background: rgba(245, 158, 11, 0.9);
     color: white;
 }
 
 @keyframes statusPulse {
     0%, 100% {
-        box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+        box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1);
     }
     50% {
-        box-shadow: 0 0 0 8px rgba(16, 185, 129, 0.15);
+        box-shadow: 0 0 0 8px rgba(239, 68, 68, 0.15);
     }
 }
 
@@ -514,12 +591,15 @@ body {
     justify-content: space-between;
     align-items: center;
     padding: 1rem;
-    background: white;
+    background: var(--bg-tertiary);
+    backdrop-filter: blur(10px);
     border-radius: var(--radius-md);
     margin-bottom: 1rem;
+    border: 1px solid var(--border-color);
 }
 
 .player-name {
+    font-family: "Titillium Web", sans-serif;
     font-weight: 600;
     color: var(--text-primary);
     font-size: 1rem;
@@ -527,6 +607,7 @@ body {
 
 .vs-text {
     color: var(--text-light);
+    font-family: "Titillium Web", sans-serif;
     font-weight: 700;
     font-size: 0.875rem;
     padding: 0.25rem 0.75rem;
@@ -538,6 +619,7 @@ body {
     margin-top: 0.75rem;
     padding-top: 0.75rem;
     border-top: 1px solid var(--border-color);
+    font-family: "Titillium Web", sans-serif;
     font-size: 0.9375rem;
     font-weight: 600;
     color: var(--text-secondary);
@@ -557,7 +639,7 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(255, 255, 255, 0.95);
+    background: rgba(227, 242, 253, 0.95);
     backdrop-filter: blur(10px);
     display: none;
     align-items: center;
@@ -577,7 +659,7 @@ body {
     width: 60px;
     height: 60px;
     margin: 0 auto 1.5rem;
-    border: 4px solid var(--bg-tertiary);
+    border: 4px solid var(--border-color);
     border-top: 4px solid var(--primary-color);
     border-radius: 50%;
     animation: spin 1s cubic-bezier(0.68, -0.55, 0.27, 1.55) infinite;
@@ -590,6 +672,7 @@ body {
 
 .loading-text {
     color: var(--text-secondary);
+    font-family: "Titillium Web", sans-serif;
     font-size: 1rem;
     font-weight: 500;
 }
@@ -625,6 +708,8 @@ body {
 
 .modal-container {
     background: var(--bg-primary);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--border-color);
     border-radius: var(--radius-xl);
     width: 100%;
     max-width: 900px;
@@ -653,19 +738,21 @@ body {
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    border: none;
+    border: 1px solid var(--border-color);
     background: var(--bg-tertiary);
+    backdrop-filter: blur(10px);
     color: var(--text-secondary);
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.2s ease;
+    transition: all 0.3s ease;
     z-index: 10;
 }
 
 .modal-close-btn:hover {
     background: var(--danger-color);
+    border-color: var(--danger-color);
     color: white;
     transform: rotate(90deg);
 }

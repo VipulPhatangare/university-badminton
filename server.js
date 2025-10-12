@@ -48,7 +48,7 @@ app.use('/api/team', teamRoutes);
 app.use('/team', teamRoutes);
 
 app.get('/', (req, res)=>{
-  res.render('index');
+  res.render('homepage');
 });
 
 app.get('/matches', (req, res)=>{
