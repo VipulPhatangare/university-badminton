@@ -1,0 +1,3295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Badminton Tournament</title>
+    <link rel="icon" type="image/png" href="/assets/badminton-shuttle-1000x1000-removebg-preview.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Enhanced CSS with new color scheme and animations */
+        :root {
+            --primary-red: #B22222;
+            --dark-red: #8B0000;
+            --light-red: #DC143C;
+            --crimson: #DC143C;
+            --burgundy: #800020;
+            --white: #ffffff;
+            --light-gray: #f8f9fa;
+            --gray: #6c757d;
+            --dark-gray: #343a40;
+            --black: #000000;
+            --accent-gold: #FFD700;
+            --accent-orange: #ff6600;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --shadow-light: 0 2px 10px rgba(178, 34, 34, 0.1);
+            --shadow-medium: 0 4px 20px rgba(178, 34, 34, 0.15);
+            --shadow-heavy: 0 8px 30px rgba(178, 34, 34, 0.25);
+            --gradient-red: linear-gradient(135deg, #B22222 0%, #DC143C 50%, #8B0000 100%);
+            --gradient-dark: linear-gradient(135deg, #8B0000 0%, #B22222 50%, #800020 100%);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-fast: all 0.2s ease;
+            --border-radius: 12px;
+            --border-radius-lg: 20px;
+            
+            /* Additional variables for layout */
+            --sidebar-width: 250px;
+            --header-height: 70px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--light-gray);
+            color: var(--dark-gray);
+            line-height: 1.6;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--gradient-dark);
+            color: var(--white);
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            transition: var(--transition);
+            z-index: 1000;
+            left: 0;
+            box-shadow: var(--shadow-medium);
+        }
+
+        .main-content {
+            margin-left: var(--sidebar-width);
+            width: calc(100% - var(--sidebar-width));
+            transition: var(--transition);
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                left: -250px;
+            }
+            .sidebar.active {
+                left: 0;
+            }
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+            }
+            .main-content.sidebar-active {
+                margin-left: var(--sidebar-width);
+            }
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-header .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+
+        .logo i {
+            margin-right: 10px;
+            color: var(--accent-gold);
+            animation: pulse 2s infinite;
+        }
+
+        .sidebar-menu {
+            padding: 20px 0;
+        }
+
+        .menu-item {
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: var(--transition);
+            border-left: 4px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .menu-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: var(--transition);
+        }
+
+        .menu-item:hover::before {
+            left: 100%;
+        }
+
+        .menu-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            transform: translateX(5px);
+        }
+
+        .menu-item.active {
+            background-color: rgba(255, 255, 255, 0.15);
+            border-left-color: var(--accent-gold);
+        }
+
+        .menu-item i {
+            margin-right: 15px;
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Main Content */
+        .main-content {
+            position: relative;
+        }
+
+        /* Header */
+        .header {
+            background: var(--gradient-red);
+            height: var(--header-height);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+            box-shadow: var(--shadow-medium);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            flex-wrap: nowrap;
+            color: var(--white);
+        }
+
+        .page-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--accent-gold);
+            color: var(--dark-red);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .user-avatar:hover {
+            transform: scale(1.1);
+        }
+
+        /* Content Area */
+        .content {
+            padding: 30px;
+        }
+
+        /* Section Styles */
+        .section {
+            background-color: var(--white);
+            border-radius: var(--border-radius);
+            padding: 25px;
+            box-shadow: var(--shadow-light);
+            margin-bottom: 30px;
+            transition: var(--transition);
+        }
+
+        .section:hover {
+            box-shadow: var(--shadow-medium);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            color: var(--primary-red);
+            font-weight: 600;
+        }
+
+        .section-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-red);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--dark-red);
+            transform: translateY(-2px);
+        }
+
+        /* Search Box */
+        .search-box {
+            position: relative;
+            margin-left: auto;
+        }
+
+        .search-box input {
+            padding: 8px 12px 8px 35px;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        .search-box .search-icon {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray);
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--primary-red);
+            box-shadow: 0 0 0 3px rgba(178, 34, 34, 0.1);
+        }
+
+        /* Match Cards */
+        .match-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .match-card {
+            background-color: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-light);
+            overflow: hidden;
+            transition: var(--transition);
+            cursor: pointer;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .match-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .match-card-header {
+            background: var(--gradient-red);
+            color: var(--white);
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .match-number {
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        .match-round {
+            background-color: var(--accent-gold);
+            color: var(--dark-red);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .match-card-body {
+            padding: 15px;
+        }
+
+        .match-teams {
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .team {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: var(--dark-gray);
+        }
+
+        .vs-text {
+            font-size: 1.5rem;
+            color: var(--primary-red);
+            font-weight: 700;
+            margin: 10px 0;
+        }
+
+        .match-details {
+            display: flex;
+            justify-content: space-between;
+            color: var(--gray);
+            font-size: 0.9rem;
+            border-top: 1px solid #eee;
+            padding-top: 10px;
+        }
+
+        .match-info {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .logout-btn {
+            background-color: var(--danger);
+            color: var(--white);
+            border: none;
+            padding: 10px 20px;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+            margin-top: 20px;
+            width: calc(100% - 40px);
+            margin-left: 20px;
+            margin-right: 20px;
+            justify-content: center;
+            box-shadow: var(--shadow-light);
+        }
+
+        .logout-btn:hover {
+            background-color: #c82333;
+            transform: translateY(-2px);
+        }
+
+        /* Toggle for mobile sidebar */
+        .menu-toggle {
+            display: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            margin-left: auto;
+            transition: var(--transition);
+        }
+
+        .menu-toggle:hover {
+            color: var(--accent-gold);
+        }
+
+        @media (max-width: 768px) {
+            .menu-toggle {
+                display: block;
+                order: 2;
+                position: absolute;
+                right: 20px;
+            }
+            .header {
+                justify-content: center;
+                position: relative;
+            }
+            .page-title {
+                order: 1;
+                text-align: center;
+            }
+            .header-actions {
+                order: 3;
+            }
+            .sidebar {
+                left: -250px;
+            }
+            .sidebar.active {
+                left: 0;
+            }
+            
+            .match-cards {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Overlay for when sidebar is open */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            display: none;
+        }
+
+        .overlay.active {
+            display: block;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        /* Badminton shuttlecock icon animation */
+        .shuttlecock {
+            display: inline-block;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+
+        /* No matches message */
+        .no-matches {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--gray);
+        }
+
+        .no-matches i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: var(--primary-red);
+            opacity: 0.5;
+        }
+
+        .no-matches h3 {
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+
+        /* Admin Dashboard Specific Styles */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: var(--gradient-red);
+            color: var(--white);
+            padding: 25px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-medium);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            transition: var(--transition);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-heavy);
+        }
+
+        .stat-icon {
+            font-size: 2.5rem;
+            opacity: 0.8;
+        }
+
+        .stat-content h3 {
+            font-size: 2rem;
+            margin-bottom: 5px;
+            font-weight: 700;
+        }
+
+        .stat-content p {
+            opacity: 0.9;
+            font-size: 1rem;
+        }
+
+        /* Match Setup Styles */
+        .matches-section {
+            margin-bottom: 30px;
+        }
+
+        .section-info {
+            margin-bottom: 25px;
+        }
+
+        .setup-match-card {
+            background: var(--white);
+            border-radius: var(--border-radius-lg);
+            padding: 25px;
+            box-shadow: var(--shadow-medium);
+            transition: var(--transition);
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+
+        .setup-match-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-heavy);
+            border-color: var(--primary-red);
+        }
+
+        .setup-match-card.needs-setup {
+            border-left: 4px solid var(--warning);
+            background: linear-gradient(135deg, #fff 0%, #fff9e6 100%);
+        }
+
+        .setup-match-card.configured {
+            border-left: 4px solid var(--success);
+            background: linear-gradient(135deg, #fff 0%, #f0fff0 100%);
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        .setup-match-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--light-gray);
+        }
+
+        .setup-match-header h3 {
+            color: var(--dark-gray);
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .setup-match-status {
+            padding: 8px 15px;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-needs-setup {
+            background: linear-gradient(135deg, #ffc107, #ffb300);
+            color: white;
+        }
+
+        .status-configured {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+        }
+
+        .setup-match-info {
+            margin-bottom: 20px;
+        }
+
+        .setup-match-info p {
+            margin: 8px 0;
+            color: var(--gray);
+            font-weight: 500;
+        }
+
+        .setup-match-info strong {
+            color: var(--dark-gray);
+            font-weight: 700;
+        }
+
+        .setup-match-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .loading-card {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 60px 20px;
+            background: var(--white);
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow-light);
+        }
+
+        .loading-card i {
+            font-size: 3rem;
+            color: var(--primary-red);
+            margin-bottom: 20px;
+        }
+
+        .loading-card h3 {
+            color: var(--dark-gray);
+            margin-bottom: 10px;
+        }
+
+        .no-matches-card {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 60px 20px;
+            background: var(--light-gray);
+            border-radius: var(--border-radius-lg);
+            border: 2px dashed var(--gray);
+        }
+
+        /* Player Assignment Styles */
+        .progress-indicator {
+            display: flex;
+            justify-content: center;
+            margin: 30px 0;
+        }
+
+        .progress-step {
+            padding: 10px 20px;
+            margin: 0 5px;
+            border-radius: 20px;
+            background: #e9ecef;
+            color: #6c757d;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .progress-step.active {
+            background: var(--primary-red);
+            color: white;
+        }
+
+        .player-assignment-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            border: 1px solid #e9ecef;
+        }
+
+        .player-assignment-section h5 {
+            color: var(--primary-red);
+            margin-bottom: 15px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .team-selection {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .doubles-selection {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .team-section {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+
+        .team-section h6 {
+            color: var(--dark-gray);
+            margin-bottom: 10px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .doubles-players {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .vs-divider {
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: var(--primary-red);
+            background: white;
+            padding: 10px 15px;
+            border-radius: 20px;
+            border: 2px solid var(--primary-red);
+            text-align: center;
+        }
+
+        .player-select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+
+        .player-select:focus {
+            outline: none;
+            border-color: var(--primary-red);
+            box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.1);
+        }
+
+        .no-matches-card i {
+            font-size: 4rem;
+            color: var(--gray);
+            margin-bottom: 20px;
+        }
+
+        .no-matches-card h3 {
+            color: var(--dark-gray);
+            margin-bottom: 10px;
+        }
+
+        .match-selection {
+            background: var(--light-gray);
+            padding: 20px;
+            border-radius: var(--border-radius);
+            margin-bottom: 30px;
+        }
+
+        .match-selection label {
+            font-weight: 600;
+            color: var(--dark-gray);
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .matches-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 25px;
+            margin: 30px 0;
+        }
+
+        .match-config-card {
+            background: var(--white);
+            border-radius: var(--border-radius);
+            padding: 25px;
+            box-shadow: var(--shadow-light);
+            border: 2px solid transparent;
+            transition: var(--transition);
+        }
+
+        .match-config-card:hover {
+            border-color: var(--primary-red);
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .match-config-card h4 {
+            color: var(--primary-red);
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--light-gray);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .config-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .config-item {
+            margin-bottom: 15px;
+        }
+
+        .config-item label {
+            display: block;
+            font-weight: 600;
+            color: var(--dark-gray);
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            transition: var(--transition);
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-red);
+            box-shadow: 0 0 0 3px rgba(178, 34, 34, 0.1);
+        }
+
+        .referee-select {
+            background: linear-gradient(45deg, #fff 0%, #f8f9fa 100%);
+        }
+
+        .setup-actions {
+            text-align: center;
+            margin: 30px 0;
+            padding: 20px;
+            background: var(--light-gray);
+            border-radius: var(--border-radius);
+        }
+
+        .setup-actions .btn {
+            margin: 0 10px;
+            padding: 12px 25px;
+            font-size: 1rem;
+        }
+
+        .setup-header {
+            background: var(--gradient-red);
+            color: var(--white);
+            padding: 20px;
+            border-radius: var(--border-radius);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .setup-header h3 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+
+        .assigned-referees-section {
+            background: var(--light-gray);
+            padding: 20px;
+            border-radius: var(--border-radius);
+            margin-top: 30px;
+        }
+
+        .assigned-referees-section h4 {
+            color: var(--primary-red);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .referees-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .referee-badge {
+            background: var(--primary-red);
+            color: var(--white);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        /* Table Styles */
+        .table-container {
+            overflow-x: auto;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-light);
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--white);
+        }
+
+        .data-table thead {
+            background: var(--gradient-red);
+            color: var(--white);
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 15px 12px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .data-table th {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .data-table tbody tr {
+            transition: var(--transition);
+        }
+
+        .data-table tbody tr:hover {
+            background: var(--light-gray);
+        }
+
+        .activity-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background: var(--light-gray);
+            border-radius: var(--border-radius);
+            border-left: 4px solid var(--primary-red);
+        }
+
+        .activity-icon {
+            font-size: 1.2rem;
+            color: var(--primary-red);
+        }
+
+        .activity-content {
+            flex: 1;
+        }
+
+        .activity-time {
+            font-size: 0.8rem;
+            color: var(--gray);
+        }
+
+        /* Navigation Links */
+        .nav-links {
+            padding: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: auto;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--white);
+            text-decoration: none;
+            padding: 10px 0;
+            transition: var(--transition);
+        }
+
+        .nav-link:hover {
+            color: var(--accent-gold);
+            transform: translateX(5px);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .matches-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .config-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Match Assignment Card Styles */
+        .match-assignments-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .match-assignment-card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: box-shadow 0.3s ease;
+        }
+
+        .match-assignment-card:hover {
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+        }
+
+        .match-assignment-card h5 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #3498db;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .doubles-assignment {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 15px;
+        }
+
+        .team-section {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #3498db;
+        }
+
+        .team-section h6 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .referee-assignment {
+            background: #f1f8ff;
+            padding: 10px;
+            border-radius: 6px;
+            border-left: 3px solid #2196F3;
+        }
+
+        .referee-assignment label {
+            font-weight: 600;
+            color: #1976D2;
+        }
+
+        .assigned-referees-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .referee-badge {
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.85em;
+            border: 1px solid #bbdefb;
+        }
+
+        @media (max-width: 768px) {
+            .doubles-assignment {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Overlay for sidebar -->
+    <div class="overlay" id="overlay"></div>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <i class="fas fa-user-shield shuttlecock"></i>
+                <span>Admin Panel</span>
+            </div>
+        </div>
+        <div class="sidebar-menu">
+            <div class="menu-item active" data-page="dashboard">
+                <i class="fas fa-tachometer-alt"></i>
+                <span>Dashboard</span>
+            </div>
+            <div class="menu-item" data-page="match-setup">
+                <i class="fas fa-cogs"></i>
+                <span>Match Setup</span>
+            </div>
+            <div class="menu-item" data-page="colleges">
+                <i class="fas fa-university"></i>
+                <span>Colleges</span>
+            </div>
+            <div class="menu-item" data-page="referees">
+                <i class="fas fa-users"></i>
+                <span>Referees</span>
+            </div>
+        </div>
+        <div class="nav-links">
+            <a href="/referee/dashboard" class="nav-link">
+                <i class="fas fa-user"></i>
+                <span>Referee Dashboard</span>
+            </a>
+        </div>
+        <div class="logout-btn" id="logout-btn">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Log Out</span>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content" id="main-content">
+        <!-- Header -->
+        <div class="header">
+            <div class="menu-toggle" id="menu-toggle">
+                <i class="fas fa-bars"></i>
+            </div>
+            <div class="page-title">
+                <i class="fas fa-user-shield"></i>
+                Admin Dashboard
+            </div>
+        </div>
+
+        <!-- Content Area -->
+        <div class="content">
+            <!-- Dashboard Overview -->
+            <div id="dashboard-page">
+                <!-- Statistics Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-trophy"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="totalMatches">0</h3>
+                            <p>Total Matches</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="upcomingMatches">0</h3>
+                            <p>Upcoming Matches</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-play-circle"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="liveMatches">0</h3>
+                            <p>Live Matches</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="completedMatches">0</h3>
+                            <p>Completed</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="section">
+                    <div class="section-header">
+                        <div class="section-title">Recent Activity</div>
+                    </div>
+                    <div class="activity-list" id="recent-activity">
+                        <!-- Recent activity will be loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Match Setup Page -->
+            <div id="match-setup-page" style="display: none;">
+                <div class="section">
+                    <div class="section-header">
+                        <div class="section-title">Assign Match</div>
+                        <button onclick="refreshMatchCards()" class="btn btn-secondary">
+                            <i class="fas fa-sync-alt"></i> Refresh Matches
+                        </button>
+                    </div>
+                    
+                    <!-- Match Cards for Assignment -->
+                    <div class="matches-section">
+                        <div class="section-info">
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle"></i>
+                                <strong>Player Assignment:</strong> Click on any unassigned match card below to assign players and referee. Only matches without player assignments are shown here.
+                            </div>
+                        </div>
+                        
+                        <div class="matches-grid" id="setup-matches-container">
+                            <div class="loading-card">
+                                <i class="fas fa-spinner fa-spin"></i>
+                                <h3>Loading upcoming matches...</h3>
+                                <p>Please wait while we load matches that need setup.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Match Assignment Form -->
+                    <div id="setupForm" style="display: none;">
+                        <div class="setup-header">
+                            <h3 id="matchTitle">Player Assignment</h3>
+                            <p id="matchDetails"></p>
+                        </div>
+
+                        <!-- Referee Assignment for All Matches -->
+                        <div class="referee-assignment-section">
+                            <div class="section-header">
+                                <h4><i class="fas fa-user-tie"></i> Assign Referee for All Matches</h4>
+                            </div>
+                            <div class="config-item">
+                                <label>Select Referee:</label>
+                                <select id="main_referee" class="form-control referee-select">
+                                    <option value="">Select Referee for All Matches</option>
+                                </select>
+                            </div>
+                            <div id="assignedRefereesList" class="assigned-referees-list mt-2">
+                                <!-- Assigned referees will be displayed here -->
+                            </div>
+                        </div>
+
+                        <!-- Player Assignment Section -->
+                        <div class="player-assignment-grid" id="player-assignment-container">
+                            <!-- Dynamic content will be generated by JavaScript -->
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="setup-actions">
+                            <button onclick="assignPlayersAndReferee()" class="btn btn-primary">
+                                <i class="fas fa-check"></i> Assign Players & Referee
+                            </button>
+                            <button onclick="resetAssignment()" class="btn btn-secondary">
+                                <i class="fas fa-undo"></i> Reset
+                            </button>
+                            <button onclick="hideSetupForm()" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Colleges Page -->
+            <div id="colleges-page" style="display: none;">
+                <div class="section">
+                    <div class="section-header">
+                        <div class="section-title">Colleges Information</div>
+                        <button onclick="refreshColleges()" class="btn btn-secondary">
+                            <i class="fas fa-sync-alt"></i> Refresh
+                        </button>
+                    </div>
+                                <h4><i class="fas fa-user"></i> Match 1 - Singles</h4>
+                                <div class="config-row">
+                                    <div class="config-item">
+                                        <label>Referee:</label>
+                                        <select id="match1_referee" class="form-control referee-select">
+                                            <option value="">Select Referee</option>
+                                        </select>
+                                    </div>
+                                    <div class="config-item">
+                                        <label>Max Points:</label>
+                                        <select id="match1_maxPoints" class="form-control">
+                                            <option value="11">11 Points</option>
+                                            <option value="15">15 Points</option>
+                                            <option value="21" selected>21 Points</option>
+                                        </select>
+                                    </div>
+                                    <div class="config-item">
+                                        <label>Number of Sets:</label>
+                                        <select id="match1_sets" class="form-control">
+                                            <option value="1">Best of 1</option>
+                                            <option value="3" selected>Best of 3</option>
+                                            <option value="5">Best of 5</option>
+                                        </select>
+                                    </div>
+                                    <div class="config-item">
+                                        <label>Court Number:</label>
+                                        <select id="match1_court" class="form-control">
+                                            <option value="1">Court 1</option>
+                                            <option value="2">Court 2</option>
+                                            <option value="3">Court 3</option>
+                                            <option value="4">Court 4</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <!-- Player Assignment for Match 1 -->
+                                <div class="player-assignment-section">
+                                    <h5>Player Assignment</h5>
+                                    <div class="team-selection">
+                                        <div class="team-section">
+                                            <h6 id="college1Name">College 1</h6>
+                                            <select id="match1_player1" class="form-control player-select">
+                                                <option value="">Select Player</option>
+                                            </select>
+                                        </div>
+                                        <div class="vs-divider">VS</div>
+                                        <div class="team-section">
+                                            <h6 id="college2Name">College 2</h6>
+                                            <select id="match1_player2" class="form-control player-select">
+                                                <option value="">Select Player</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Match 2 - Singles -->
+                            <div class="match-config-card">
+                                <h4><i class="fas fa-user"></i> Match 2 - Singles</h4>
+                                <div class="config-row">
+                                    <div class="config-item">
+                                        <label>Referee:</label>
+                                        <select id="match2_referee" class="form-control referee-select">
+                                            <option value="">Select Referee</option>
+                                        </select>
+                                    </div>
+                                    <div class="config-item">
+                                        <label>Max Points:</label>
+                                        <select id="match2_maxPoints" class="form-control">
+                                            <option value="11">11 Points</option>
+                                            <option value="15">15 Points</option>
+                                            <option value="21" selected>21 Points</option>
+                                        </select>
+                                    </div>
+                                    <div class="config-item">
+                                        <label>Number of Sets:</label>
+                                        <select id="match2_sets" class="form-control">
+                                            <option value="1">Best of 1</option>
+                                            <option value="3" selected>Best of 3</option>
+                                            <option value="5">Best of 5</option>
+                                        </select>
+                                    </div>
+                                    <div class="config-item">
+                                        <label>Court Number:</label>
+                                        <select id="match2_court" class="form-control">
+                                            <option value="1">Court 1</option>
+                                            <option value="2">Court 2</option>
+                                            <option value="3">Court 3</option>
+                                            <option value="4">Court 4</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <!-- Player Assignment for Match 2 -->
+                                <div class="player-assignment-section">
+                                    <h5>Player Assignment</h5>
+                                    <div class="team-selection">
+                                        <div class="team-section">
+                                            <h6 id="college1Name2">College 1</h6>
+                                            <select id="match2_player1" class="form-control player-select">
+                                                <option value="">Select Player</option>
+                                            </select>
+                                        </div>
+                                        <div class="vs-divider">VS</div>
+                                        <div class="team-section">
+                                            <h6 id="college2Name2">College 2</h6>
+                                            <select id="match2_player2" class="form-control player-select">
+                                                <option value="">Select Player</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Match 3 - Doubles -->
+                            <div class="match-config-card">
+                                <h4><i class="fas fa-users"></i> Match 3 - Doubles</h4>
+                                <div class="config-row">
+                                    <div class="config-item">
+                                        <label>Referee:</label>
+                                        <select id="match3_referee" class="form-control referee-select">
+                                            <option value="">Select Referee</option>
+                                        </select>
+                                    </div>
+                                    <div class="config-item">
+                                        <label>Max Points:</label>
+                                        <select id="match3_maxPoints" class="form-control">
+                                            <option value="11">11 Points</option>
+                                            <option value="15">15 Points</option>
+                                            <option value="21" selected>21 Points</option>
+                                        </select>
+                                    </div>
+                                    <div class="config-item">
+                                        <label>Court Number:</label>
+                                        <select id="match3_court" class="form-control">
+                                            <option value="1">Court 1</option>
+                                            <option value="2">Court 2</option>
+                                            <option value="3">Court 3</option>
+                                            <option value="4">Court 4</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <!-- Player Assignment for Match 3 (Doubles) -->
+                                <div class="player-assignment-section">
+                                    <h5>Player Assignment - Doubles</h5>
+                                    <div class="doubles-selection">
+                                        <div class="team-section">
+                                            <h6 id="college1Name3">College 1</h6>
+                                            <div class="doubles-players">
+                                                <select id="match3_team1_player1" class="form-control player-select">
+                                                    <option value="">Select Player 1</option>
+                                                </select>
+                                                <select id="match3_team1_player2" class="form-control player-select">
+                                                    <option value="">Select Player 2</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="vs-divider">VS</div>
+                                        <div class="team-section">
+                                            <h6 id="college2Name3">College 2</h6>
+                                            <div class="doubles-players">
+                                                <select id="match3_team2_player1" class="form-control player-select">
+                                                    <option value="">Select Player 1</option>
+                                                </select>
+                                                <select id="match3_team2_player2" class="form-control player-select">
+                                                    <option value="">Select Player 2</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Match 4 - Singles -->
+                            <div class="match-config-card">
+                                <h4><i class="fas fa-user"></i> Match 4 - Singles</h4>
+                                <div class="config-row">
+                                    <div class="config-item">
+                                        <label>Referee:</label>
+                                        <select id="match4_referee" class="form-control referee-select">
+                                            <option value="">Select Referee</option>
+                                        </select>
+                                    </div>
+                                    <div class="config-item">
+                                        <label>Max Points:</label>
+                                        <select id="match4_maxPoints" class="form-control">
+                                            <option value="11">11 Points</option>
+                                            <option value="15">15 Points</option>
+                                            <option value="21" selected>21 Points</option>
+                                        </select>
+                                    </div>
+                                    <div class="config-item">
+                                        <label>Number of Sets:</label>
+                                        <select id="match4_sets" class="form-control">
+                                            <option value="1">Best of 1</option>
+                                            <option value="3" selected>Best of 3</option>
+                                            <option value="5">Best of 5</option>
+                                        </select>
+                                    </div>
+                                    <div class="config-item">
+                                        <label>Court Number:</label>
+                                        <select id="match4_court" class="form-control">
+                                            <option value="1">Court 1</option>
+                                            <option value="2">Court 2</option>
+                                            <option value="3">Court 3</option>
+                                            <option value="4">Court 4</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <!-- Player Assignment for Match 4 -->
+                                <div class="player-assignment-section">
+                                    <h5>Player Assignment</h5>
+                                    <div class="team-selection">
+                                        <div class="team-section">
+                                            <h6 id="college1Name4">College 1</h6>
+                                            <select id="match4_player1" class="form-control player-select">
+                                                <option value="">Select Player</option>
+                                            </select>
+                                        </div>
+                                        <div class="vs-divider">VS</div>
+                                        <div class="team-section">
+                                            <h6 id="college2Name4">College 2</h6>
+                                            <select id="match4_player2" class="form-control player-select">
+                                                <option value="">Select Player</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Match 5 - Doubles -->
+                            <div class="match-config-card">
+                                <h4><i class="fas fa-users"></i> Match 5 - Doubles</h4>
+                                <div class="config-row">
+                                    <div class="config-item">
+                                        <label>Referee:</label>
+                                        <select id="match5_referee" class="form-control referee-select">
+                                            <option value="">Select Referee</option>
+                                        </select>
+                                    </div>
+                                    <div class="config-item">
+                                        <label>Max Points:</label>
+                                        <select id="match5_maxPoints" class="form-control">
+                                            <option value="11">11 Points</option>
+                                            <option value="15">15 Points</option>
+                                            <option value="21" selected>21 Points</option>
+                                        </select>
+                                    </div>
+                                    <div class="config-item">
+                                        <label>Number of Sets:</label>
+                                        <select id="match5_sets" class="form-control">
+                                            <option value="1">Best of 1</option>
+                                            <option value="3" selected>Best of 3</option>
+                                            <option value="5">Best of 5</option>
+                                        </select>
+                                    </div>
+                                    <div class="config-item">
+                                        <label>Court Number:</label>
+                                        <select id="match5_court" class="form-control">
+                                            <option value="1">Court 1</option>
+                                            <option value="2">Court 2</option>
+                                            <option value="3">Court 3</option>
+                                            <option value="4">Court 4</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <!-- Player Assignment for Match 5 (Doubles) -->
+                                <div class="player-assignment-section">
+                                    <h5>Player Assignment - Doubles</h5>
+                                    <div class="doubles-selection">
+                                        <div class="team-section">
+                                            <h6 id="college1Name5">College 1</h6>
+                                            <div class="doubles-players">
+                                                <select id="match5_team1_player1" class="form-control player-select">
+                                                    <option value="">Select Player 1</option>
+                                                </select>
+                                                <select id="match5_team1_player2" class="form-control player-select">
+                                                    <option value="">Select Player 2</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="vs-divider">VS</div>
+                                        <div class="team-section">
+                                            <h6 id="college2Name5">College 2</h6>
+                                            <div class="doubles-players">
+                                                <select id="match5_team2_player1" class="form-control player-select">
+                                                    <option value="">Select Player 1</option>
+                                                </select>
+                                                <select id="match5_team2_player2" class="form-control player-select">
+                                                    <option value="">Select Player 2</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="setup-actions">
+                            <button onclick="saveCompleteMatchSetup()" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Complete Match Setup
+                            </button>
+                            <button onclick="resetSetup()" class="btn btn-secondary">
+                                <i class="fas fa-undo"></i> Reset
+                            </button>
+                            <button onclick="hideSetupForm()" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Colleges Page -->
+            <div id="colleges-page" style="display: none;">
+                <div class="section">
+                    <div class="section-header">
+                        <div class="section-title">Colleges Information</div>
+                        <button onclick="refreshColleges()" class="btn btn-secondary">
+                            <i class="fas fa-sync-alt"></i> Refresh
+                        </button>
+                    </div>
+                    
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th><i class="fas fa-university"></i> College Name</th>
+                                    <th><i class="fas fa-envelope"></i> Email</th>
+                                    <th><i class="fas fa-phone"></i> Contact</th>
+                                    <th><i class="fas fa-map-marker-alt"></i> Location</th>
+                                    <th><i class="fas fa-users"></i> Total Players</th>
+                                    <th><i class="fas fa-trophy"></i> Matches Played</th>
+                                    <th><i class="fas fa-cogs"></i> Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="colleges-table">
+                                <!-- Colleges data will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Referees Page -->
+            <div id="referees-page" style="display: none;">
+                <div class="section">
+                    <div class="section-header">
+                        <div class="section-title">Referees Management</div>
+                        <button onclick="refreshReferees()" class="btn btn-secondary">
+                            <i class="fas fa-sync-alt"></i> Refresh
+                        </button>
+                    </div>
+                    
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th><i class="fas fa-user"></i> Name</th>
+                                    <th><i class="fas fa-envelope"></i> Email</th>
+                                    <th><i class="fas fa-phone"></i> Contact</th>
+                                    <th><i class="fas fa-certificate"></i> Experience</th>
+                                    <th><i class="fas fa-tasks"></i> Assigned Matches</th>
+                                    <th><i class="fas fa-chart-bar"></i> Status</th>
+                                    <th><i class="fas fa-cogs"></i> Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="referees-table">
+                                <!-- Referees data will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Admin Dashboard JavaScript
+        let matches = [];
+        let colleges = [];
+        let referees = [];
+        let allPlayers = [];
+        let allReferees = [];
+        let currentMatch = null;
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            setupNavigation();
+            loadDashboardData();
+        });
+
+        // Navigation setup
+        function setupNavigation() {
+            const menuItems = document.querySelectorAll('.menu-item');
+            const pages = document.querySelectorAll('[id$="-page"]');
+
+            menuItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    const targetPage = this.dataset.page + '-page';
+                    
+                    // Update active menu item
+                    menuItems.forEach(mi => mi.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Show target page
+                    pages.forEach(page => page.style.display = 'none');
+                    const target = document.getElementById(targetPage);
+                    if (target) {
+                        target.style.display = 'block';
+                        
+                        // Load data for specific pages
+                        if (targetPage === 'colleges-page') {
+                            loadColleges();
+                        } else if (targetPage === 'referees-page') {
+                            loadReferees();
+                        } else if (targetPage === 'match-setup-page') {
+                            loadMatchesForSetup();
+                        }
+                    }
+                });
+            });
+
+            // Mobile menu toggle
+            const menuToggle = document.getElementById('menu-toggle');
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+
+            if (menuToggle) {
+                menuToggle.addEventListener('click', function() {
+                    sidebar.classList.toggle('active');
+                    overlay.classList.toggle('active');
+                });
+            }
+
+            if (overlay) {
+                overlay.addEventListener('click', function() {
+                    sidebar.classList.remove('active');
+                    overlay.classList.remove('active');
+                });
+            }
+        }
+
+        // Load dashboard data
+        async function loadDashboardData() {
+            try {
+                await Promise.all([
+                    loadMatches(),
+                    loadReferees(),
+                    loadColleges(),
+                    loadAllPlayers(),
+                    loadAllReferees()
+                ]);
+                updateStatistics();
+                loadRecentActivity();
+            } catch (error) {
+                console.error('Error loading dashboard data:', error);
+                showAlert('Error loading dashboard data', 'error');
+            }
+        }
+
+        // Load matches
+        async function loadMatches() {
+            try {
+                const response = await fetch('/api/admin/get-all-matches');
+                const data = await response.json();
+                
+                if (data.success) {
+                    matches = data.matches;
+                    return matches;
+                } else {
+                    throw new Error(data.message);
+                }
+            } catch (error) {
+                console.error('Error loading matches:', error);
+                matches = [];
+                return [];
+            }
+        }
+
+        // Load colleges
+        async function loadColleges() {
+            try {
+                const response = await fetch('/api/admin/get-colleges');
+                const data = await response.json();
+                
+                if (data.success) {
+                    colleges = data.colleges;
+                    renderCollegesTable();
+                    return colleges;
+                } else {
+                    throw new Error(data.message);
+                }
+            } catch (error) {
+                console.error('Error loading colleges:', error);
+                colleges = [];
+                return [];
+            }
+        }
+
+        // Load referees
+        async function loadReferees() {
+            try {
+                const response = await fetch('/api/admin/get-referees');
+                const data = await response.json();
+                if (data.success) {
+                    referees = data.referees;
+                    renderRefereesTable();
+                    populateRefereeSelects();
+                    return referees;
+                }
+            } catch (error) {
+                console.error('Error loading referees:', error);
+                referees = [];
+                return [];
+            }
+        }
+
+        // Load all players for match assignment
+        async function loadAllPlayers() {
+            try {
+                const response = await fetch('/api/admin/get-players');
+                const data = await response.json();
+                if (data.success) {
+                    allPlayers = data.players;
+                    return allPlayers;
+                }
+            } catch (error) {
+                console.error('Error loading all players:', error);
+                allPlayers = [];
+                return [];
+            }
+        }
+
+        // Load all referees for match assignment
+        async function loadAllReferees() {
+            try {
+                const response = await fetch('/api/admin/get-referees');
+                const data = await response.json();
+                if (data.success) {
+                    allReferees = data.referees;
+                    return allReferees;
+                }
+            } catch (error) {
+                console.error('Error loading all referees:', error);
+                allReferees = [];
+                return [];
+            }
+        }
+
+        // Update statistics
+        function updateStatistics() {
+            const total = matches.length;
+            const upcoming = matches.filter(m => ['upcoming', 'setup_completed', 'players_allocated'].includes(m.matchStatus)).length;
+            const live = matches.filter(m => m.matchStatus === 'live').length;
+            const completed = matches.filter(m => m.matchStatus === 'complete').length;
+
+            document.getElementById('totalMatches').textContent = total;
+            document.getElementById('upcomingMatches').textContent = upcoming;
+            document.getElementById('liveMatches').textContent = live;
+            document.getElementById('completedMatches').textContent = completed;
+        }
+
+        // Load recent activity
+        function loadRecentActivity() {
+            const activityContainer = document.getElementById('recent-activity');
+            const recentMatches = matches
+                .filter(m => m.matchStatus !== 'upcoming')
+                .sort((a, b) => new Date(b.date) - new Date(a.date))
+                .slice(0, 5);
+
+            if (recentMatches.length === 0) {
+                activityContainer.innerHTML = '<p class="text-center text-muted">No recent activity</p>';
+                return;
+            }
+
+            activityContainer.innerHTML = recentMatches.map(match => `
+                <div class="activity-item">
+                    <div class="activity-icon">
+                        <i class="fas fa-${getActivityIcon(match.matchStatus)}"></i>
+                    </div>
+                    <div class="activity-content">
+                        <strong>${match.college1Name} vs ${match.college2Name}</strong>
+                        <div class="activity-time">${getActivityText(match)}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function getActivityIcon(status) {
+            const icons = {
+                'live': 'play-circle',
+                'complete': 'check-circle',
+                'setup_completed': 'cogs',
+                'players_allocated': 'users'
+            };
+            return icons[status] || 'clock';
+        }
+
+        function getActivityText(match) {
+            const statusTexts = {
+                'live': 'Match is currently live',
+                'complete': 'Match completed',
+                'setup_completed': 'Setup completed, awaiting player allocation',
+                'players_allocated': 'Players allocated, ready to start'
+            };
+            return statusTexts[match.matchStatus] || 'Status updated';
+        }
+
+        // Match Setup Functions
+        let college1Players = [];
+        let college2Players = [];
+
+        async function loadMatchesForSetup() {
+            await loadReferees(); // Make sure referees are loaded
+            displaySetupMatchCards();
+        }
+
+        function displaySetupMatchCards() {
+            const container = document.getElementById('setup-matches-container');
+            
+            // Filter for upcoming matches only that don't have complete setup
+            const upcomingMatches = matches.filter(match => {
+                const isUpcoming = match.matchStatus === 'upcoming' || 
+                                 match.matchStatus === 'setup_required' ||
+                                 !match.matchStatus;
+                
+                // Check if match setup is complete (has players allocated)
+                const hasPlayersAllocated = match.match1Singles && 
+                                          match.match1Singles.player1Name &&
+                                          match.match2Singles && 
+                                          match.match2Singles.player1Name &&
+                                          match.match3Doubles &&
+                                          match.match3Doubles.team1Player1Name &&
+                                          match.match4Singles &&
+                                          match.match4Singles.player1Name &&
+                                          match.match5Doubles &&
+                                          match.match5Doubles.team1Player1Name;
+                
+                return isUpcoming && !hasPlayersAllocated;
+            });
+
+            if (upcomingMatches.length === 0) {
+                container.innerHTML = `
+                    <div class="no-matches-card">
+                        <i class="fas fa-check-circle"></i>
+                        <h3>No Upcoming Matches Need Setup</h3>
+                        <p>All upcoming matches have been configured or no upcoming matches found.</p>
+                        <button onclick="refreshMatchCards()" class="btn btn-primary">
+                            <i class="fas fa-sync-alt"></i> Refresh
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = upcomingMatches.map(match => createSetupMatchCard(match)).join('');
+        }
+
+        function createSetupMatchCard(match) {
+            const hasPlayersAllocated = match.match1Singles && match.match1Singles.player1Name;
+            const statusText = hasPlayersAllocated ? 'Setup Complete' : 'Setup Required';
+            const statusClass = hasPlayersAllocated ? 'configured' : 'needs-setup';
+            const statusBadgeClass = hasPlayersAllocated ? 'status-configured' : 'status-needs-setup';
+
+            return `
+                <div class="setup-match-card ${statusClass}" onclick="openMatchSetupModal('${match._id}')">
+                    <div class="setup-match-header">
+                        <h3>
+                            <i class="fas fa-shuttle-van"></i>
+                            ${match.college1Name} vs ${match.college2Name}
+                        </h3>
+                        <span class="setup-match-status ${statusBadgeClass}">${statusText}</span>
+                    </div>
+                    <div class="setup-match-info">
+                        <p><strong>Match ID:</strong> ${match._id}</p>
+                        <p><strong>Date:</strong> ${new Date(match.date).toLocaleDateString()}</p>
+                        <p><strong>Time:</strong> ${match.time}</p>
+                        <p><strong>Status:</strong> ${getMatchStatusText(match.matchStatus)}</p>
+                        ${hasPlayersAllocated ? `
+                            <p><strong>Progress:</strong> <span style="color: green;">✓ Players assigned</span></p>
+                        ` : `
+                            <p><strong>Progress:</strong> <span style="color: orange;">⚠ Needs configuration</span></p>
+                        `}
+                    </div>
+                    <div class="setup-match-actions">
+                        ${hasPlayersAllocated ? `
+                            <button class="btn btn-success" disabled>
+                                <i class="fas fa-check"></i> Setup Complete
+                            </button>
+                        ` : `
+                            <button class="btn btn-primary">
+                                <i class="fas fa-cog"></i> Configure Match & Players
+                            </button>
+                        `}
+                    </div>
+                </div>
+            `;
+        }
+
+        function isMatchFullyConfigured(matchSetup) {
+            if (!matchSetup) return false;
+            
+            // Check if all 5 matches have required configuration
+            for (let i = 1; i <= 5; i++) {
+                const matchKey = `match${i}`;
+                if (!matchSetup[matchKey] || 
+                    !matchSetup[matchKey].refereeEmail || 
+                    !matchSetup[matchKey].maxPoints || 
+                    !matchSetup[matchKey].numberOfSets || 
+                    !matchSetup[matchKey].courtNumber) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        function getSetupProgress(matchSetup) {
+            if (!matchSetup) return 0;
+            
+            let configuredCount = 0;
+            for (let i = 1; i <= 5; i++) {
+                const matchKey = `match${i}`;
+                if (matchSetup[matchKey] && 
+                    matchSetup[matchKey].refereeEmail && 
+                    matchSetup[matchKey].maxPoints && 
+                    matchSetup[matchKey].numberOfSets && 
+                    matchSetup[matchKey].courtNumber) {
+                    configuredCount++;
+                }
+            }
+            return configuredCount;
+        }
+
+        async function openMatchSetupModal(matchId) {
+            currentMatch = matches.find(m => m._id === matchId);
+            if (!currentMatch) {
+                showAlert('Match not found!', 'error');
+                return;
+            }
+
+            // Update match details
+            document.getElementById('matchTitle').textContent = `Assign Match - Player Allocation`;
+            document.getElementById('matchDetails').textContent = 
+                `${currentMatch.college1Name} vs ${currentMatch.college2Name} | ${new Date(currentMatch.date).toLocaleDateString()} | ${currentMatch.time}`;
+
+            // Generate player assignment grid based on match type
+            generatePlayerAssignmentGrid(currentMatch);
+
+            // Populate referee dropdown
+            populateMainRefereeDropdown();
+
+            // Show the setup form
+            document.getElementById('setupForm').style.display = 'block';
+            
+            // Scroll to setup form
+            document.getElementById('setupForm').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function updateCollegeNamesInForm() {
+            // Update all college name elements
+            document.getElementById('college1Name').textContent = currentMatch.college1Name;
+            document.getElementById('college2Name').textContent = currentMatch.college2Name;
+            document.getElementById('college1Name2').textContent = currentMatch.college1Name;
+            document.getElementById('college2Name2').textContent = currentMatch.college2Name;
+            document.getElementById('college1Name3').textContent = currentMatch.college1Name;
+            document.getElementById('college2Name3').textContent = currentMatch.college2Name;
+            document.getElementById('college1Name4').textContent = currentMatch.college1Name;
+            document.getElementById('college2Name4').textContent = currentMatch.college2Name;
+            document.getElementById('college1Name5').textContent = currentMatch.college1Name;
+            document.getElementById('college2Name5').textContent = currentMatch.college2Name;
+        }
+
+        async function loadPlayersForMatch() {
+            try {
+                console.log('Loading players for match...', currentMatch.email1, currentMatch.email2);
+                
+                // Load players for college 1
+                const response1 = await fetch(`/api/admin/college/${encodeURIComponent(currentMatch.email1)}/players`);
+                console.log('College 1 response status:', response1.status);
+                
+                if (response1.ok) {
+                    college1Players = await response1.json();
+                    console.log('College 1 players loaded:', college1Players.length, college1Players);
+                } else {
+                    console.error('Failed to load college 1 players:', await response1.text());
+                    college1Players = [];
+                }
+                
+                // Load players for college 2
+                const response2 = await fetch(`/api/admin/college/${encodeURIComponent(currentMatch.email2)}/players`);
+                console.log('College 2 response status:', response2.status);
+                
+                if (response2.ok) {
+                    college2Players = await response2.json();
+                    console.log('College 2 players loaded:', college2Players.length, college2Players);
+                } else {
+                    console.error('Failed to load college 2 players:', await response2.text());
+                    college2Players = [];
+                }
+                
+                // Show alert about loaded players
+                showAlert(`Loaded ${college1Players.length} players for ${currentMatch.college1Name} and ${college2Players.length} players for ${currentMatch.college2Name}`, 'info');
+                
+                // Populate all player dropdowns
+                populateAllPlayerDropdowns();
+                addPlayerSelectionListeners();
+                
+            } catch (error) {
+                console.error('Error loading players:', error);
+                showAlert('Error loading player data: ' + error.message, 'error');
+                college1Players = [];
+                college2Players = [];
+            }
+        }
+
+        function populateAllPlayerDropdowns() {
+            // Get currently selected players to exclude them from other dropdowns
+            const selectedPlayers = getSelectedPlayerEmails();
+            
+            // Singles matches
+            populatePlayerDropdownWithExclusions('match1_player1', college1Players, selectedPlayers);
+            populatePlayerDropdownWithExclusions('match1_player2', college2Players, selectedPlayers);
+            populatePlayerDropdownWithExclusions('match2_player1', college1Players, selectedPlayers);
+            populatePlayerDropdownWithExclusions('match2_player2', college2Players, selectedPlayers);
+            populatePlayerDropdownWithExclusions('match4_player1', college1Players, selectedPlayers);
+            populatePlayerDropdownWithExclusions('match4_player2', college2Players, selectedPlayers);
+            
+            // Doubles matches
+            populatePlayerDropdownWithExclusions('match3_team1_player1', college1Players, selectedPlayers);
+            populatePlayerDropdownWithExclusions('match3_team1_player2', college1Players, selectedPlayers);
+            populatePlayerDropdownWithExclusions('match3_team2_player1', college2Players, selectedPlayers);
+            populatePlayerDropdownWithExclusions('match3_team2_player2', college2Players, selectedPlayers);
+            populatePlayerDropdownWithExclusions('match5_team1_player1', college1Players, selectedPlayers);
+            populatePlayerDropdownWithExclusions('match5_team1_player2', college1Players, selectedPlayers);
+            populatePlayerDropdownWithExclusions('match5_team2_player1', college2Players, selectedPlayers);
+            populatePlayerDropdownWithExclusions('match5_team2_player2', college2Players, selectedPlayers);
+        }
+
+        function populatePlayerDropdownWithExclusions(selectId, players, excludedPlayerEmails) {
+            const select = document.getElementById(selectId);
+            if (!select) return;
+            
+            // Get current selection to preserve it
+            const currentValue = select.value;
+            let currentPlayerEmail = null;
+            
+            if (currentValue) {
+                try {
+                    const currentPlayerData = JSON.parse(currentValue);
+                    currentPlayerEmail = currentPlayerData.email;
+                } catch (e) {
+                    // Handle parsing error
+                }
+            }
+            
+            select.innerHTML = '<option value="">Select Player</option>';
+            
+            console.log(`Populating ${selectId} with ${players.length} players, excluding ${excludedPlayerEmails.size} selected players`);
+            
+            players.forEach(player => {
+                const playerEmail = player.email;
+                const playerName = player.playerName || player.name;
+                
+                // Show player if:
+                // 1. Not already selected in another dropdown OR
+                // 2. It's the currently selected player in this dropdown
+                if (!excludedPlayerEmails.has(playerEmail) || playerEmail === currentPlayerEmail) {
+                    const option = document.createElement('option');
+                    option.value = JSON.stringify({name: playerName, email: playerEmail});
+                    option.textContent = playerName;
+                    
+                    // Restore selection if it was the current player
+                    if (playerEmail === currentPlayerEmail) {
+                        option.selected = true;
+                    }
+                    
+                    select.appendChild(option);
+                }
+            });
+        }
+
+        function getSelectedPlayerEmails() {
+            const selectedPlayers = new Set();
+            
+            const allPlayerSelects = [
+                'match1_player1', 'match1_player2',
+                'match2_player1', 'match2_player2',
+                'match3_team1_player1', 'match3_team1_player2', 
+                'match3_team2_player1', 'match3_team2_player2',
+                'match4_player1', 'match4_player2',
+                'match5_team1_player1', 'match5_team1_player2', 
+                'match5_team2_player1', 'match5_team2_player2'
+            ];
+            
+            allPlayerSelects.forEach(selectId => {
+                const select = document.getElementById(selectId);
+                if (select && select.value) {
+                    try {
+                        const playerData = JSON.parse(select.value);
+                        selectedPlayers.add(playerData.email);
+                    } catch (e) {
+                        // Handle parsing error
+                    }
+                }
+            });
+            
+            return selectedPlayers;
+        }
+
+        function populateRefereeDropdowns() {
+            const refereeSelects = ['match1_referee', 'match2_referee', 'match3_referee', 'match4_referee', 'match5_referee'];
+            
+            refereeSelects.forEach(selectId => {
+                const select = document.getElementById(selectId);
+                if (!select) return;
+                
+                select.innerHTML = '<option value="">Select Referee</option>';
+                
+                referees.forEach(referee => {
+                    const option = document.createElement('option');
+                    option.value = referee.refEmail;
+                    option.textContent = `${referee.name} (${referee.refEmail})`;
+                    select.appendChild(option);
+                });
+            });
+        }
+
+        function addPlayerSelectionListeners() {
+            const allPlayerSelects = [
+                'match1_player1', 'match1_player2',
+                'match2_player1', 'match2_player2',
+                'match3_team1_player1', 'match3_team1_player2', 
+                'match3_team2_player1', 'match3_team2_player2',
+                'match4_player1', 'match4_player2',
+                'match5_team1_player1', 'match5_team1_player2', 
+                'match5_team2_player1', 'match5_team2_player2'
+            ];
+            
+            allPlayerSelects.forEach(selectId => {
+                const select = document.getElementById(selectId);
+                if (select) {
+                    select.addEventListener('change', function() {
+                        // Refresh all dropdowns when any selection changes
+                        // This will remove/add players based on current selections
+                        populateAllPlayerDropdowns();
+                        
+                        // Also validate for conflicts
+                        validatePlayerSelections();
+                    });
+                }
+            });
+        }
+
+        function validatePlayerSelections() {
+            const selectedPlayers = new Set();
+            let hasConflicts = false;
+            
+            const allPlayerSelects = [
+                'match1_player1', 'match1_player2',
+                'match2_player1', 'match2_player2',
+                'match3_team1_player1', 'match3_team1_player2', 
+                'match3_team2_player1', 'match3_team2_player2',
+                'match4_player1', 'match4_player2',
+                'match5_team1_player1', 'match5_team1_player2', 
+                'match5_team2_player1', 'match5_team2_player2'
+            ];
+            
+            // Reset all borders first
+            allPlayerSelects.forEach(selectId => {
+                const select = document.getElementById(selectId);
+                if (select) {
+                    select.style.borderColor = '';
+                }
+            });
+            
+            // Check for duplicates (shouldn't happen with our filtering, but good to check)
+            allPlayerSelects.forEach(selectId => {
+                const select = document.getElementById(selectId);
+                if (select && select.value) {
+                    try {
+                        const playerData = JSON.parse(select.value);
+                        if (selectedPlayers.has(playerData.email)) {
+                            hasConflicts = true;
+                            select.style.borderColor = 'red';
+                            console.warn(`Duplicate player selection detected: ${playerData.name} in ${selectId}`);
+                        } else {
+                            selectedPlayers.add(playerData.email);
+                        }
+                    } catch (e) {
+                        console.error('Error parsing player data:', e);
+                    }
+                }
+            });
+            
+            return !hasConflicts;
+        }
+
+        function setProgressStep(step) {
+            document.querySelectorAll('.progress-step').forEach((el, index) => {
+                if (index + 1 <= step) {
+                    el.classList.add('active');
+                } else {
+                    el.classList.remove('active');
+                }
+            });
+        }
+
+        function hideSetupForm() {
+            document.getElementById('setupForm').style.display = 'none';
+            currentMatch = null;
+        }
+
+        function loadExistingPlayerAllocations() {
+            if (!currentMatch) return;
+            
+            // Load existing player selections
+            if (currentMatch.match1Singles) {
+                setPlayerSelection('match1_player1', currentMatch.match1Singles.player1Name, currentMatch.match1Singles.player1Email);
+                setPlayerSelection('match1_player2', currentMatch.match1Singles.player2Name, currentMatch.match1Singles.player2Email);
+            }
+            
+            if (currentMatch.match2Singles) {
+                setPlayerSelection('match2_player1', currentMatch.match2Singles.player1Name, currentMatch.match2Singles.player1Email);
+                setPlayerSelection('match2_player2', currentMatch.match2Singles.player2Name, currentMatch.match2Singles.player2Email);
+            }
+            
+            if (currentMatch.match3Doubles) {
+                setPlayerSelection('match3_team1_player1', currentMatch.match3Doubles.team1Player1Name, currentMatch.match3Doubles.team1Player1Email);
+                setPlayerSelection('match3_team1_player2', currentMatch.match3Doubles.team1Player2Name, currentMatch.match3Doubles.team1Player2Email);
+                setPlayerSelection('match3_team2_player1', currentMatch.match3Doubles.team2Player1Name, currentMatch.match3Doubles.team2Player1Email);
+                setPlayerSelection('match3_team2_player2', currentMatch.match3Doubles.team2Player2Name, currentMatch.match3Doubles.team2Player2Email);
+            }
+            
+            if (currentMatch.match4Singles) {
+                setPlayerSelection('match4_player1', currentMatch.match4Singles.player1Name, currentMatch.match4Singles.player1Email);
+                setPlayerSelection('match4_player2', currentMatch.match4Singles.player2Name, currentMatch.match4Singles.player2Email);
+            }
+            
+            if (currentMatch.match5Doubles) {
+                setPlayerSelection('match5_team1_player1', currentMatch.match5Doubles.team1Player1Name, currentMatch.match5Doubles.team1Player1Email);
+                setPlayerSelection('match5_team1_player2', currentMatch.match5Doubles.team1Player2Name, currentMatch.match5Doubles.team1Player2Email);
+                setPlayerSelection('match5_team2_player1', currentMatch.match5Doubles.team2Player1Name, currentMatch.match5Doubles.team2Player1Email);
+                setPlayerSelection('match5_team2_player2', currentMatch.match5Doubles.team2Player2Name, currentMatch.match5Doubles.team2Player2Email);
+            }
+        }
+
+        function setPlayerSelection(selectId, playerName, playerEmail) {
+            const select = document.getElementById(selectId);
+            if (!select) return;
+            
+            const targetValue = JSON.stringify({name: playerName, email: playerEmail});
+            const options = select.options;
+            
+            for (let i = 0; i < options.length; i++) {
+                if (options[i].value === targetValue) {
+                    select.selectedIndex = i;
+                    break;
+                }
+            }
+        }
+
+        function refreshMatchCards() {
+            loadMatches().then(() => {
+                displaySetupMatchCards();
+                showAlert('Match cards refreshed successfully!', 'success');
+            });
+        }
+
+        function editMatchSetup(matchId) {
+            openMatchSetupModal(matchId);
+        }
+
+        function getMatchStatusText(status) {
+            const statusTexts = {
+                'upcoming': 'Upcoming',
+                'setup_completed': 'Setup Completed',
+                'players_allocated': 'Players Allocated',
+                'live': 'Live',
+                'complete': 'Completed'
+            };
+            return statusTexts[status] || 'Unknown Status';
+        }
+
+        function loadMatchForSetup() {
+            const matchId = document.getElementById('matchSelect').value;
+            const setupForm = document.getElementById('setupForm');
+            
+            if (!matchId) {
+                setupForm.style.display = 'none';
+                return;
+            }
+
+            currentMatch = matches.find(m => m._id === matchId);
+            if (!currentMatch) return;
+
+            // Update match details
+            document.getElementById('matchTitle').textContent = `${currentMatch.matchNo} Setup`;
+            document.getElementById('matchDetails').textContent = 
+                `${currentMatch.college1Name} vs ${currentMatch.college2Name} | ${new Date(currentMatch.date).toLocaleDateString()} | ${currentMatch.time}`;
+
+            // Load existing configuration if available
+            if (currentMatch.matchSetup) {
+                loadExistingSetup(currentMatch.matchSetup);
+            } else {
+                resetSetup();
+            }
+
+            setupForm.style.display = 'block';
+            updateAssignedRefereesList();
+        }
+
+        function loadExistingSetup(setup) {
+            for (let i = 1; i <= 5; i++) {
+                const matchKey = `match${i}`;
+                if (setup[matchKey]) {
+                    document.getElementById(`match${i}_referee`).value = setup[matchKey].refereeEmail || '';
+                    document.getElementById(`match${i}_maxPoints`).value = setup[matchKey].maxPoints || 21;
+                    document.getElementById(`match${i}_sets`).value = setup[matchKey].numberOfSets || 3;
+                    document.getElementById(`match${i}_court`).value = setup[matchKey].courtNumber || 1;
+                }
+            }
+        }
+
+        function populateRefereeSelects() {
+            const selects = document.querySelectorAll('.referee-select');
+            
+            selects.forEach(select => {
+                const currentValue = select.value;
+                select.innerHTML = '<option value="">Select Referee</option>';
+                
+                referees.forEach(referee => {
+                    const option = document.createElement('option');
+                    option.value = referee.refEmail;
+                    option.textContent = `${referee.name} (${referee.refEmail})`;
+                    select.appendChild(option);
+                });
+                
+                select.value = currentValue;
+            });
+
+            // Add change listeners to prevent duplicate referee assignment
+            selects.forEach(select => {
+                select.addEventListener('change', updateAssignedRefereesList);
+            });
+        }
+
+        function updateAssignedRefereesList() {
+            const container = document.getElementById('assignedRefereesList');
+            
+            // Check if the container exists, if not, just return to avoid errors
+            if (!container) {
+                console.warn('assignedRefereesList element not found');
+                return;
+            }
+            
+            const assignedEmails = [];
+            
+            for (let i = 1; i <= 5; i++) {
+                const refSelect = document.getElementById(`match${i}_referee`);
+                if (refSelect && refSelect.value && !assignedEmails.includes(refSelect.value)) {
+                    assignedEmails.push(refSelect.value);
+                }
+            }
+            
+            if (assignedEmails.length === 0) {
+                container.innerHTML = '<p class="text-muted">No referees assigned yet</p>';
+                return;
+            }
+            
+            container.innerHTML = assignedEmails.map(email => {
+                const referee = referees.find(r => r.refEmail === email);
+                return `<div class="referee-badge">${referee ? referee.name : email}</div>`;
+            }).join('');
+        }
+
+        function validateCompletePlayerSelections() {
+            const requiredSelects = [
+                'match1_player1', 'match1_player2',
+                'match2_player1', 'match2_player2',
+                'match3_team1_player1', 'match3_team1_player2', 'match3_team2_player1', 'match3_team2_player2',
+                'match4_player1', 'match4_player2',
+                'match5_team1_player1', 'match5_team1_player2', 'match5_team2_player1', 'match5_team2_player2'
+            ];
+            
+            // Also validate referees
+            const requiredReferees = [
+                'match1_referee', 'match2_referee', 'match3_referee', 'match4_referee', 'match5_referee'
+            ];
+
+            for (let selectId of requiredSelects) {
+                const select = document.getElementById(selectId);
+                if (!select || !select.value) {
+                    showAlert(`Please select a player for ${selectId.replace(/_/g, ' ').replace('match', 'Match ').replace('team', 'Team ').replace('player', 'Player ')}`, 'error');
+                    if (select) select.focus();
+                    return false;
+                }
+            }
+            
+            for (let selectId of requiredReferees) {
+                const select = document.getElementById(selectId);
+                if (!select || !select.value) {
+                    showAlert(`Please assign a referee for ${selectId.replace(/_/g, ' ').replace('match', 'Match ')}`, 'error');
+                    if (select) select.focus();
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        async function saveCompleteMatchSetup() {
+            if (!currentMatch) {
+                showAlert('Please select a match first', 'error');
+                return;
+            }
+
+            // Validate all players and referees are selected
+            if (!validateCompletePlayerSelections()) {
+                return;
+            }
+
+            // Check for player conflicts
+            if (!validatePlayerSelections()) {
+                showAlert('Please resolve player conflicts (players selected multiple times)', 'error');
+                return;
+            }
+
+            // Collect match configuration and player data
+            const matchData = {
+                matchSetup: {
+                    match1: {
+                        referee: document.getElementById('match1_referee').value,
+                        maxPoints: parseInt(document.getElementById('match1_maxPoints').value),
+                        numberOfSets: parseInt(document.getElementById('match1_sets').value),
+                        courtNumber: parseInt(document.getElementById('match1_court').value)
+                    },
+                    match2: {
+                        referee: document.getElementById('match2_referee').value,
+                        maxPoints: parseInt(document.getElementById('match2_maxPoints').value),
+                        numberOfSets: parseInt(document.getElementById('match2_sets').value),
+                        courtNumber: parseInt(document.getElementById('match2_court').value)
+                    },
+                    match3: {
+                        referee: document.getElementById('match3_referee').value,
+                        maxPoints: parseInt(document.getElementById('match3_maxPoints').value),
+                        courtNumber: parseInt(document.getElementById('match3_court').value)
+                    },
+                    match4: {
+                        referee: document.getElementById('match4_referee').value,
+                        maxPoints: parseInt(document.getElementById('match4_maxPoints').value),
+                        numberOfSets: parseInt(document.getElementById('match4_sets').value),
+                        courtNumber: parseInt(document.getElementById('match4_court').value)
+                    },
+                    match5: {
+                        referee: document.getElementById('match5_referee').value,
+                        maxPoints: parseInt(document.getElementById('match5_maxPoints').value),
+                        courtNumber: parseInt(document.getElementById('match5_court').value)
+                    }
+                },
+                playerAllocations: {
+                    match1Singles: {
+                        player1Name: JSON.parse(document.getElementById('match1_player1').value).name,
+                        player1Email: JSON.parse(document.getElementById('match1_player1').value).email,
+                        player2Name: JSON.parse(document.getElementById('match1_player2').value).name,
+                        player2Email: JSON.parse(document.getElementById('match1_player2').value).email
+                    },
+                    match2Singles: {
+                        player1Name: JSON.parse(document.getElementById('match2_player1').value).name,
+                        player1Email: JSON.parse(document.getElementById('match2_player1').value).email,
+                        player2Name: JSON.parse(document.getElementById('match2_player2').value).name,
+                        player2Email: JSON.parse(document.getElementById('match2_player2').value).email
+                    },
+                    match3Doubles: {
+                        team1Player1Name: JSON.parse(document.getElementById('match3_team1_player1').value).name,
+                        team1Player1Email: JSON.parse(document.getElementById('match3_team1_player1').value).email,
+                        team1Player2Name: JSON.parse(document.getElementById('match3_team1_player2').value).name,
+                        team1Player2Email: JSON.parse(document.getElementById('match3_team1_player2').value).email,
+                        team2Player1Name: JSON.parse(document.getElementById('match3_team2_player1').value).name,
+                        team2Player1Email: JSON.parse(document.getElementById('match3_team2_player1').value).email,
+                        team2Player2Name: JSON.parse(document.getElementById('match3_team2_player2').value).name,
+                        team2Player2Email: JSON.parse(document.getElementById('match3_team2_player2').value).email
+                    },
+                    match4Singles: {
+                        player1Name: JSON.parse(document.getElementById('match4_player1').value).name,
+                        player1Email: JSON.parse(document.getElementById('match4_player1').value).email,
+                        player2Name: JSON.parse(document.getElementById('match4_player2').value).name,
+                        player2Email: JSON.parse(document.getElementById('match4_player2').value).email
+                    },
+                    match5Doubles: {
+                        team1Player1Name: JSON.parse(document.getElementById('match5_team1_player1').value).name,
+                        team1Player1Email: JSON.parse(document.getElementById('match5_team1_player1').value).email,
+                        team1Player2Name: JSON.parse(document.getElementById('match5_team1_player2').value).name,
+                        team1Player2Email: JSON.parse(document.getElementById('match5_team1_player2').value).email,
+                        team2Player1Name: JSON.parse(document.getElementById('match5_team2_player1').value).name,
+                        team2Player1Email: JSON.parse(document.getElementById('match5_team2_player1').value).email,
+                        team2Player2Name: JSON.parse(document.getElementById('match5_team2_player2').value).name,
+                        team2Player2Email: JSON.parse(document.getElementById('match5_team2_player2').value).email
+                    }
+                }
+            };
+            
+            try {
+                const response = await fetch(`/referee/match/${currentMatch._id}/allocate-players`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(matchData.playerAllocations)
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    showAlert('Match setup completed successfully! Players allocated and configuration saved.', 'success');
+                    await loadMatches();
+                    updateStatistics();
+                    
+                    // Hide the setup form and refresh match cards
+                    document.getElementById('setupForm').style.display = 'none';
+                    displaySetupMatchCards();
+                    
+                    // Scroll back to top of match setup section
+                    document.getElementById('setup-matches-container').scrollIntoView({ behavior: 'smooth' });
+                    
+                    setProgressStep(3);
+                } else {
+                    showAlert('Error saving setup: ' + result.message, 'error');
+                }
+            } catch (error) {
+                console.error('Error saving match setup:', error);
+                showAlert('Error saving match setup', 'error');
+            }
+        }
+
+        function validateCompletePlayerSelections() {
+            const requiredSelects = [
+                'match1_referee', 'match1_player1', 'match1_player2',
+                'match2_referee', 'match2_player1', 'match2_player2',
+                'match3_referee', 'match3_team1_player1', 'match3_team1_player2', 'match3_team2_player1', 'match3_team2_player2',
+                'match4_referee', 'match4_player1', 'match4_player2',
+                'match5_referee', 'match5_team1_player1', 'match5_team1_player2', 'match5_team2_player1', 'match5_team2_player2'
+            ];
+
+            for (let selectId of requiredSelects) {
+                const select = document.getElementById(selectId);
+                if (!select || !select.value) {
+                    const fieldName = selectId.replace(/_/g, ' ').replace(/match\d+\s/, 'Match ');
+                    showAlert(`Please select ${fieldName}`, 'error');
+                    select && select.focus();
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        function resetSetup() {
+            // Reset match configuration
+            for (let i = 1; i <= 5; i++) {
+                const referee = document.getElementById(`match${i}_referee`);
+                const maxPoints = document.getElementById(`match${i}_maxPoints`);
+                const sets = document.getElementById(`match${i}_sets`);
+                const court = document.getElementById(`match${i}_court`);
+                
+                if (referee) referee.value = '';
+                if (maxPoints) maxPoints.value = '21';
+                if (sets) sets.value = '3';
+                if (court) court.value = '1';
+            }
+            
+            // Reset player selections
+            const allPlayerSelects = [
+                'match1_player1', 'match1_player2',
+                'match2_player1', 'match2_player2',
+                'match3_team1_player1', 'match3_team1_player2', 
+                'match3_team2_player1', 'match3_team2_player2',
+                'match4_player1', 'match4_player2',
+                'match5_team1_player1', 'match5_team1_player2', 
+                'match5_team2_player1', 'match5_team2_player2'
+            ];
+            
+            allPlayerSelects.forEach(selectId => {
+                const select = document.getElementById(selectId);
+                if (select) {
+                    select.value = '';
+                    select.style.borderColor = '';
+                }
+            });
+            
+            setProgressStep(1);
+        }
+
+        // Render colleges table
+        function renderCollegesTable() {
+            const tbody = document.getElementById('colleges-table');
+            
+            if (colleges.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center">No colleges found</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = colleges.map(college => `
+                <tr>
+                    <td><strong>${college.collegeName}</strong></td>
+                    <td>${college.email}</td>
+                    <td>${college.contact || 'N/A'}</td>
+                    <td>${college.location || 'N/A'}</td>
+                    <td>${college.totalPlayers || 0}</td>
+                    <td>${college.matchesPlayed || 0}</td>
+                    <td>
+                        <button class="btn btn-sm btn-primary" onclick="viewCollegeDetails('${college._id}')">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Render referees table
+        function renderRefereesTable() {
+            const tbody = document.getElementById('referees-table');
+            
+            if (referees.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center">No referees found</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = referees.map(referee => {
+                const assignedMatches = matches.filter(m => 
+                    m.matchSetup && Object.values(m.matchSetup).some(setup => setup.refereeEmail === referee.refEmail)
+                ).length;
+                
+                return `
+                    <tr>
+                        <td><strong>${referee.name}</strong></td>
+                        <td>${referee.refEmail}</td>
+                        <td>${referee.contact || 'N/A'}</td>
+                        <td>${referee.experience || 'N/A'}</td>
+                        <td><span class="badge">${assignedMatches} matches</span></td>
+                        <td><span class="badge ${assignedMatches > 0 ? 'badge-success' : 'badge-secondary'}">${assignedMatches > 0 ? 'Active' : 'Available'}</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-primary" onclick="viewRefereeDetails('${referee._id}')">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Utility functions
+        function showAlert(message, type = 'info') {
+            const alertClass = type === 'error' ? 'danger' : type;
+            const alertHtml = `
+                <div class="alert alert-${alertClass} alert-dismissible" style="position: fixed; top: 20px; right: 20px; z-index: 9999; min-width: 300px;">
+                    ${message}
+                    <button type="button" class="close" onclick="this.parentElement.remove()">×</button>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', alertHtml);
+            
+            setTimeout(() => {
+                const alert = document.querySelector('.alert');
+                if (alert) alert.remove();
+            }, 5000);
+        }
+
+        // Refresh functions
+        async function refreshMatches() {
+            await loadMatches();
+            updateStatistics();
+            loadMatchesForSetup();
+            showAlert('Matches refreshed successfully!', 'success');
+        }
+
+        async function refreshColleges() {
+            await loadColleges();
+            showAlert('Colleges data refreshed successfully!', 'success');
+        }
+
+        async function refreshReferees() {
+            await loadReferees();
+            showAlert('Referees data refreshed successfully!', 'success');
+        }
+
+        // Detail view functions (placeholder)
+        function viewCollegeDetails(collegeId) {
+            showAlert('College details view - Coming soon!', 'info');
+        }
+
+        function viewRefereeDetails(refereeId) {
+            showAlert('Referee details view - Coming soon!', 'info');
+        }
+
+        // Additional CSS for badges and alerts
+        const additionalStyles = `
+            <style>
+                .badge {
+                    padding: 4px 8px;
+                    border-radius: 12px;
+                    font-size: 0.8rem;
+                    font-weight: 500;
+                }
+                .badge-success {
+                    background: var(--success);
+                    color: white;
+                }
+                .badge-secondary {
+                    background: var(--gray);
+                    color: white;
+                }
+                .btn-sm {
+                    padding: 5px 10px;
+                    font-size: 0.8rem;
+                }
+                .alert {
+                    padding: 12px 15px;
+                    border-radius: 6px;
+                    margin: 10px 0;
+                }
+                .alert-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+                .alert-danger { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+                .alert-info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+                .close {
+                    background: none;
+                    border: none;
+                    font-size: 1.2rem;
+                    cursor: pointer;
+                    float: right;
+                    margin-left: 15px;
+                }
+                .text-center { text-align: center; }
+                .text-muted { color: var(--gray); }
+            </style>
+        `;
+        document.head.insertAdjacentHTML('beforeend', additionalStyles);
+
+        // New simplified assignment functions
+        function generatePlayerAssignmentGrid(match) {
+            const container = document.getElementById('player-assignment-container');
+            container.innerHTML = '';
+
+            if (!match) {
+                container.innerHTML = '<p class="text-muted">Please select a match to assign players.</p>';
+                return;
+            }
+
+            // Determine if this is boys or girls match (boys have 5 matches, girls have 3)
+            // For now, assume boys matches (5 matches: 3 singles + 2 doubles)
+            const isBoysMatch = true; // You can modify this logic based on your match object structure
+            
+            console.log('Generating player assignment grid for match:', match);
+            
+            let assignmentHtml = '<div class="match-assignments-grid">';
+            
+            if (isBoysMatch) {
+                // Boys format: 5 matches (Singles 1, Singles 2, Doubles 1, Singles 3, Doubles 2)
+                assignmentHtml += `
+                    <div class="match-assignment-card">
+                        <h5><i class="fas fa-user"></i> Match 1 - Singles</h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label id="match1_college1_label">College 1 Player:</label>
+                                <select id="match1_player1" class="form-control player-select" data-team="1">
+                                    <option value="">Select Player</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label id="match1_college2_label">College 2 Player:</label>
+                                <select id="match1_player2" class="form-control player-select" data-team="2">
+                                    <option value="">Select Player</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="match-assignment-card">
+                        <h5><i class="fas fa-user"></i> Match 2 - Singles</h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label id="match2_college1_label">College 1 Player:</label>
+                                <select id="match2_player1" class="form-control player-select" data-team="1">
+                                    <option value="">Select Player</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label id="match2_college2_label">College 2 Player:</label>
+                                <select id="match2_player2" class="form-control player-select" data-team="2">
+                                    <option value="">Select Player</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="match-assignment-card">
+                        <h5><i class="fas fa-users"></i> Match 3 - Doubles</h5>
+                        <div class="doubles-assignment">
+                            <div class="team-section">
+                                <h6 id="match3_college1_header">College 1 Pair</h6>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label>Player 1:</label>
+                                        <select id="match3_team1_player1" class="form-control player-select" data-team="1">
+                                            <option value="">Select Player</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label>Player 2:</label>
+                                        <select id="match3_team1_player2" class="form-control player-select" data-team="1">
+                                            <option value="">Select Player</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="team-section">
+                                <h6 id="match3_college2_header">College 2 Pair</h6>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label>Player 1:</label>
+                                        <select id="match3_team2_player1" class="form-control player-select" data-team="2">
+                                            <option value="">Select Player</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label>Player 2:</label>
+                                        <select id="match3_team2_player2" class="form-control player-select" data-team="2">
+                                            <option value="">Select Player</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="match-assignment-card">
+                        <h5><i class="fas fa-user"></i> Match 4 - Singles</h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label id="match4_college1_label">College 1 Player:</label>
+                                <select id="match4_player1" class="form-control player-select" data-team="1">
+                                    <option value="">Select Player</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label id="match4_college2_label">College 2 Player:</label>
+                                <select id="match4_player2" class="form-control player-select" data-team="2">
+                                    <option value="">Select Player</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="match-assignment-card">
+                        <h5><i class="fas fa-users"></i> Match 5 - Doubles</h5>
+                        <div class="doubles-assignment">
+                            <div class="team-section">
+                                <h6 id="match5_college1_header">College 1 Pair</h6>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label>Player 1:</label>
+                                        <select id="match5_team1_player1" class="form-control player-select" data-team="1">
+                                            <option value="">Select Player</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label>Player 2:</label>
+                                        <select id="match5_team1_player2" class="form-control player-select" data-team="1">
+                                            <option value="">Select Player</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="team-section">
+                                <h6 id="match5_college2_header">College 2 Pair</h6>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label>Player 1:</label>
+                                        <select id="match5_team2_player1" class="form-control player-select" data-team="2">
+                                            <option value="">Select Player</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label>Player 2:</label>
+                                        <select id="match5_team2_player2" class="form-control player-select" data-team="2">
+                                            <option value="">Select Player</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                // Girls format: 3 matches (Singles 1, Doubles, Singles 2) - implement if needed
+                assignmentHtml += '<p class="text-info">Girls matches format not yet implemented.</p>';
+            }
+
+            assignmentHtml += '</div>';
+            
+            // Insert the HTML into the container
+            container.innerHTML = assignmentHtml;
+            
+            // After creating the interface, populate the dropdowns
+            populatePlayerDropdowns(match);
+        }
+        
+        // Function to populate player dropdowns
+        function populatePlayerDropdowns(match) {
+            if (!match || !allPlayers) {
+                console.log('No match data or players available');
+                return;
+            }
+            
+            // Get team 1 and team 2 players
+            const team1Players = allPlayers.filter(player => 
+                player.email && (player.email === match.email1 || player.collegeEmail === match.email1)
+            );
+            const team2Players = allPlayers.filter(player => 
+                player.email && (player.email === match.email2 || player.collegeEmail === match.email2)
+            );
+            
+            console.log('Team 1 players:', team1Players);
+            console.log('Team 2 players:', team2Players);
+            
+            // Update labels and headers with college names
+            const college1Name = match.college1Name || 'College 1';
+            const college2Name = match.college2Name || 'College 2';
+            
+            // Update singles match labels
+            const singlesLabels = [
+                'match1_college1_label', 'match1_college2_label',
+                'match2_college1_label', 'match2_college2_label',
+                'match4_college1_label', 'match4_college2_label'
+            ];
+            
+            singlesLabels.forEach((labelId, index) => {
+                const label = document.getElementById(labelId);
+                if (label) {
+                    const collegeName = index % 2 === 0 ? college1Name : college2Name;
+                    label.textContent = `${collegeName} Player:`;
+                }
+            });
+            
+            // Update doubles match headers
+            const doublesHeaders = [
+                'match3_college1_header', 'match3_college2_header',
+                'match5_college1_header', 'match5_college2_header'
+            ];
+            
+            doublesHeaders.forEach((headerId, index) => {
+                const header = document.getElementById(headerId);
+                if (header) {
+                    const collegeName = index % 2 === 0 ? college1Name : college2Name;
+                    header.textContent = `${collegeName} Pair`;
+                }
+            });
+            
+            // Populate all player dropdowns
+            document.querySelectorAll('.player-select').forEach(select => {
+                const team = select.dataset.team;
+                const players = team === '1' ? team1Players : team2Players;
+                
+                select.innerHTML = '<option value="">Select Player</option>';
+                players.forEach(player => {
+                    const option = document.createElement('option');
+                    option.value = JSON.stringify({
+                        id: player._id,
+                        name: player.playerName,
+                        email: player.email
+                    });
+                    option.textContent = player.playerName;
+                    select.appendChild(option);
+                });
+            });
+        }
+        
+
+
+        function populateMainRefereeDropdown() {
+            const select = document.getElementById('main_referee');
+            if (!select) return;
+
+            // Clear existing options
+            select.innerHTML = '<option value="">Select Referee</option>';
+
+            // Add referee options
+            allReferees.forEach(referee => {
+                const option = document.createElement('option');
+                option.value = referee._id;
+                option.textContent = `${referee.name} - ${referee.refEmail}`;
+                select.appendChild(option);
+            });
+        }
+
+        async function assignPlayersAndReferee() {
+            if (!currentMatch) {
+                showAlert('Please select a match first', 'error');
+                return;
+            }
+
+            const refereeId = document.getElementById('main_referee').value;
+            if (!refereeId) {
+                showAlert('Please select a referee for all matches', 'error');
+                return;
+            }
+
+            // Get all player assignments
+            const playerAssignments = collectPlayerAssignments();
+            if (!playerAssignments) {
+                return; // Error already shown in collectPlayerAssignments
+            }
+
+            // Show confirmation dialog
+            const confirmation = confirm(`Are you sure you want to assign the selected referee and players to this match?\n\nThis will update the match with player assignments and cannot be easily undone.`);
+            if (!confirmation) {
+                return;
+            }
+
+            try {
+                const assignmentData = {
+                    refereeId: refereeId,
+                    ...playerAssignments
+                };
+
+                const response = await fetch(`/api/admin/assign-match/${currentMatch._id}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(assignmentData)
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    showAlert('Players and referee assigned successfully!', 'success');
+                    await loadMatches();
+                    
+                    // Hide the setup form and refresh match cards
+                    document.getElementById('setupForm').style.display = 'none';
+                    displaySetupMatchCards();
+                } else {
+                    showAlert('Error assigning players: ' + result.message, 'error');
+                }
+            } catch (error) {
+                console.error('Error assigning players:', error);
+                showAlert('Error assigning players', 'error');
+            }
+        }
+
+        function collectPlayerAssignments() {
+            const assignments = {};
+            
+            try {
+                // Match 1 - Singles
+                const match1Player1 = document.getElementById('match1_player1').value;
+                const match1Player2 = document.getElementById('match1_player2').value;
+                
+                if (match1Player1 && match1Player2) {
+                    const player1Data = JSON.parse(match1Player1);
+                    const player2Data = JSON.parse(match1Player2);
+                    
+                    assignments.match1Singles = {
+                        player1Name: player1Data.name,
+                        player1Email: player1Data.email,
+                        player2Name: player2Data.name,
+                        player2Email: player2Data.email
+                    };
+                }
+                
+                // Match 2 - Singles
+                const match2Player1 = document.getElementById('match2_player1').value;
+                const match2Player2 = document.getElementById('match2_player2').value;
+                
+                if (match2Player1 && match2Player2) {
+                    const player1Data = JSON.parse(match2Player1);
+                    const player2Data = JSON.parse(match2Player2);
+                    
+                    assignments.match2Singles = {
+                        player1Name: player1Data.name,
+                        player1Email: player1Data.email,
+                        player2Name: player2Data.name,
+                        player2Email: player2Data.email
+                    };
+                }
+                
+                // Match 3 - Doubles
+                const match3Team1Player1 = document.getElementById('match3_team1_player1').value;
+                const match3Team1Player2 = document.getElementById('match3_team1_player2').value;
+                const match3Team2Player1 = document.getElementById('match3_team2_player1').value;
+                const match3Team2Player2 = document.getElementById('match3_team2_player2').value;
+                
+                if (match3Team1Player1 && match3Team1Player2 && match3Team2Player1 && match3Team2Player2) {
+                    const team1Player1Data = JSON.parse(match3Team1Player1);
+                    const team1Player2Data = JSON.parse(match3Team1Player2);
+                    const team2Player1Data = JSON.parse(match3Team2Player1);
+                    const team2Player2Data = JSON.parse(match3Team2Player2);
+                    
+                    assignments.match3Doubles = {
+                        team1Player1Name: team1Player1Data.name,
+                        team1Player1Email: team1Player1Data.email,
+                        team1Player2Name: team1Player2Data.name,
+                        team1Player2Email: team1Player2Data.email,
+                        team2Player1Name: team2Player1Data.name,
+                        team2Player1Email: team2Player1Data.email,
+                        team2Player2Name: team2Player2Data.name,
+                        team2Player2Email: team2Player2Data.email
+                    };
+                }
+                
+                // Match 4 - Singles
+                const match4Player1 = document.getElementById('match4_player1').value;
+                const match4Player2 = document.getElementById('match4_player2').value;
+                
+                if (match4Player1 && match4Player2) {
+                    const player1Data = JSON.parse(match4Player1);
+                    const player2Data = JSON.parse(match4Player2);
+                    
+                    assignments.match4Singles = {
+                        player1Name: player1Data.name,
+                        player1Email: player1Data.email,
+                        player2Name: player2Data.name,
+                        player2Email: player2Data.email
+                    };
+                }
+                
+                // Match 5 - Doubles
+                const match5Team1Player1 = document.getElementById('match5_team1_player1').value;
+                const match5Team1Player2 = document.getElementById('match5_team1_player2').value;
+                const match5Team2Player1 = document.getElementById('match5_team2_player1').value;
+                const match5Team2Player2 = document.getElementById('match5_team2_player2').value;
+                
+                if (match5Team1Player1 && match5Team1Player2 && match5Team2Player1 && match5Team2Player2) {
+                    const team1Player1Data = JSON.parse(match5Team1Player1);
+                    const team1Player2Data = JSON.parse(match5Team1Player2);
+                    const team2Player1Data = JSON.parse(match5Team2Player1);
+                    const team2Player2Data = JSON.parse(match5Team2Player2);
+                    
+                    assignments.match5Doubles = {
+                        team1Player1Name: team1Player1Data.name,
+                        team1Player1Email: team1Player1Data.email,
+                        team1Player2Name: team1Player2Data.name,
+                        team1Player2Email: team1Player2Data.email,
+                        team2Player1Name: team2Player1Data.name,
+                        team2Player1Email: team2Player1Data.email,
+                        team2Player2Name: team2Player2Data.name,
+                        team2Player2Email: team2Player2Data.email
+                    };
+                }
+                
+                console.log('Collected assignments:', assignments);
+                
+                // Validate that at least one match is assigned
+                if (Object.keys(assignments).length === 0) {
+                    showAlert('Please assign players and referees to at least one match', 'error');
+                    return null;
+                }
+                
+                return assignments;
+                
+            } catch (error) {
+                console.error('Error collecting player assignments:', error);
+                showAlert('Error collecting player assignments', 'error');
+                return null;
+            }
+        }
+
+        function resetAssignment() {
+            if (confirm('Are you sure you want to reset all assignments? This will clear all selected players and referee.')) {
+                document.getElementById('main_referee').value = '';
+                // Reset all player dropdowns in the dynamic content
+                const playerSelects = document.querySelectorAll('#player-assignment-container select');
+                playerSelects.forEach(select => select.value = '');
+            }
+        }
+    </script>
+</body>
+</html>

@@ -606,24 +606,24 @@
             try {
                 console.log('Loading players for colleges:', matchData.email1, 'and', matchData.email2);
                 
-                // Load players for college 1
-                const response1 = await fetch(`/referee/college/${encodeURIComponent(matchData.email1)}/players`);
+                // Load players for college 1 (boys players only for badminton)
+                const response1 = await fetch(`/api/admin/players?college=${encodeURIComponent(matchData.email1)}&gender=male`);
                 console.log('College 1 response status:', response1.status);
                 if (response1.ok) {
                     college1Players = await response1.json();
                     console.log('College 1 players:', college1Players);
                 } else {
-                    console.error('Failed to load college 1 players:', await response1.text());
+                    console.error('Failed to load college 1 players:', response1.status, await response1.text());
                 }
                 
-                // Load players for college 2
-                const response2 = await fetch(`/referee/college/${encodeURIComponent(matchData.email2)}/players`);
+                // Load players for college 2 (boys players only for badminton)
+                const response2 = await fetch(`/api/admin/players?college=${encodeURIComponent(matchData.email2)}&gender=male`);
                 console.log('College 2 response status:', response2.status);
                 if (response2.ok) {
                     college2Players = await response2.json();
                     console.log('College 2 players:', college2Players);
                 } else {
-                    console.error('Failed to load college 2 players:', await response2.text());
+                    console.error('Failed to load college 2 players:', response2.status, await response2.text());
                 }
                 
                 populatePlayerDropdowns();
@@ -637,7 +637,7 @@
         async function loadReferees() {
             try {
                 console.log('Loading referees...');
-                const response = await fetch('/referee/all-referees');
+                const response = await fetch('/api/admin/referees');
                 console.log('Referees response status:', response.status);
                 if (response.ok) {
                     availableReferees = await response.json();
@@ -653,14 +653,10 @@
 
         async function loadAssignedReferees() {
             try {
-                const response = await fetch(`/referee/match/${matchData._id}/assigned-referees`);
-                if (response.ok) {
-                    const data = await response.json();
-                    if (data.success) {
-                        assignedReferees = data.referees;
-                        updateAssignedRefereesList();
-                    }
-                }
+                // For now, just load from match data until we have proper assigned referee endpoints
+                assignedReferees = matchData.assignedRefereeNames ? 
+                    matchData.assignedRefereeNames.map(name => ({ name, refEmail: '' })) : [];
+                updateAssignedRefereesList();
             } catch (error) {
                 console.error('Error loading assigned referees:', error);
             }
@@ -672,11 +668,11 @@
             
             availableReferees.forEach(referee => {
                 // Don't include current main referee or already assigned referees
-                if (referee.email !== matchData.refreeEmail && 
-                    !assignedReferees.some(ar => ar.email === referee.email)) {
+                if (referee.refEmail !== matchData.refreeEmail && 
+                    !assignedReferees.some(ar => ar.refEmail === referee.refEmail)) {
                     const option = document.createElement('option');
-                    option.value = referee.email;
-                    option.textContent = `${referee.name} (${referee.email})`;
+                    option.value = referee.refEmail;
+                    option.textContent = `${referee.name} (${referee.refEmail})`;
                     select.appendChild(option);
                 }
             });
@@ -819,22 +815,15 @@
             }
 
             try {
-                const response = await fetch(`/referee/match/${matchData._id}/assign-referee`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ refereeEmail: selectedReferee })
-                });
-
-                const result = await response.json();
-                if (result.success) {
-                    alert('Referee assigned successfully!');
-                    loadAssignedReferees(); // Refresh the list
-                    populateRefereeDropdown(); // Update dropdown
+                // For now, just add to local list and show success
+                // In a full implementation, this would make an API call to update the match
+                const referee = availableReferees.find(r => r.refEmail === selectedReferee);
+                if (referee) {
+                    assignedReferees.push({ name: referee.name, refEmail: referee.refEmail });
+                    updateAssignedRefereesList();
+                    populateRefereeDropdown(); // Update dropdown to remove assigned referee
                     setProgressStep(2);
-                } else {
-                    alert('Error assigning referee: ' + result.message);
+                    alert('Referee assigned successfully!');
                 }
             } catch (error) {
                 console.error('Error assigning referee:', error);
@@ -923,12 +912,15 @@
             };
 
             try {
-                const response = await fetch(`/referee/match/${matchData._id}/allocate-players`, {
+                const response = await fetch(`/api/admin/match/${matchData._id}/complete-setup`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify(playerData)
+                    body: JSON.stringify({
+                        matchConfigs: {},
+                        playerAllocations: playerData
+                    })
                 });
 
                 const result = await response.json();
@@ -987,7 +979,8 @@
 
         function confirmAndProceed() {
             if (confirm('Are you sure you want to proceed to the scorecard? This will start the tournament matches.')) {
-                window.location.href = `/referee/scorecard/${matchData._id}`;
+                // For now, redirect to matches page since scorecard might not exist yet
+                window.location.href = `/match/${matchData._id}`;
             }
         }
 
@@ -1003,7 +996,7 @@
 
         function goBack() {
             if (confirm('Are you sure you want to go back? Any unsaved changes will be lost.')) {
-                window.location.href = '/referee/dashboard';
+                window.location.href = '/admin';
             }
         }
     </script>

@@ -50,6 +50,9 @@ const teamRoutes = require('./routes/team');
 app.use('/api/team', teamRoutes);
 app.use('/team', teamRoutes);
 
+const adminRoutes = require('./routes/admin');
+app.use('/api/admin', adminRoutes);
+
 app.get('/', (req, res)=>{
   res.render('homepage');
 });
@@ -69,6 +72,12 @@ app.get('/team', (req, res) => {
   } else {
     res.redirect('/?auth=required');
   }
+});
+
+// Admin dashboard page
+app.get('/admin', (req, res) => {
+  // For now, allow all access. You can add admin authentication later
+  res.render('admin-dashboard');
 });
 
 
