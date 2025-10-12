@@ -10,12 +10,88 @@
     <div class="container">
         <!-- Header -->
         <header class="header">
-            <button class="btn-logout-top">Logout</button>
+            <!-- Profile Button at Top -->
+            <div class="header-top">
+                <div class="profile-section">
+                    <button class="btn-profile" id="profileButton">
+                        <span class="profile-icon">👤</span>
+                        <span class="profile-text">Profile</span>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Header Content Below -->
             <div class="header-content">
-                <h1>🏸 Team Management</h1>
+                <div class="title-container">
+                    <h1 class="header-title">
+                        <span class="title-icon">🏸</span>
+                        <span class="title-text">
+                            <span class="title-line-1">TEAM</span>
+                            <span class="title-line-2">MANAGEMENT</span>
+                        </span>
+                    </h1>
+                </div>
                 <p id="collegeName" class="college-name">-</p>
             </div>
         </header>
+
+        <!-- Profile Popup -->
+        <div id="profilePopup" class="profile-popup">
+            <div class="profile-popup-content">
+                <div class="profile-header">
+                    <div class="profile-avatar">
+                        <div class="avatar-circle">
+                            <span class="avatar-icon">🎓</span>
+                        </div>
+                    </div>
+                    <div class="profile-title">
+                        <h3>College Profile</h3>
+                        <p class="profile-subtitle">Team Management Dashboard</p>
+                    </div>
+                    <button class="close-profile" id="closeProfile">
+                        <span>&times;</span>
+                    </button>
+                </div>
+                
+                <div class="profile-divider"></div>
+                
+                <div class="profile-body">
+                    <div class="profile-info-card">
+                        <div class="info-header">
+                            <span class="info-icon">🏛️</span>
+                            <h4>Institution Details</h4>
+                        </div>
+                        <div class="college-display">
+                            <label>College Name</label>
+                            <div class="college-name-container">
+                                <p id="profileCollegeName" class="profile-college-name">-</p>
+                                <span class="verified-badge">✓</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="profile-actions">
+                        <button class="btn-change-password" id="changePasswordBtn">
+                            <span class="btn-icon">�</span>
+                            <div class="btn-content">
+                                <span class="btn-title">Change Password</span>
+                                <span class="btn-subtitle">Update your security credentials</span>
+                            </div>
+                            <span class="btn-arrow">→</span>
+                        </button>
+                        
+                        <button class="btn-logout" id="logoutBtn">
+                            <span class="btn-icon">🚪</span>
+                            <div class="btn-content">
+                                <span class="btn-title">Sign Out</span>
+                                <span class="btn-subtitle">Return to homepage</span>
+                            </div>
+                            <span class="btn-arrow">→</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <!-- Login Section (if not logged in) -->
         <div id="loginSection" class="login-section" style="display: none;">

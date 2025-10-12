@@ -65,6 +65,16 @@ app.get('/match/:matchId', (req, res)=>{
   res.render('match-detail', { matchId: req.params.matchId });
 });
 
+// Reset password page
+app.get('/reset-password', (req, res) => {
+  res.render('reset-password');
+});
+
+// Test password reset page (for development/testing)
+app.get('/test-password-reset', (req, res) => {
+  res.render('test-password-reset');
+});
+
 // Team page - require authentication
 app.get('/team', (req, res) => {
   if (req.session && req.session.user && req.session.user.type === 'player') {
