@@ -37,8 +37,11 @@ app.use(session({
 app.use(cors());
 
 // Routes
-const refereeRoutes = require('./routes/referee');
-app.use('/referee', refereeRoutes);
+const authRoutes = require('./routes/auth');
+app.use('/api/auth', authRoutes);
+
+// const refereeRoutes = require('./routes/referee');
+// app.use('/referee', refereeRoutes);
 
 const matchesRoutes = require('./routes/matches');
 app.use('/api/matches', matchesRoutes);
@@ -57,6 +60,15 @@ app.get('/matches', (req, res)=>{
 
 app.get('/match/:matchId', (req, res)=>{
   res.render('match-detail', { matchId: req.params.matchId });
+});
+
+// Team page - require authentication
+app.get('/team', (req, res) => {
+  if (req.session && req.session.user && req.session.user.type === 'player') {
+    res.render('team');
+  } else {
+    res.redirect('/?auth=required');
+  }
 });
 
 

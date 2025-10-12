@@ -29,8 +29,8 @@ async function loadMatchDetail() {
             console.log('Match data loaded:', matchData);
         } else {
             console.log('Fetching from API for matchId:', matchId);
-            const apiUrl = typeof API_BASE_URL !== 'undefined' ? API_BASE_URL : 'http://localhost:8080/api';
-            const response = await fetch(`${apiUrl}/matches/${matchId}`);
+            const apiUrl = typeof API_BASE_URL !== 'undefined' ? API_BASE_URL : 'http://localhost:3000';
+            const response = await fetch(`${apiUrl}/api/matches/${matchId}`);
             
             if (!response.ok) {
                 const errorData = await response.json().catch(() => ({ message: response.statusText }));
@@ -234,7 +234,7 @@ async function loadSubmatchDetails(submatchId, type) {
             matchData = await fetchDummySubmatchData(submatchId, type);
         } else {
             const endpoint = type === 'Singles' ? 'singles' : 'doubles';
-            const response = await fetch(`${API_BASE_URL}/matches/${endpoint}/${submatchId}`);
+            const response = await fetch(`${API_BASE_URL}/api/matches/${endpoint}/${submatchId}`);
             matchData = await response.json();
         }
         

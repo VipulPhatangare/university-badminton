@@ -1,3 +1,6 @@
+// Configuration
+const API_BASE_URL = 'http://localhost:3000';
+
 // DOM Elements
 const menuToggle = document.querySelector('.menu-toggle');
 const mobileNav = document.getElementById('mobileNav');
@@ -89,7 +92,7 @@ sendOtp.addEventListener('click', async() => {
         
         try {
            
-            const response = await fetch('/auth/send-otp', {
+            const response = await fetch(`${API_BASE_URL}/auth/send-otp`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -127,7 +130,7 @@ document.getElementById('resendOtp').addEventListener('click',async (e) => {
         
         try {
            
-            const response = await fetch('/auth/send-otp', {
+            const response = await fetch(`${API_BASE_URL}/auth/send-otp`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -160,7 +163,7 @@ document.getElementById('verifyOtp').addEventListener('click', async() => {
     try {
         if (otp) {
             if (otp.length == 6) {
-                const res = await fetch("/auth/verify-otp", {
+                const res = await fetch(`${API_BASE_URL}/auth/verify-otp`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({email, otp}),
@@ -229,7 +232,7 @@ loginForm.addEventListener('submit', async (e) => {
 
         
         if (loginEmail && (loginEmail.endsWith('@pccoepune.org') || loginEmail.endsWith('@sbpatilmba.com'))){
-            const res = await fetch("/auth/login", {
+            const res = await fetch(`${API_BASE_URL}/auth/login`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
@@ -382,7 +385,7 @@ signUpBtn.addEventListener('click', async() => {
         stdData.gender = gender;
         stdData.singles = false;
         stdData.doubles = false;
-        const response = await fetch("/signupData/storeData", {
+        const response = await fetch(`${API_BASE_URL}/signupData/storeData`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(stdData),
@@ -471,7 +474,7 @@ forgotPasswordForm.addEventListener('submit', async (e) => {
         
         try {
 
-            const response = await fetch("/auth/send-pass", {
+            const response = await fetch(`${API_BASE_URL}/auth/send-pass`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({resetEmail}),

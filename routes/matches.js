@@ -23,6 +23,19 @@ router.get('/status/:status', async (req, res) => {
     }
 });
 
+// Get live matches specifically for homepage
+router.get('/live', async (req, res) => {
+    try {
+        const liveMatches = await matchesBoys.find({ 
+            matchStatus: 'live' 
+        }).sort({ date: -1, time: -1 }).limit(6); // Limit to 6 for homepage display
+        
+        res.json(liveMatches);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
 // Get single match details with all submatches
 router.get('/:matchId', async (req, res) => {
     try {

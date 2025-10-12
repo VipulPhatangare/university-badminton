@@ -1,6 +1,7 @@
 // Configuration
-const API_BASE_URL = 'http://localhost:8080/api';
-let currentCollegeEmail = localStorage.getItem('collegeEmail') || '';
+const API_BASE_URL = 'http://localhost:3000';
+let currentCollegeEmail = '';
+let currentUserData = null;
 let currentGender = 'boys';
 let currentFilter = 'all';
 let currentPlayerGender = 'boys';
@@ -11,38 +12,43 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('loginSection').style.display = 'none';
     document.getElementById('mainContent').style.display = 'none';
     
-    if (!currentCollegeEmail) {
-        showLoginSection();
-        setupEventListeners();
-        return;
-    }
-
-    // Validate stored email with server before showing main content
+    // Check session authentication
     try {
-        const response = await fetch(`${API_BASE_URL}/team/college/${encodeURIComponent(currentCollegeEmail)}`);
+        const response = await fetch(`${API_BASE_URL}/api/auth/session`);
         if (response.ok) {
-            // Server confirms email is valid
-            showMainContent();
+            const data = await response.json();
+            if (data.success && data.user && data.user.type === 'player') {
+                // User is authenticated, get their data
+                currentUserData = data.user;
+                currentCollegeEmail = data.user.email;
+                
+                // Update UI with user info
+                document.getElementById('collegeName').textContent = data.user.collegeName || data.user.email;
+                
+                showMainContent();
+            } else {
+                // Not authenticated or not a player, redirect to homepage
+                window.location.href = '/?auth=required';
+                return;
+            }
         } else {
-            // Invalid on server: clear localStorage and show login
-            localStorage.removeItem('collegeEmail');
-            currentCollegeEmail = '';
-            showLoginSection();
+            // Session expired or not authenticated, redirect to homepage
+            window.location.href = '/?auth=required';
+            return;
         }
     } catch (error) {
-        // On network error, prefer showing login so user can re-auth
-        console.error('Auth validation error:', error);
-        localStorage.removeItem('collegeEmail');
-        currentCollegeEmail = '';
-        showLoginSection();
+        console.error('Authentication error:', error);
+        // On network error, redirect to homepage for re-authentication
+        window.location.href = '/?auth=required';
+        return;
     }
     
     setupEventListeners();
 });
 
 function setupEventListeners() {
-    // Login form
-    document.getElementById('loginForm')?.addEventListener('submit', handleLogin);
+    // Logout button
+    document.querySelector('.btn-logout-top')?.addEventListener('click', handleLogout);
     
     // Tab navigation
     document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -119,44 +125,45 @@ function setupEventListeners() {
     
     // Add player form
     document.getElementById('addPlayerForm')?.addEventListener('submit', handleAddPlayer);
+
+    // Modal click outside to close
+    const modal = document.getElementById('addPlayerModal');
+    if (modal) {
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                closeAddPlayerModal();
+            }
+        });
+    }
 }
 
 // Login
-async function handleLogin(e) {
-    e.preventDefault();
-    const email = document.getElementById('email').value.trim();
-    
-    if (!email) {
-        alert('Please enter college email');
-        return;
-    }
-    
+// Logout functionality
+async function handleLogout() {
     try {
-        const response = await fetch(`${API_BASE_URL}/team/college/${email}`);
-        if (!response.ok) {
-            throw new Error('College not found. Please check your email.');
+        const response = await fetch(`${API_BASE_URL}/api/auth/logout`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (response.ok) {
+            // Clear localStorage
+            localStorage.removeItem('userType');
+            localStorage.removeItem('userData');
+            localStorage.removeItem('collegeEmail');
+            
+            // Redirect to homepage
+            window.location.href = '/';
+        } else {
+            console.error('Logout failed');
+            alert('Logout failed. Please try again.');
         }
-        
-        const college = await response.json();
-        currentCollegeEmail = email;
-        localStorage.setItem('collegeEmail', email);
-        
-        document.getElementById('collegeName').textContent = college.collegeName || email;
-        showMainContent();
-        
     } catch (error) {
-        alert(error.message);
-        console.error('Login error:', error);
+        console.error('Logout error:', error);
+        alert('Logout error. Please try again.');
     }
-}
-
-function showLoginSection() {
-    document.getElementById('loginSection').style.display = 'flex';
-    document.getElementById('mainContent').style.display = 'none';
-    
-    // Hide logout button during login
-    const logoutBtn = document.querySelector('.btn-logout-top');
-    if (logoutBtn) logoutBtn.style.display = 'none';
 }
 
 function showMainContent() {
@@ -516,7 +523,11 @@ function openAddPlayerModal() {
         return;
     }
     
-    document.getElementById('addPlayerModal').style.display = 'block';
+    const modal = document.getElementById('addPlayerModal');
+    modal.style.display = 'flex';
+    modal.classList.add('show');
+    document.body.style.overflow = 'hidden';
+    
     document.getElementById('addPlayerForm').reset();
     
     // Set default gender in modal
@@ -527,7 +538,10 @@ function openAddPlayerModal() {
 }
 
 function closeAddPlayerModal() {
-    document.getElementById('addPlayerModal').style.display = 'none';
+    const modal = document.getElementById('addPlayerModal');
+    modal.classList.remove('show');
+    modal.style.display = 'none';
+    document.body.style.overflow = 'auto';
 }
 
 // Handle add player

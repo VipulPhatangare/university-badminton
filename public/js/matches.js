@@ -1,13 +1,22 @@
 
 // Configuration
 const USE_DUMMY_DATA = false; // Set to false to use real API data
-const API_BASE_URL = 'http://localhost:8080/api';
+const API_BASE_URL = 'http://localhost:3000';
 
 // Global state
 let currentMatchId = null;
 let currentSubmatchId = null;
 let currentSubmatchType = null; // 'singles' or 'doubles'
 let currentGender = 'boys'; // 'boys' or 'girls'
+
+// Search and filter state
+let allMatches = []; // Store all matches for searching/filtering
+let filteredMatches = []; // Currently displayed matches after search/filter
+let currentSearchQuery = '';
+let currentFilters = {
+    round: '',
+    status: 'all'
+};
 
 // Dummy Data for Testing - Boys Matches
 const DUMMY_MATCHES_BOYS = [
@@ -1190,6 +1199,7 @@ function initializeApp() {
     // Set up event listeners
     setupFilterTabs();
     setupDetailTabs();
+    setupSearchFunctionality();
     
     // Load initial data
     loadMatches('all');
@@ -1272,7 +1282,7 @@ async function loadMatches(filter) {
             }
         } else {
             console.log('Fetching matches from API...');
-            const endpoint = filter === 'all' ? '/matches' : `/matches/status/${filter}`;
+            const endpoint = filter === 'all' ? '/api/matches' : `/api/matches/status/${filter}`;
             const response = await fetch(API_BASE_URL + endpoint);
             
             if (!response.ok) {
@@ -1286,6 +1296,10 @@ async function loadMatches(filter) {
             // If you need gender filter, add gender field to schema
         }
         
+        // Store all matches for search/filter functionality
+        allMatches = matches;
+        currentFilters.status = filter;
+        
         // Sort matches: live first, then upcoming, then complete
         matches.sort((a, b) => {
             const statusOrder = { 'live': 1, 'upcoming': 2, 'complete': 3 };
@@ -1297,7 +1311,9 @@ async function loadMatches(filter) {
         if (matches.length === 0) {
             noMatches.style.display = 'block';
         } else {
-            displayMatches(matches);
+            // Apply current search and filters
+            filteredMatches = matches;
+            performSearch();
         }
     } catch (error) {
         console.error('Error loading matches:', error);
@@ -1550,8 +1566,8 @@ async function showSubmatchDetail(submatchId, type) {
             };
         } else {
             const endpoint = type === 'singles' ? 
-                `/matches/singles/${submatchId}` : 
-                `/matches/doubles/${submatchId}`;
+                `/api/matches/singles/${submatchId}` : 
+                `/api/matches/doubles/${submatchId}`;
             const response = await fetch(API_BASE_URL + endpoint);
             submatchData = await response.json();
         }
@@ -1751,3 +1767,181 @@ function goBackToMatchDetail() {
     document.querySelector('.tab-btn-detail[data-tab="summary"]').classList.add('active');
     document.getElementById('summaryTab').classList.add('active');
 }
+
+// Navigate to homepage
+function goToHomepage() {
+    window.location.href = '/';
+}
+
+// ===========================
+// SEARCH AND FILTER FUNCTIONALITY
+// ===========================
+
+function setupSearchFunctionality() {
+    const searchInput = document.getElementById('searchInput');
+    const searchBtn = document.getElementById('searchBtn');
+    const clearSearchBtn = document.getElementById('clearSearchBtn');
+    const roundFilter = document.getElementById('roundFilter');
+    const resetFiltersBtn = document.getElementById('resetFiltersBtn');
+    
+    // Search input event listeners
+    if (searchInput) {
+        searchInput.addEventListener('input', handleSearchInput);
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                performSearch();
+            }
+        });
+    }
+    
+    // Search button
+    if (searchBtn) {
+        searchBtn.addEventListener('click', performSearch);
+    }
+    
+    // Clear search button
+    if (clearSearchBtn) {
+        clearSearchBtn.addEventListener('click', clearSearch);
+    }
+    
+    // Filter dropdown
+    if (roundFilter) {
+        roundFilter.addEventListener('change', applyFilters);
+    }
+    
+    // Reset filters button
+    if (resetFiltersBtn) {
+        resetFiltersBtn.addEventListener('click', resetAllFilters);
+    }
+}
+
+function handleSearchInput(e) {
+    const query = e.target.value.trim();
+    const clearBtn = document.getElementById('clearSearchBtn');
+    
+    // Show/hide clear button
+    if (clearBtn) {
+        clearBtn.style.display = query ? 'flex' : 'none';
+    }
+    
+    // Debounced search (search after user stops typing for 500ms)
+    clearTimeout(window.searchTimeout);
+    window.searchTimeout = setTimeout(() => {
+        if (query !== currentSearchQuery) {
+            currentSearchQuery = query;
+            performSearch();
+        }
+    }, 500);
+}
+
+function performSearch() {
+    const searchInput = document.getElementById('searchInput');
+    const query = searchInput ? searchInput.value.trim().toLowerCase() : '';
+    
+    currentSearchQuery = query;
+    
+    // Filter matches based on search query and filters
+    filteredMatches = allMatches.filter(match => {
+        // Text search
+        const matchesQuery = !query || 
+            match.college1Name.toLowerCase().includes(query) ||
+            match.college2Name.toLowerCase().includes(query) ||
+            (match.refreeName && match.refreeName.toLowerCase().includes(query)) ||
+            (match.court && match.court.toLowerCase().includes(query));
+        
+        // Filter by round
+        const matchesRound = !currentFilters.round || 
+            match.round === currentFilters.round;
+        
+        // Filter by status (already handled by tab selection)
+        const matchesStatus = currentFilters.status === 'all' || 
+            match.matchStatus === currentFilters.status;
+        
+        return matchesQuery && matchesRound && matchesStatus;
+    });
+    
+    // Update display
+    displayMatches(filteredMatches);
+    updateSearchResultsInfo();
+}
+
+function applyFilters() {
+    const roundFilter = document.getElementById('roundFilter');
+    
+    // Update filter state
+    currentFilters.round = roundFilter ? roundFilter.value : '';
+    
+    // Apply search with new filters
+    performSearch();
+}
+
+function clearSearch() {
+    const searchInput = document.getElementById('searchInput');
+    const clearBtn = document.getElementById('clearSearchBtn');
+    const searchResultsInfo = document.getElementById('searchResultsInfo');
+    
+    if (searchInput) {
+        searchInput.value = '';
+    }
+    if (clearBtn) {
+        clearBtn.style.display = 'none';
+    }
+    if (searchResultsInfo) {
+        searchResultsInfo.style.display = 'none';
+    }
+    
+    currentSearchQuery = '';
+    performSearch();
+}
+
+function resetAllFilters() {
+    // Clear search input
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) {
+        searchInput.value = '';
+    }
+    
+    // Reset filter dropdown
+    const roundFilter = document.getElementById('roundFilter');
+    if (roundFilter) roundFilter.value = '';
+    
+    // Reset filter state
+    currentFilters = {
+        round: '',
+        status: currentFilters.status // Keep current status filter
+    };
+    
+    currentSearchQuery = '';
+    
+    // Clear search UI
+    clearSearch();
+}
+
+function updateSearchResultsInfo() {
+    const searchResultsInfo = document.getElementById('searchResultsInfo');
+    const resultsCount = document.getElementById('resultsCount');
+    const searchQuery = document.getElementById('searchQuery');
+    
+    if (!searchResultsInfo || !resultsCount) return;
+    
+    const hasActiveSearch = currentSearchQuery || 
+                          currentFilters.round;
+    
+    if (hasActiveSearch) {
+        searchResultsInfo.style.display = 'block';
+        resultsCount.textContent = filteredMatches.length;
+        
+        if (searchQuery) {
+            if (currentSearchQuery) {
+                searchQuery.textContent = ` for "${currentSearchQuery}"`;
+            } else {
+                searchQuery.textContent = ' with applied filters';
+            }
+        }
+    } else {
+        searchResultsInfo.style.display = 'none';
+    }
+}
+
+
