@@ -784,66 +784,9 @@ body {
     background-clip: text;
 }
 
-/* Modal Tabs */
-.modal-tabs {
-    display: flex;
-    gap: 0;
-    padding: 0 2.5rem;
-    border-bottom: 2px solid var(--border-color);
-}
-
-.modal-tab-btn {
-    flex: 1;
-    padding: 1rem 1.5rem;
-    background: transparent;
-    border: none;
-    color: var(--text-secondary);
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    border-bottom: 3px solid transparent;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    position: relative;
-    bottom: -2px;
-}
-
-.modal-tab-btn:hover {
-    color: var(--primary-color);
-    background: var(--bg-secondary);
-}
-
-.modal-tab-btn.active {
-    color: var(--primary-color);
-    border-bottom-color: var(--primary-color);
-}
-
 /* Modal Content Area */
 .modal-content-area {
     padding: 2.5rem;
-}
-
-.modal-tab-pane {
-    display: none;
-}
-
-.modal-tab-pane.active {
-    display: block;
-    animation: fadeInContent 0.3s ease;
-}
-
-@keyframes fadeInContent {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
 }
 
 /* Modal Score Table */
@@ -882,43 +825,6 @@ body {
 
 .popup-score-row span {
     text-align: center;
-}
-
-/* Modal History List */
-.modal-history-list {
-    max-height: 350px;
-    overflow-y: auto;
-    border-radius: var(--radius-md);
-    border: 1px solid var(--border-color);
-}
-
-.popup-history-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem 1.5rem;
-    border-bottom: 1px solid var(--border-color);
-    transition: all 0.2s ease;
-}
-
-.popup-history-item:last-child {
-    border-bottom: none;
-}
-
-.popup-history-item:hover {
-    background: var(--bg-secondary);
-    padding-left: 2rem;
-}
-
-.popup-history-point {
-    font-weight: 700;
-    color: var(--primary-color);
-    font-size: 0.9375rem;
-}
-
-.popup-history-scorer {
-    color: var(--text-primary);
-    font-weight: 500;
 }
 
 /* ===========================
@@ -985,50 +891,120 @@ body {
         grid-template-columns: 1fr;
     }
 
-    .modal-overlay {
+    .match-item {
         padding: 1rem;
+    }
+
+    .match-item-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+    }
+
+    .match-type {
+        font-size: 1rem;
+    }
+
+    .match-players {
+        flex-direction: column;
+        gap: 0.75rem;
+        padding: 0.875rem;
+    }
+
+    .player-name {
+        font-size: 0.9rem;
+        text-align: center;
+    }
+
+    .vs-text {
+        align-self: center;
+    }
+
+    .match-score {
+        font-size: 0.875rem;
+    }
+
+    .modal-overlay {
+        padding: 0.5rem;
     }
 
     .modal-container {
         max-height: 95vh;
+        border-radius: var(--radius-lg);
     }
 
-    .modal-header,
-    .modal-players-section,
-    .modal-score-grid,
-    .modal-tabs,
-    .modal-content-area {
-        padding: 1.5rem;
+    .modal-close-btn {
+        right: 1rem;
+        top: 1rem;
+        width: 36px;
+        height: 36px;
+    }
+
+    .modal-header {
+        padding: 1.5rem 1rem;
+    }
+
+    .modal-badge {
+        font-size: 0.75rem;
+        padding: 0.4rem 0.8rem;
     }
 
     .modal-title {
-        font-size: 1.5rem;
-    }
-
-    .popup-player-name {
         font-size: 1.25rem;
     }
 
     .modal-players-section {
+        padding: 1.25rem 1rem;
         flex-direction: column;
-        gap: 1rem;
+        gap: 0.75rem;
+    }
+
+    .popup-player-name {
+        font-size: 1.1rem;
+    }
+
+    .popup-player-team {
+        font-size: 0.85rem;
     }
 
     .popup-vs {
-        width: 50px;
-        height: 50px;
-        font-size: 1.5rem;
+        width: 45px;
+        height: 45px;
+        font-size: 1.25rem;
     }
 
     .modal-score-grid {
-        gap: 1rem;
+        padding: 1.25rem 1rem;
+        gap: 0.875rem;
+    }
+
+    .popup-set-score {
+        padding: 1rem;
+        min-width: 100px;
+    }
+
+    .popup-set-label {
+        font-size: 0.8rem;
+    }
+
+    .popup-score-display {
+        font-size: 1.75rem;
+    }
+
+    .modal-content-area {
+        padding: 1.25rem 1rem;
     }
 
     .popup-score-row {
         grid-template-columns: 1fr 1fr 1fr 1fr;
         gap: 0.5rem;
-        padding: 1rem;
-        font-size: 0.875rem;
+        padding: 0.875rem;
+        font-size: 0.8rem;
+    }
+
+    .popup-score-row.header {
+        font-size: 0.8rem;
     }
 }
 
@@ -1054,39 +1030,140 @@ body {
         font-size: 1.25rem;
     }
 
-    .modal-badge {
+    .section-subtitle {
+        font-size: 0.85rem;
+    }
+
+    .match-item {
+        padding: 0.875rem;
+    }
+
+    .match-type {
+        font-size: 0.9rem;
+    }
+
+    .player-name {
+        font-size: 0.85rem;
+    }
+
+    .match-players {
+        padding: 0.75rem;
+        gap: 0.625rem;
+    }
+
+    .vs-text {
         font-size: 0.75rem;
-        padding: 0.375rem 0.75rem;
+        padding: 0.25rem 0.625rem;
+    }
+
+    .match-score {
+        font-size: 0.8rem;
+        margin-top: 0.625rem;
+        padding-top: 0.625rem;
+    }
+
+    .match-item-status {
+        font-size: 0.7rem;
+        padding: 0.3rem 0.7rem;
+    }
+
+    .modal-overlay {
+        padding: 0.25rem;
+    }
+
+    .modal-container {
+        border-radius: var(--radius-md);
+    }
+
+    .modal-close-btn {
+        right: 0.75rem;
+        top: 0.75rem;
+        width: 32px;
+        height: 32px;
+    }
+
+    .modal-header {
+        padding: 1.25rem 0.875rem;
+    }
+
+    .modal-badge {
+        font-size: 0.7rem;
+        padding: 0.35rem 0.7rem;
+    }
+
+    .modal-title {
+        font-size: 1.1rem;
+    }
+
+    .modal-players-section {
+        padding: 1rem 0.875rem;
+        gap: 0.625rem;
+    }
+
+    .popup-player-name {
+        font-size: 1rem;
+    }
+
+    .popup-player-team {
+        font-size: 0.8rem;
+    }
+
+    .popup-vs {
+        width: 40px;
+        height: 40px;
+        font-size: 1.1rem;
+    }
+
+    .modal-score-grid {
+        padding: 1rem 0.875rem;
+        gap: 0.75rem;
     }
 
     .popup-set-score {
-        min-width: 100px;
-        padding: 1rem;
+        min-width: 90px;
+        padding: 0.875rem;
+    }
+
+    .popup-set-label {
+        font-size: 0.75rem;
+        margin-bottom: 0.5rem;
     }
 
     .popup-score-display {
-        font-size: 1.75rem;
+        font-size: 1.5rem;
+    }
+
+    .modal-content-area {
+        padding: 1rem 0.875rem;
+    }
+
+    .popup-score-row {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 0.375rem;
+        padding: 0.75rem 0.5rem;
+        font-size: 0.75rem;
+    }
+
+    .popup-score-row.header {
+        font-size: 0.7rem;
+        padding: 0.75rem 0.5rem;
     }
 }
 
 /* Scrollbar Styling */
-.modal-container::-webkit-scrollbar,
-.modal-history-list::-webkit-scrollbar {
+.modal-container::-webkit-scrollbar {
     width: 8px;
 }
 
-.modal-container::-webkit-scrollbar-track,
-.modal-history-list::-webkit-scrollbar-track {
+.modal-container::-webkit-scrollbar-track {
     background: var(--bg-tertiary);
 }
 
-.modal-container::-webkit-scrollbar-thumb,
-.modal-history-list::-webkit-scrollbar-thumb {
+.modal-container::-webkit-scrollbar-thumb {
     background: var(--primary-color);
     border-radius: 4px;
 }
 
-.modal-container::-webkit-scrollbar-thumb:hover,
-.modal-history-list::-webkit-scrollbar-thumb:hover {
+.modal-container::-webkit-scrollbar-thumb:hover {
     background: var(--primary-dark);
 }

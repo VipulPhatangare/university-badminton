@@ -17,23 +17,23 @@
                 <h1>University Badminton Matches</h1>
             </header>
 
-            <!-- Filter Tabs with Gender Switch -->
+            <!-- Gender Toggle -->
+            <div class="gender-toggle-section">
+                <button class="gender-toggle-btn active" id="boysToggle" onclick="selectGender('boys')">
+                    Boys Matches
+                </button>
+                <button class="gender-toggle-btn" id="girlsToggle" onclick="selectGender('girls')">
+                    Girls Matches
+                </button>
+            </div>
+
+            <!-- Filter Tabs -->
             <div class="filter-section">
                 <div class="filter-tabs">
-                    <button class="tab-btn active" data-filter="all">All Matches</button>
+                    <button class="tab-btn active" data-filter="all">All</button>
                     <button class="tab-btn" data-filter="live">Live</button>
                     <button class="tab-btn" data-filter="upcoming">Upcoming</button>
-                    <button class="tab-btn" data-filter="complete">Finished</button>
-                </div>
-                
-                <!-- Gender Switch -->
-                <div class="gender-switch-container">
-                    <span class="gender-label active" id="boysLabel">Boys</span>
-                    <label class="switch">
-                        <input type="checkbox" id="genderSwitch" onchange="toggleGender()">
-                        <span class="slider"></span>
-                    </label>
-                    <span class="gender-label" id="girlsLabel">Girls</span>
+                    <button class="tab-btn" data-filter="complete">Complete</button>
                 </div>
             </div>
 

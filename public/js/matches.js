@@ -1195,26 +1195,31 @@ function initializeApp() {
     loadMatches('all');
 }
 
-// Toggle Gender
-function toggleGender() {
-    const switchInput = document.getElementById('genderSwitch');
-    const boysLabel = document.getElementById('boysLabel');
-    const girlsLabel = document.getElementById('girlsLabel');
+// Select Gender
+function selectGender(gender) {
+    const boysToggle = document.getElementById('boysToggle');
+    const girlsToggle = document.getElementById('girlsToggle');
     
-    if (switchInput.checked) {
-        currentGender = 'girls';
-        boysLabel.classList.remove('active');
-        girlsLabel.classList.add('active');
-    } else {
+    if (gender === 'boys') {
         currentGender = 'boys';
-        girlsLabel.classList.remove('active');
-        boysLabel.classList.add('active');
+        boysToggle.classList.add('active');
+        girlsToggle.classList.remove('active');
+    } else {
+        currentGender = 'girls';
+        girlsToggle.classList.add('active');
+        boysToggle.classList.remove('active');
     }
     
     // Reload matches for the selected gender
     const activeFilter = document.querySelector('.filter-tabs .tab-btn.active');
     const filter = activeFilter ? activeFilter.getAttribute('data-filter') : 'all';
     loadMatches(filter);
+}
+
+// Legacy function for compatibility
+function toggleGender() {
+    const currentActive = currentGender === 'boys' ? 'girls' : 'boys';
+    selectGender(currentActive);
 }
 
 // Setup Filter Tabs

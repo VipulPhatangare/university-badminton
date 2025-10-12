@@ -252,27 +252,6 @@ async function loadSubmatchDetails(submatchId, type) {
     }
 }
 
-// Switch popup tab
-function switchPopupTab(tabName) {
-    // Remove active class from all tabs
-    document.querySelectorAll('.modal-tab-btn').forEach(btn => {
-        btn.classList.remove('active');
-    });
-    
-    document.querySelectorAll('.modal-tab-pane').forEach(pane => {
-        pane.classList.remove('active');
-    });
-    
-    // Add active class to selected tab
-    event.target.closest('.modal-tab-btn').classList.add('active');
-    
-    if (tabName === 'summary') {
-        document.getElementById('popupSummaryTab').classList.add('active');
-    } else if (tabName === 'history') {
-        document.getElementById('popupHistoryTab').classList.add('active');
-    }
-}
-
 // Close popup when clicking outside
 window.onclick = function(event) {
     const modal = document.getElementById('matchPopup');
@@ -375,27 +354,6 @@ function populatePopupHistory(matchData) {
 function closePopup() {
     const modal = document.getElementById('matchPopup');
     modal.classList.remove('active');
-}
-
-// Switch popup tab
-function switchPopupTab(tabName) {
-    // Remove active class from all tabs
-    document.querySelectorAll('.popup-tab-btn').forEach(btn => {
-        btn.classList.remove('active');
-    });
-    
-    document.querySelectorAll('.popup-tab-pane').forEach(pane => {
-        pane.classList.remove('active');
-    });
-    
-    // Add active class to selected tab
-    event.target.classList.add('active');
-    
-    if (tabName === 'summary') {
-        document.getElementById('popupSummaryTab').classList.add('active');
-    } else if (tabName === 'history') {
-        document.getElementById('popupHistoryTab').classList.add('active');
-    }
 }
 
 // Close popup when clicking outside
