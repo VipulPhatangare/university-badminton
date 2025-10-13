@@ -4,6 +4,7 @@ const {
     collegeInfo,
     playerInfoId,
     matchesBoys,
+    matchesGirls,
     singlesMatch,
     doublesMatch,
     set,
@@ -23,14 +24,8 @@ router.get('/dashboard', async (req, res) => {
 // Get all matches for admin dashboard
 router.get('/get-all-matches', async (req, res) => {
     try {
-        // Get only unassigned matches (matches where players haven't been assigned)
-        const matches = await matchesBoys.find({
-            $or: [
-                { 'match1Singles.player1Name': { $exists: false } },
-                { 'match1Singles.player1Name': null },
-                { 'match1Singles.player1Name': '' }
-            ]
-        }).sort({ date: 1, time: 1 });
+        // Get matches that need assignment or have been assigned
+        const matches = await matchesBoys.find({}).sort({ date: 1, time: 1 });
 
         // Format matches for display
         const formattedMatches = await Promise.all(matches.map(async (match) => {
@@ -38,8 +33,34 @@ router.get('/get-all-matches', async (req, res) => {
             const college1 = await collegeInfo.findOne({ email: match.email1 });
             const college2 = await collegeInfo.findOne({ email: match.email2 });
 
-            // Get main referee info
-            const mainReferee = match.refreeEmail ? await refreeInfo.findOne({ refEmail: match.refreeEmail }) : null;
+            // Get main referee info - try multiple ways to ensure we get the referee
+            let mainReferee = null;
+            if (match.refreeEmail) {
+                mainReferee = await refreeInfo.findOne({ refEmail: match.refreeEmail });
+            } else if (match.refreeId && match.refreeId.length > 0) {
+                mainReferee = await refreeInfo.findById(match.refreeId[0]);
+            }
+
+            // Determine assignment status
+            let assignmentStatus = 'not_assigned';
+            let isPlayerAssigned = false;
+            let isRefereeAssigned = false;
+
+            // Check if referee is assigned
+            if (match.refreeEmail || (match.refreeId && match.refreeId.length > 0)) {
+                isRefereeAssigned = true;
+            }
+
+            // Check if players are assigned
+            if (match.match1Singles && (match.match1Singles.player1Name || match.match1Singles.player2Name)) {
+                isPlayerAssigned = true;
+            }
+
+            if (isRefereeAssigned && isPlayerAssigned) {
+                assignmentStatus = 'fully_assigned';
+            } else if (isRefereeAssigned || isPlayerAssigned) {
+                assignmentStatus = 'partially_assigned';
+            }
 
             return {
                 _id: match._id,
@@ -54,11 +75,16 @@ router.get('/get-all-matches', async (req, res) => {
                 matchStatus: match.matchStatus,
                 winnerEmail: match.winnerEmail,
                 score: match.score,
-                refreeEmail: match.refreeEmail,
-                refreeName: mainReferee ? mainReferee.name : 'Not assigned',
+                refreeEmail: match.refreeEmail || '',
+                refreeName: match.refreeName || (mainReferee ? mainReferee.name : 'Not assigned'),
+                refreeId: match.refreeId || [],
                 setupCompleted: match.setupCompleted || false,
                 assignedRefereeNames: match.assignedRefereeNames || [],
-                matchSetup: match.matchSetup || null
+                matchSetup: match.matchSetup || null,
+                assignmentStatus: assignmentStatus,
+                isRefereeAssigned: isRefereeAssigned,
+                isPlayerAssigned: isPlayerAssigned,
+                lastModified: match.lastModified
             };
         }));
 
@@ -76,10 +102,53 @@ router.get('/get-all-matches', async (req, res) => {
 // Get all colleges for admin dashboard
 router.get('/get-colleges', async (req, res) => {
     try {
-        const colleges = await collegeInfo.find({}).select('email collegeName address phoneNumber');
+        const colleges = await collegeInfo.find({});
+        
+        // Get player counts for each college
+        const collegesWithCounts = await Promise.all(colleges.map(async (college) => {
+            const boysCount = await playerInfoId.countDocuments({ 
+                $and: [
+                    {
+                        $or: [
+                            { email: college.email },
+                            { collegeEmail: college.email }
+                        ]
+                    },
+                    { gender: 'male' }
+                ]
+            });
+            
+            const girlsCount = await playerInfoId.countDocuments({ 
+                $and: [
+                    {
+                        $or: [
+                            { email: college.email },
+                            { collegeEmail: college.email }
+                        ]
+                    },
+                    { gender: 'female' }
+                ]
+            });
+
+            return {
+                _id: college._id,
+                collegeName: college.collegeName,
+                email: college.email,
+                phone: college.phone || college.phoneNumber,
+                address: college.address,
+                actualBoysCount: boysCount,
+                actualGirlsCount: girlsCount,
+                totalPlayers: boysCount + girlsCount,
+                currentRoundBoys: college.currentRoundBoys,
+                currentRoundGirls: college.currentRoundGirls,
+                isMatchAllocateBoys: college.isMatchAllocateBoys,
+                isMatchAllocateGirls: college.isMatchAllocateGirls
+            };
+        }));
+
         res.json({
             success: true,
-            colleges: colleges
+            colleges: collegesWithCounts
         });
     } catch (error) {
         console.error('Error getting colleges:', error);
@@ -104,7 +173,8 @@ router.get('/get-referees', async (req, res) => {
 // Get all players for admin dashboard
 router.get('/get-players', async (req, res) => {
     try {
-        const players = await playerInfoId.find({});
+        // Only return male players (boys only tournament)
+        const players = await playerInfoId.find({ gender: "male" });
         res.json({
             success: true,
             players: players
@@ -166,7 +236,12 @@ router.get('/colleges', async (req, res) => {
                 address: college.address,
                 actualBoysCount: boysCount,
                 actualGirlsCount: girlsCount,
-                totalPlayers: boysCount + girlsCount
+                totalPlayers: boysCount + girlsCount,
+                // Add schedule generator fields
+                currentRoundBoys: college.currentRoundBoys,
+                currentRoundGirls: college.currentRoundGirls,
+                isMatchAllocateBoys: college.isMatchAllocateBoys,
+                isMatchAllocateGirls: college.isMatchAllocateGirls
             };
         }));
 
@@ -230,6 +305,8 @@ router.get('/colleges/:collegeId', async (req, res) => {
 router.get('/players', async (req, res) => {
     try {
         const { college, gender, search } = req.query;
+        console.log('Players request - college:', college, 'gender:', gender, 'search:', search);
+        
         let query = {};
 
         if (college) {
@@ -253,7 +330,11 @@ router.get('/players', async (req, res) => {
             ];
         }
 
+        console.log('Query:', JSON.stringify(query, null, 2));
         const players = await playerInfoId.find(query);
+        console.log('Found players:', players.length);
+        console.log('Players data:', players);
+        
         res.json(players);
     } catch (error) {
         console.error('Error getting players:', error);
@@ -264,26 +345,52 @@ router.get('/players', async (req, res) => {
 // Add new player
 router.post('/players', async (req, res) => {
     try {
+        console.log('Received player data:', req.body);
         const { playerName, email, phone, gender, collegeId } = req.body;
 
         // Validate required fields
         if (!playerName || !email || !gender || !collegeId) {
-            return res.status(400).json({ success: false, error: 'Missing required fields' });
+            console.log('Missing fields - playerName:', playerName, 'email:', email, 'gender:', gender, 'collegeId:', collegeId);
+            return res.status(400).json({ 
+                success: false, 
+                error: 'Missing required fields',
+                details: {
+                    playerName: !playerName ? 'missing' : 'ok',
+                    email: !email ? 'missing' : 'ok',
+                    gender: !gender ? 'missing' : 'ok',
+                    collegeId: !collegeId ? 'missing' : 'ok'
+                }
+            });
         }
 
         // Check if player already exists
+        console.log('Checking for existing player with email:', email);
         const existingPlayer = await playerInfoId.findOne({ email: email });
         if (existingPlayer) {
+            console.log('Player already exists:', existingPlayer);
             return res.status(400).json({ success: false, error: 'Player with this email already exists' });
         }
+        console.log('No existing player found');
 
         // Get college info
+        console.log('Looking for college with ID:', collegeId);
         const college = await collegeInfo.findById(collegeId);
         if (!college) {
+            console.log('College not found with ID:', collegeId);
             return res.status(400).json({ success: false, error: 'College not found' });
         }
+        console.log('College found:', college.collegeName);
 
         // Create new player
+        console.log('Creating new player with data:', {
+            playerName,
+            email,
+            phone,
+            gender,
+            collegeEmail: college.email,
+            collegeName: college.collegeName
+        });
+        
         const newPlayer = new playerInfoId({
             playerName,
             email,
@@ -293,11 +400,32 @@ router.post('/players', async (req, res) => {
             collegeName: college.collegeName
         });
 
+        console.log('Saving player...');
         await newPlayer.save();
+        console.log('Player saved successfully:', newPlayer._id);
         res.json({ success: true, player: newPlayer });
     } catch (error) {
         console.error('Error adding player:', error);
-        res.status(500).json({ success: false, error: 'Server error' });
+        
+        // Handle specific MongoDB errors
+        if (error.code === 11000) {
+            // Duplicate key error (unique constraint violation)
+            const field = Object.keys(error.keyValue)[0];
+            const value = error.keyValue[field];
+            return res.status(400).json({ 
+                success: false, 
+                error: `A player with this ${field} (${value}) already exists. Please use a different ${field}.`
+            });
+        } else if (error.name === 'ValidationError') {
+            // Mongoose validation error
+            const messages = Object.values(error.errors).map(err => err.message);
+            return res.status(400).json({ 
+                success: false, 
+                error: `Validation failed: ${messages.join(', ')}`
+            });
+        }
+        
+        res.status(500).json({ success: false, error: 'Server error occurred while saving player' });
     }
 });
 
@@ -366,36 +494,52 @@ router.get('/referees', async (req, res) => {
         }
 
         const referees = await refreeInfo.find(query);
-        res.json(referees);
+        res.json({ success: true, referees });
     } catch (error) {
         console.error('Error getting referees:', error);
         res.status(500).json({ success: false, message: 'Server error' });
     }
 });
 
+// Get single referee by ID
+router.get('/referees/:refereeId', async (req, res) => {
+    try {
+        const refereeId = req.params.refereeId;
+        const referee = await refreeInfo.findById(refereeId);
+        
+        if (!referee) {
+            return res.status(404).json({ success: false, error: 'Referee not found' });
+        }
+
+        res.json({ success: true, referee });
+    } catch (error) {
+        console.error('Error getting referee:', error);
+        res.status(500).json({ success: false, error: 'Server error' });
+    }
+});
+
 // Add new referee
 router.post('/referees', async (req, res) => {
     try {
-        const { refereeName, email, phone, password } = req.body;
+        const { name, refEmail, phone, password } = req.body;
 
         // Validate required fields
-        if (!refereeName || !email || !password) {
+        if (!name || !refEmail || !password) {
             return res.status(400).json({ success: false, error: 'Missing required fields' });
         }
 
         // Check if referee already exists
-        const existingReferee = await refreeInfo.findOne({ refEmail: email });
+        const existingReferee = await refreeInfo.findOne({ refEmail: refEmail });
         if (existingReferee) {
             return res.status(400).json({ success: false, error: 'Referee with this email already exists' });
         }
 
         // Create new referee
         const newReferee = new refreeInfo({
-            name: refereeName,
-            refEmail: email,
-            phoneNumber: phone,
-            password: password,
-            createdAt: new Date()
+            name: name,
+            refEmail: refEmail,
+            phone: phone,
+            password: password
         });
 
         await newReferee.save();
@@ -410,14 +554,18 @@ router.post('/referees', async (req, res) => {
 router.put('/referees/:refereeId', async (req, res) => {
     try {
         const refereeId = req.params.refereeId;
-        const { refereeName, email, phone, password } = req.body;
+        const { name, refEmail, phone, password } = req.body;
 
         const updateData = {
-            name: refereeName,
-            refEmail: email,
-            phoneNumber: phone,
-            password: password
+            name: name,
+            refEmail: refEmail,
+            phone: phone
         };
+        
+        // Only update password if provided
+        if (password && password.trim() !== '') {
+            updateData.password = password;
+        }
 
         const updatedReferee = await refreeInfo.findByIdAndUpdate(refereeId, updateData, { new: true });
         
@@ -494,6 +642,28 @@ router.get('/matches', async (req, res) => {
     }
 });
 
+// Get boys matches
+router.get('/matches/boys', async (req, res) => {
+    try {
+        const matches = await matchesBoys.find({}).sort({ date: 1, time: 1 });
+        res.json({ success: true, matches });
+    } catch (error) {
+        console.error('Error getting boys matches:', error);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+});
+
+// Get girls matches
+router.get('/matches/girls', async (req, res) => {
+    try {
+        const matches = await matchesGirls.find({}).sort({ date: 1, time: 1 });
+        res.json({ success: true, matches });
+    } catch (error) {
+        console.error('Error getting girls matches:', error);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+});
+
 // Get specific match details
 router.get('/matches/:matchId', async (req, res) => {
     try {
@@ -534,62 +704,240 @@ router.post('/matches/assign', async (req, res) => {
     try {
         const { matchId, gender, subMatches } = req.body;
 
+        console.log('Assigning match:', { matchId, gender, subMatches });
+
         // Validate input
         if (!matchId || !gender || !subMatches || !Array.isArray(subMatches)) {
             return res.status(400).json({ success: false, error: 'Invalid request data' });
         }
 
+        // Validate matchId format
+        const mongoose = require('mongoose');
+        if (!mongoose.Types.ObjectId.isValid(matchId)) {
+            return res.status(400).json({ success: false, error: 'Invalid match ID format' });
+        }
+
+        // Determine which collection to use based on gender
+        const matchModel = gender === 'girls' ? matchesGirls : matchesBoys;
+
         // Find the match
-        const match = await matchesBoys.findById(matchId);
+        const match = await matchModel.findById(matchId);
         if (!match) {
             return res.status(404).json({ success: false, error: 'Match not found' });
         }
 
         // Validate all referees exist
-        const refereeIds = subMatches.map(sm => sm.refereeId);
-        const referees = await refreeInfo.find({ _id: { $in: refereeIds } });
+        const refereeIds = subMatches.map(sm => sm.refereeId).filter(id => id);
+        const uniqueRefereeIds = [...new Set(refereeIds)]; // Remove duplicates
+        console.log('All referee IDs:', refereeIds);
+        console.log('Unique referee IDs to validate:', uniqueRefereeIds);
         
-        if (referees.length !== refereeIds.length) {
-            return res.status(400).json({ success: false, error: 'One or more referees not found' });
+        if (refereeIds.length === 0) {
+            console.log('VALIDATION ERROR: No referees assigned');
+            return res.status(400).json({ success: false, error: 'At least one referee must be assigned' });
+        }
+
+        const referees = await refreeInfo.find({ _id: { $in: uniqueRefereeIds } });
+        console.log('Found referees:', referees.length, 'out of', uniqueRefereeIds.length, 'unique referees requested');
+        
+        if (referees.length !== uniqueRefereeIds.length) {
+            console.log('VALIDATION ERROR: Missing referees');
+            const foundRefereeIds = referees.map(r => r._id.toString());
+            const missingRefereeIds = uniqueRefereeIds.filter(id => !foundRefereeIds.includes(id.toString()));
+            console.log('Missing referee IDs:', missingRefereeIds);
+            return res.status(400).json({ success: false, error: 'One or more referees not found', missingReferees: missingRefereeIds });
         }
 
         // Validate all players exist
         const playerIds = [];
-        subMatches.forEach(sm => {
+        const invalidPlayerIds = [];
+        
+        subMatches.forEach((sm, index) => {
+            console.log(`Processing submatch ${index + 1}:`, sm);
+            
             if (sm.type === 'singles') {
-                if (sm.team1Player) playerIds.push(sm.team1Player);
-                if (sm.team2Player) playerIds.push(sm.team2Player);
+                if (sm.team1Player) {
+                    if (mongoose.Types.ObjectId.isValid(sm.team1Player)) {
+                        playerIds.push(sm.team1Player);
+                    } else {
+                        console.log('Invalid team1Player ID:', sm.team1Player);
+                        invalidPlayerIds.push(sm.team1Player);
+                    }
+                }
+                if (sm.team2Player) {
+                    if (mongoose.Types.ObjectId.isValid(sm.team2Player)) {
+                        playerIds.push(sm.team2Player);
+                    } else {
+                        console.log('Invalid team2Player ID:', sm.team2Player);
+                        invalidPlayerIds.push(sm.team2Player);
+                    }
+                }
             } else {
-                if (sm.team1Player1) playerIds.push(sm.team1Player1);
-                if (sm.team1Player2) playerIds.push(sm.team1Player2);
-                if (sm.team2Player1) playerIds.push(sm.team2Player1);
-                if (sm.team2Player2) playerIds.push(sm.team2Player2);
+                if (sm.team1Player1) {
+                    if (mongoose.Types.ObjectId.isValid(sm.team1Player1)) {
+                        playerIds.push(sm.team1Player1);
+                    } else {
+                        console.log('Invalid team1Player1 ID:', sm.team1Player1);
+                        invalidPlayerIds.push(sm.team1Player1);
+                    }
+                }
+                if (sm.team1Player2) {
+                    if (mongoose.Types.ObjectId.isValid(sm.team1Player2)) {
+                        playerIds.push(sm.team1Player2);
+                    } else {
+                        console.log('Invalid team1Player2 ID:', sm.team1Player2);
+                        invalidPlayerIds.push(sm.team1Player2);
+                    }
+                }
+                if (sm.team2Player1) {
+                    if (mongoose.Types.ObjectId.isValid(sm.team2Player1)) {
+                        playerIds.push(sm.team2Player1);
+                    } else {
+                        console.log('Invalid team2Player1 ID:', sm.team2Player1);
+                        invalidPlayerIds.push(sm.team2Player1);
+                    }
+                }
+                if (sm.team2Player2) {
+                    if (mongoose.Types.ObjectId.isValid(sm.team2Player2)) {
+                        playerIds.push(sm.team2Player2);
+                    } else {
+                        console.log('Invalid team2Player2 ID:', sm.team2Player2);
+                        invalidPlayerIds.push(sm.team2Player2);
+                    }
+                }
             }
         });
 
-        const players = await playerInfoId.find({ _id: { $in: playerIds } });
-        if (players.length !== playerIds.length) {
-            return res.status(400).json({ success: false, error: 'One or more players not found' });
+        console.log('Valid player IDs:', playerIds);
+        console.log('Invalid player IDs:', invalidPlayerIds);
+
+        if (invalidPlayerIds.length > 0) {
+            console.log('VALIDATION ERROR: Invalid player IDs detected');
+            return res.status(400).json({ 
+                success: false, 
+                error: `Invalid player IDs found: ${invalidPlayerIds.join(', ')}. Player IDs must be valid MongoDB ObjectIds.` 
+            });
         }
 
-        // Update match with referee assignments
-        match.refreeId = refereeIds;
-        match.assignedRefereeNames = referees.map(r => r.name);
-        match.matchStatus = 'players_allocated';
+        if (playerIds.length === 0) {
+            return res.status(400).json({ success: false, error: 'At least some players must be assigned' });
+        }
 
-        // Save sub-match assignments (you might need to adjust this based on your schema)
-        match.subMatchAssignments = subMatches;
+        console.log('Looking up players with IDs:', playerIds);
+        const players = await playerInfoId.find({ _id: { $in: playerIds } });
+        console.log('Found players:', players.length, 'out of', playerIds.length, 'requested');
+        
+        if (players.length !== playerIds.length) {
+            const foundPlayerIds = players.map(p => p._id.toString());
+            const missingPlayerIds = playerIds.filter(id => !foundPlayerIds.includes(id.toString()));
+            console.log('VALIDATION ERROR: Missing player IDs:', missingPlayerIds);
+            
+            return res.status(400).json({ 
+                success: false, 
+                error: `Players not found with IDs: ${missingPlayerIds.join(', ')}` 
+            });
+        }
 
-        await match.save();
+        // Create player lookup for easy access
+        const playerLookup = {};
+        players.forEach(player => {
+            playerLookup[player._id.toString()] = player;
+        });
+
+        // Create referee lookup for easy access
+        const refereeLookup = {};
+        referees.forEach(referee => {
+            refereeLookup[referee._id.toString()] = referee;
+        });
+
+        // Prepare update data
+        const updateData = {
+            refreeId: uniqueRefereeIds,
+            assignedRefereeNames: referees.map(r => r.name),
+            matchStatus: 'players_allocated',
+            lastModified: new Date(),
+            subMatchAssignments: subMatches
+        };
+
+        // Set primary referee (first one in the list)
+        if (referees.length > 0) {
+            updateData.refreeEmail = referees[0].refEmail;
+            updateData.refreeName = referees[0].name;
+        }
+
+        // Assign players to specific match slots based on subMatches
+        subMatches.forEach((sm, index) => {
+            const matchNumber = sm.matchNumber || (index + 1);
+            
+            if (sm.type === 'singles') {
+                const matchField = `match${matchNumber}Singles`;
+                updateData[matchField] = {
+                    player1Name: playerLookup[sm.team1Player]?.playerName || '',
+                    player2Name: playerLookup[sm.team2Player]?.playerName || '',
+                    player1Email: playerLookup[sm.team1Player]?.email || '',
+                    player2Email: playerLookup[sm.team2Player]?.email || ''
+                };
+            } else if (sm.type === 'doubles') {
+                const matchField = `match${matchNumber}Doubles`;
+                updateData[matchField] = {
+                    team1Player1Name: playerLookup[sm.team1Player1]?.playerName || '',
+                    team1Player2Name: playerLookup[sm.team1Player2]?.playerName || '',
+                    team2Player1Name: playerLookup[sm.team2Player1]?.playerName || '',
+                    team2Player2Name: playerLookup[sm.team2Player2]?.playerName || '',
+                    team1Player1Email: playerLookup[sm.team1Player1]?.email || '',
+                    team1Player2Email: playerLookup[sm.team1Player2]?.email || '',
+                    team2Player1Email: playerLookup[sm.team2Player1]?.email || '',
+                    team2Player2Email: playerLookup[sm.team2Player2]?.email || ''
+                };
+            }
+        });
+
+        // Update match with all data using findByIdAndUpdate for better reliability
+        console.log('Attempting to update match with data:', JSON.stringify(updateData, null, 2));
+        
+        const updatedMatch = await matchModel.findByIdAndUpdate(matchId, updateData, { 
+            new: true,
+            runValidators: true 
+        });
+
+        if (!updatedMatch) {
+            console.log('VALIDATION ERROR: Match not found during update');
+            return res.status(404).json({ success: false, error: 'Match not found during update' });
+        }
+
+        console.log('Match assignment saved successfully:', {
+            matchId: updatedMatch._id,
+            refreeEmail: updatedMatch.refreeEmail,
+            refreeName: updatedMatch.refreeName,
+            refreeId: updatedMatch.refreeId,
+            matchStatus: updatedMatch.matchStatus,
+            assignedPlayers: playerIds.length,
+            assignedReferees: refereeIds.length
+        });
 
         res.json({ 
             success: true, 
             message: 'Match assigned successfully',
-            match: match
+            match: {
+                _id: updatedMatch._id,
+                refreeEmail: updatedMatch.refreeEmail,
+                refreeName: updatedMatch.refreeName,
+                refreeId: updatedMatch.refreeId,
+                assignedRefereeNames: updatedMatch.assignedRefereeNames,
+                matchStatus: updatedMatch.matchStatus,
+                subMatchAssignments: updatedMatch.subMatchAssignments,
+                lastModified: updatedMatch.lastModified
+            }
         });
     } catch (error) {
-        console.error('Error assigning match:', error);
-        res.status(500).json({ success: false, error: 'Server error' });
+        console.error('CRITICAL ERROR in match assignment:', error);
+        console.error('Error stack:', error.stack);
+        if (error.name === 'ValidationError') {
+            console.error('Mongoose validation errors:', error.errors);
+            res.status(400).json({ success: false, error: 'Validation error', details: error.message, validationErrors: error.errors });
+        } else {
+            res.status(500).json({ success: false, error: 'Server error', details: error.message });
+        }
     }
 });
 
@@ -732,6 +1080,50 @@ router.get('/match/:id/details', async (req, res) => {
     }
 });
 
+// Save match setup
+router.post('/match/:id/save-setup', async (req, res) => {
+    try {
+        const matchId = req.params.id;
+        const { refreeEmail, status } = req.body;
+        
+        const match = await matchesBoys.findById(matchId);
+        if (!match) {
+            return res.json({ success: false, message: 'Match not found' });
+        }
+
+        // Update match with referee and status
+        if (refreeEmail) {
+            // Get referee details
+            const referee = await refreeInfo.findOne({ refEmail: refreeEmail });
+            if (referee) {
+                match.refreeEmail = refreeEmail;
+                match.refreeName = referee.name;
+                match.refreeId = [referee._id];
+            }
+        }
+        
+        // Update match status
+        if (status) {
+            match.matchStatus = status;
+        }
+        
+        // Mark setup as saved but not completed
+        match.setupSaved = true;
+        match.lastModified = new Date();
+
+        await match.save();
+
+        res.json({ 
+            success: true, 
+            message: 'Match setup saved successfully',
+            match: match
+        });
+    } catch (error) {
+        console.error('Error saving match setup:', error);
+        res.json({ success: false, message: 'Error saving match setup' });
+    }
+});
+
 // Reset match configuration
 router.post('/match/:id/reset-setup', async (req, res) => {
     try {
@@ -842,7 +1234,7 @@ router.post('/match/:id/complete-setup', async (req, res) => {
 router.post('/assign-match/:matchId', async (req, res) => {
     try {
         const { matchId } = req.params;
-        const { refereeId, ...playerAssignments } = req.body;
+        const { refereeId, refereeEmail, gender, ...playerAssignments } = req.body;
 
         console.log('Assigning match:', matchId, 'with data:', req.body);
 
@@ -852,32 +1244,85 @@ router.post('/assign-match/:matchId', async (req, res) => {
             return res.status(400).json({ success: false, message: 'Invalid match ID format' });
         }
 
+        // Determine which collection to use based on gender
+        const matchModel = gender === 'girls' ? matchesGirls : matchesBoys;
+
         // Find the match
-        const match = await matchesBoys.findById(matchId);
+        const match = await matchModel.findById(matchId);
         if (!match) {
             return res.status(404).json({ success: false, message: 'Match not found' });
         }
 
-        // Find the referee
-        const referee = await refreeInfo.findById(refereeId);
+        let referee = null;
+
+        // Find the referee by ID or email
+        if (refereeId) {
+            referee = await refreeInfo.findById(refereeId);
+        } else if (refereeEmail) {
+            referee = await refreeInfo.findOne({ refEmail: refereeEmail });
+        }
+
         if (!referee) {
             return res.status(404).json({ success: false, message: 'Referee not found' });
+        }
+
+        // Validate player assignments if provided
+        const playerIds = [];
+        Object.values(playerAssignments).forEach(value => {
+            if (value && mongoose.Types.ObjectId.isValid(value)) {
+                playerIds.push(value);
+            }
+        });
+
+        if (playerIds.length > 0) {
+            const players = await playerInfoId.find({ _id: { $in: playerIds } });
+            if (players.length !== playerIds.length) {
+                return res.status(400).json({ success: false, message: 'One or more players not found' });
+            }
         }
 
         // Update match with referee and player assignments
         const updateData = {
             refreeEmail: referee.refEmail,
             refreeName: referee.name,
-            ...playerAssignments,
-            matchStatus: 'players_allocated'
+            refreeId: [referee._id],
+            assignedRefereeNames: [referee.name],
+            matchStatus: 'players_allocated',
+            lastModified: new Date(),
+            ...playerAssignments
         };
 
-        const updatedMatch = await matchesBoys.findByIdAndUpdate(matchId, updateData, { new: true });
+        const updatedMatch = await matchModel.findByIdAndUpdate(matchId, updateData, { 
+            new: true,
+            runValidators: true 
+        });
+
+        if (!updatedMatch) {
+            return res.status(404).json({ success: false, message: 'Match not found during update' });
+        }
+
+        console.log('Match updated with referee and players:', {
+            matchId: updatedMatch._id,
+            refreeEmail: updatedMatch.refreeEmail,
+            refreeName: updatedMatch.refreeName,
+            refreeId: updatedMatch.refreeId,
+            matchStatus: updatedMatch.matchStatus,
+            playerAssignments: Object.keys(playerAssignments).length
+        });
 
         res.json({ 
             success: true, 
             message: 'Players and referee assigned successfully',
-            match: updatedMatch
+            match: {
+                _id: updatedMatch._id,
+                refreeEmail: updatedMatch.refreeEmail,
+                refreeName: updatedMatch.refreeName,
+                refreeId: updatedMatch.refreeId,
+                assignedRefereeNames: updatedMatch.assignedRefereeNames,
+                matchStatus: updatedMatch.matchStatus,
+                lastModified: updatedMatch.lastModified
+            },
+            gender: gender || 'boys'
         });
     } catch (error) {
         console.error('Error assigning match:', error);
@@ -885,6 +1330,197 @@ router.post('/assign-match/:matchId', async (req, res) => {
             success: false, 
             message: 'Failed to assign players and referee',
             error: error.message 
+        });
+    }
+});
+
+// Simple referee assignment endpoint
+router.post('/assign-referee-to-match', async (req, res) => {
+    try {
+        const { matchId, refereeEmail, gender = 'boys' } = req.body;
+
+        console.log('Assigning referee to match:', { matchId, refereeEmail, gender });
+
+        // Validate input
+        if (!matchId || !refereeEmail) {
+            return res.status(400).json({ success: false, message: 'matchId and refereeEmail are required' });
+        }
+
+        // Validate matchId format
+        const mongoose = require('mongoose');
+        if (!mongoose.Types.ObjectId.isValid(matchId)) {
+            return res.status(400).json({ success: false, message: 'Invalid match ID format' });
+        }
+
+        // Find the referee
+        const referee = await refreeInfo.findOne({ refEmail: refereeEmail });
+        if (!referee) {
+            return res.status(404).json({ success: false, message: 'Referee not found with email: ' + refereeEmail });
+        }
+
+        // Determine which collection to use based on gender
+        const matchModel = gender === 'girls' ? matchesGirls : matchesBoys;
+
+        // Find and update the match
+        const match = await matchModel.findById(matchId);
+        if (!match) {
+            return res.status(404).json({ success: false, message: 'Match not found' });
+        }
+
+        // Update match with referee information - ensuring all fields are properly set
+        const updateData = {
+            refreeEmail: referee.refEmail,
+            refreeName: referee.name,
+            refreeId: [referee._id],
+            matchStatus: 'setup_completed',
+            assignedRefereeNames: [referee.name],
+            lastModified: new Date()
+        };
+
+        // Use findByIdAndUpdate for better reliability
+        const updatedMatch = await matchModel.findByIdAndUpdate(matchId, updateData, { 
+            new: true,
+            runValidators: true 
+        });
+
+        if (!updatedMatch) {
+            return res.status(404).json({ success: false, message: 'Match not found during update' });
+        }
+
+        console.log('Successfully assigned referee to match:', {
+            matchId: updatedMatch._id,
+            refreeEmail: updatedMatch.refreeEmail,
+            refreeName: updatedMatch.refreeName,
+            refreeId: updatedMatch.refreeId,
+            matchStatus: updatedMatch.matchStatus
+        });
+
+        res.json({
+            success: true,
+            message: 'Referee assigned successfully',
+            match: {
+                _id: updatedMatch._id,
+                refreeEmail: updatedMatch.refreeEmail,
+                refreeName: updatedMatch.refreeName,
+                refreeId: updatedMatch.refreeId,
+                assignedRefereeNames: updatedMatch.assignedRefereeNames,
+                matchStatus: updatedMatch.matchStatus,
+                lastModified: updatedMatch.lastModified
+            }
+        });
+
+    } catch (error) {
+        console.error('Error assigning referee to match:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to assign referee to match',
+            error: error.message
+        });
+    }
+});
+
+// Create scheduled match endpoint
+router.post('/schedule/create-match', async (req, res) => {
+    try {
+        const {
+            round,
+            gender,
+            college1Email,
+            college1Name,
+            college2Email,
+            college2Name,
+            date,
+            time,
+            court,
+            matchStatus
+        } = req.body;
+
+        console.log('Creating scheduled match:', req.body);
+
+        // Validate required fields
+        if (!round || !gender || !college1Email || !college1Name || !date || !time) {
+            return res.status(400).json({
+                success: false,
+                message: 'Missing required fields'
+            });
+        }
+
+        // Create new match based on gender
+        let newMatch;
+        if (gender === 'boys') {
+            newMatch = new matchesBoys({
+                college1Name,
+                college2Name,
+                email1: college1Email,
+                email2: college2Email === 'BYE' ? null : college2Email,
+                round,
+                date,
+                time,
+                court,
+                matchStatus: matchStatus || 'upcoming',
+                refreeEmail: '', // Will be assigned later
+                refreeName: '', // Will be assigned later
+                refreeId: [],
+                singlesMatchId: [],
+                doublesMatchId: [],
+                winnerEmail: '',
+                score: [],
+                match1Singles: null,
+                match2Singles: null,
+                match3Doubles: null,
+                match4Singles: null,
+                match5Doubles: null,
+                matchResults: [],
+                overallWinner: '',
+                completedMatches: 0
+            });
+        } else {
+            // For future girls matches
+            return res.status(400).json({
+                success: false,
+                message: 'Girls tournament not yet implemented'
+            });
+        }
+
+        // Save the match
+        const savedMatch = await newMatch.save();
+
+        // Update college match allocation status if not BYE match
+        if (college2Email !== 'BYE') {
+            // Update both colleges' isMatchAllocateBoys to true
+            await collegeInfo.updateOne(
+                { email: college1Email },
+                { isMatchAllocateBoys: true }
+            );
+            
+            if (college2Email) {
+                await collegeInfo.updateOne(
+                    { email: college2Email },
+                    { isMatchAllocateBoys: true }
+                );
+            }
+        } else {
+            // For BYE matches, only update the college that got the bye
+            await collegeInfo.updateOne(
+                { email: college1Email },
+                { isMatchAllocateBoys: true }
+            );
+        }
+
+        console.log('Match created successfully:', savedMatch._id);
+
+        res.json({
+            success: true,
+            message: 'Match created successfully',
+            match: savedMatch
+        });
+
+    } catch (error) {
+        console.error('Error creating scheduled match:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to create match',
+            error: error.message
         });
     }
 });

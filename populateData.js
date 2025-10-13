@@ -89,6 +89,17 @@ async function populateDatabase() {
         // Create referees first
         console.log('Creating referees...');
         const referees = [];
+        
+        // Add your specific referee first
+        const vipulReferee = new refreeInfo({
+            name: "Vipul Phatangare",
+            password: generatePassword(),
+            refEmail: "vipulphatangare3@gmail.com",
+            phone: generatePhone().toString()
+        });
+        referees.push(vipulReferee);
+        
+        // Create other referees
         for (let i = 1; i <= 20; i++) {
             const refereeName = `Referee ${i}`;
             const referee = new refreeInfo({
@@ -100,7 +111,7 @@ async function populateDatabase() {
             referees.push(referee);
         }
         await refreeInfo.insertMany(referees);
-        console.log(`Created ${referees.length} referees`);
+        console.log(`Created ${referees.length} referees (including vipulphatangare3@gmail.com)`);
 
         // Create colleges with players
         console.log('Creating colleges and players...');
@@ -112,65 +123,46 @@ async function populateDatabase() {
             const managerName = `Manager ${i + 1}`;
             const managerEmail = generateEmail(managerName, collegeName);
             
-            // Create boys players for this college
+            // Create boys players for this college (boys only tournament)
             const boysPlayers = [];
-            const selectedBoyNames = getRandomElements(boyNames, 7);
+            const selectedBoyNames = getRandomElements(boyNames, 7); // Get 7 players per college
             
             for (let j = 0; j < 7; j++) {
                 const player = new playerInfoId({
                     playerName: selectedBoyNames[j],
                     email: generateEmail(selectedBoyNames[j], collegeName),
                     gender: "male",
-                    phone: generatePhone().toString()
+                    phone: generatePhone().toString(),
+                    collegeEmail: managerEmail,
+                    collegeName: collegeName
                 });
                 boysPlayers.push(player);
                 allPlayers.push(player);
             }
 
-            // Create girls players for this college
-            const girlsPlayers = [];
-            const selectedGirlNames = getRandomElements(girlNames, 5);
-            
-            for (let k = 0; k < 5; k++) {
-                const player = new playerInfoId({
-                    playerName: selectedGirlNames[k],
-                    email: generateEmail(selectedGirlNames[k], collegeName),
-                    gender: "female",
-                    phone: generatePhone().toString()
-                });
-                girlsPlayers.push(player);
-                allPlayers.push(player);
-            }
-
             // Save players to get their IDs
             const savedBoysPlayers = await playerInfoId.insertMany(boysPlayers);
-            const savedGirlsPlayers = await playerInfoId.insertMany(girlsPlayers);
 
             // Determine current round (most colleges in round_1, some in advanced rounds)
-            let currentRoundBoys, currentRoundGirls;
+            let currentRoundBoys;
             if (i < 40) {
                 // 40 colleges in round_1
                 currentRoundBoys = "round_1";
-                currentRoundGirls = "round_1";
             } else if (i < 45) {
                 // 5 colleges in round_2
                 currentRoundBoys = "round_2";
-                currentRoundGirls = "round_2";
             } else if (i < 48) {
                 // 3 colleges in quarter
                 currentRoundBoys = "quarter";
-                currentRoundGirls = "quarter";
             } else if (i < 49) {
                 // 1 college in semi
                 currentRoundBoys = "semi";
-                currentRoundGirls = "semi";
             } else {
                 // 1 college in final
                 currentRoundBoys = "final";
-                currentRoundGirls = "final";
             }
 
-            // Create college
+            // Create college (boys only tournament)
             const college = new collegeInfo({
                 collegeName: collegeName,
                 managerName: managerName,
@@ -178,13 +170,13 @@ async function populateDatabase() {
                 phone: generatePhone(),
                 password: generatePassword(),
                 matchesBoys: [], // Will be populated when matches are created
-                matchesGirls: [], // Will be populated when matches are created
+                matchesGirls: [], // Not used in boys-only tournament
                 currentRoundBoys: currentRoundBoys,
-                currentRoundGirls: currentRoundGirls,
+                currentRoundGirls: "not_participating", // Not participating in girls tournament
                 isMatchAllocateBoys: Math.random() > 0.7, // 30% chance of having match allocated
-                isMatchAllocateGirls: Math.random() > 0.7, // 30% chance of having match allocated
+                isMatchAllocateGirls: false, // Not participating in girls tournament
                 playerInfoIdBoys: savedBoysPlayers.map(p => p._id),
-                playerInfoIdGirls: savedGirlsPlayers.map(p => p._id)
+                playerInfoIdGirls: [] // No girls players
             });
 
             colleges.push(college);
@@ -307,7 +299,7 @@ async function populateDatabase() {
 
         console.log('\n=== DATABASE STATISTICS ===');
         console.log(`Colleges: ${collegeCount}`);
-        console.log(`Players: ${playerCount} (Boys: ${playerCount - (collegeCount * 5)}, Girls: ${collegeCount * 5})`);
+        console.log(`Players: ${playerCount} (Boys: ${playerCount}, Girls: 0) - Boys only tournament`);
         console.log(`Main Matches: ${matchCount}`);
         console.log(`Singles Matches: ${singlesMatchCount}`);
         console.log(`Doubles Matches: ${doublesMatchCount}`);

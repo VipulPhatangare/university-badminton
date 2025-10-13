@@ -1,5 +1,5 @@
 // Configuration
-const API_BASE_URL = 'http://localhost:8080';
+
 let currentCollegeEmail = '';
 let currentUserData = null;
 let currentGender = 'boys';
@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     // Check session authentication
     try {
-        const response = await fetch(`${API_BASE_URL}/api/auth/session`);
+        const response = await fetch(`/api/auth/session`);
         if (response.ok) {
             const data = await response.json();
             if (data.success && data.user && data.user.type === 'player') {
@@ -179,7 +179,7 @@ function setupEventListeners() {
 // Logout functionality
 async function handleLogout() {
     try {
-        const response = await fetch(`${API_BASE_URL}/api/auth/logout`, {
+        const response = await fetch(`/api/auth/logout`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -214,7 +214,7 @@ async function handlePasswordChange() {
         showPasswordResetMessage('Sending password reset link...', 'info');
         
         // Send password reset request
-        const response = await fetch(`${API_BASE_URL}/api/auth/forgot-password`, {
+        const response = await fetch(`/api/auth/forgot-password`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -359,7 +359,7 @@ function showMainContent() {
 // Load college info
 async function loadCollegeInfo() {
     try {
-        const response = await fetch(`${API_BASE_URL}/team/college/${currentCollegeEmail}`);
+        const response = await fetch(`/team/college/${currentCollegeEmail}`);
         const college = await response.json();
         const collegeName = college.collegeName || currentCollegeEmail;
         document.getElementById('collegeName').textContent = collegeName;
@@ -415,7 +415,7 @@ async function loadMatches() {
             ? `/team/matches/${currentCollegeEmail}`
             : `/team/matches/${currentCollegeEmail}/${currentFilter}`;
             
-        const response = await fetch(`${API_BASE_URL}${endpoint}`);
+        const response = await fetch(`${endpoint}`);
         
         if (!response.ok) {
             throw new Error('Failed to load matches');
@@ -534,7 +534,7 @@ async function loadPlayers() {
     noPlayers.style.display = 'none';
     
     try {
-        const response = await fetch(`${API_BASE_URL}/team/players/${currentCollegeEmail}`);
+        const response = await fetch(`/team/players/${currentCollegeEmail}`);
         
         if (!response.ok) {
             throw new Error('Failed to load players');
@@ -746,7 +746,7 @@ async function handleAddPlayer(e) {
     }
     
     try {
-        const response = await fetch(`${API_BASE_URL}/team/players/${currentCollegeEmail}`, {
+        const response = await fetch(`/team/players/${currentCollegeEmail}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -776,7 +776,7 @@ async function deletePlayer(playerId) {
     }
     
     try {
-        const response = await fetch(`${API_BASE_URL}/team/players/${currentCollegeEmail}/${playerId}`, {
+        const response = await fetch(`/team/players/${currentCollegeEmail}/${playerId}`, {
             method: 'DELETE'
         });
         

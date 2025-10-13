@@ -1,7 +1,6 @@
 
 // Configuration
 const USE_DUMMY_DATA = false; // Set to false to use real API data
-const API_BASE_URL = 'http://localhost:8080';
 
 // Global state
 let currentMatchId = null;
@@ -1283,7 +1282,7 @@ async function loadMatches(filter) {
         } else {
             console.log('Fetching matches from API...');
             const endpoint = filter === 'all' ? '/api/matches' : `/api/matches/status/${filter}`;
-            const response = await fetch(API_BASE_URL + endpoint);
+            const response = await fetch(endpoint);
             
             if (!response.ok) {
                 throw new Error(`API Error: ${response.status} - ${response.statusText}`);
@@ -1568,7 +1567,7 @@ async function showSubmatchDetail(submatchId, type) {
             const endpoint = type === 'singles' ? 
                 `/api/matches/singles/${submatchId}` : 
                 `/api/matches/doubles/${submatchId}`;
-            const response = await fetch(API_BASE_URL + endpoint);
+            const response = await fetch(endpoint);
             submatchData = await response.json();
         }
         

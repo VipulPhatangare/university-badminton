@@ -607,7 +607,7 @@
                 console.log('Loading players for colleges:', matchData.email1, 'and', matchData.email2);
                 
                 // Load players for college 1 (boys players only for badminton)
-                const response1 = await fetch(`/api/admin/players?college=${encodeURIComponent(matchData.email1)}&gender=male`);
+                const response1 = await fetch(`/api/admin/players?collegeEmail=${encodeURIComponent(matchData.email1)}&gender=male`);
                 console.log('College 1 response status:', response1.status);
                 if (response1.ok) {
                     college1Players = await response1.json();
@@ -617,7 +617,7 @@
                 }
                 
                 // Load players for college 2 (boys players only for badminton)
-                const response2 = await fetch(`/api/admin/players?college=${encodeURIComponent(matchData.email2)}&gender=male`);
+                const response2 = await fetch(`/api/admin/players?collegeEmail=${encodeURIComponent(matchData.email2)}&gender=male`);
                 console.log('College 2 response status:', response2.status);
                 if (response2.ok) {
                     college2Players = await response2.json();

@@ -9,8 +9,6 @@ const matchesBtn = document.querySelector('#hero_section .hero_left button');
 const watchBtns = document.querySelectorAll('.watch_btn');
 const modalOverlay = document.querySelector('.modal_overlay');
 
-// API Base URL (adjust as needed)
-const API_BASE_URL = 'http://localhost:8080';
 
 // Initialize homepage functionality
 document.addEventListener('DOMContentLoaded', function() {
@@ -197,7 +195,7 @@ async function handlePlayerLogin(e) {
         showLoading(true);
         
         // Simulate API call for player login
-        const response = await fetch(`${API_BASE_URL}/api/auth/player/login`, {
+        const response = await fetch(`/api/auth/player/login`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -249,7 +247,7 @@ async function handleRefereeLogin(e) {
         showLoading(true);
         
         // Simulate API call for referee login
-        const response = await fetch(`${API_BASE_URL}/api/auth/referee/login`, {
+        const response = await fetch(`/api/auth/referee/login`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -268,7 +266,7 @@ async function handleRefereeLogin(e) {
                 
                 // Redirect to referee dashboard
                 setTimeout(() => {
-                    window.location.href = '/referee';
+                    window.location.href = '/referee-dashboard';
                 }, 1500);
             } else {
                 showError(data.message || 'Login failed');
@@ -324,28 +322,11 @@ window.watchLiveMatch = function(matchId) {
 function checkUserSession() {
     const userType = localStorage.getItem('userType');
     const userData = localStorage.getItem('userData');
-    
-    if (userType && userData) {
-        // User is already logged in, update UI
-        updateUIForLoggedInUser(userType);
-    }
-}
-
-function updateUIForLoggedInUser(userType) {
-    if (loginBtn) {
-        const userData = JSON.parse(localStorage.getItem('userData'));
-        loginBtn.textContent = `${userData.name || 'User'} (${userType})`;
-        loginBtn.onclick = () => {
-            if (confirm('Do you want to logout?')) {
-                logout();
-            }
-        };
-    }
 }
 
 async function logout() {
     try {
-        const response = await fetch(`${API_BASE_URL}/api/auth/logout`, {
+        const response = await fetch(`/api/auth/logout`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -373,7 +354,7 @@ async function logout() {
 async function loadLiveMatches() {
     try {
         // Fetch live matches from API
-        const response = await fetch(`${API_BASE_URL}/api/matches/live`);
+        const response = await fetch(`/api/matches/live`);
         
         if (response.ok) {
             const matches = await response.json();

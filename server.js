@@ -40,8 +40,8 @@ app.use(cors());
 const authRoutes = require('./routes/auth');
 app.use('/api/auth', authRoutes);
 
-// const refereeRoutes = require('./routes/referee');
-// app.use('/referee', refereeRoutes);
+const refereeRoutes = require('./routes/referee');
+app.use('/api/referee', refereeRoutes);
 
 const matchesRoutes = require('./routes/matches');
 app.use('/api/matches', matchesRoutes);
@@ -52,6 +52,9 @@ app.use('/team', teamRoutes);
 
 const adminRoutes = require('./routes/admin');
 app.use('/api/admin', adminRoutes);
+
+const scorecardRoutes = require('./routes/scorecard');
+app.use('/scorecard', scorecardRoutes);
 
 app.get('/', (req, res)=>{
   res.render('homepage');
@@ -88,6 +91,42 @@ app.get('/team', (req, res) => {
 app.get('/admin', (req, res) => {
   // For now, allow all access. You can add admin authentication later
   res.render('admin-dashboard');
+});
+
+// Referee dashboard page - require referee authentication
+app.get('/referee-dashboard', (req, res) => {
+  if (req.session && req.session.user && req.session.user.type === 'referee') {
+    res.render('referee-dashboard');
+  } else {
+    res.redirect('/?auth=required&type=referee');
+  }
+});
+
+// Match sets page - require referee authentication
+app.get('/match-sets', (req, res) => {
+  if (req.session && req.session.user && req.session.user.type === 'referee') {
+    res.render('match-sets');
+  } else {
+    res.redirect('/?auth=required&type=referee');
+  }
+});
+
+// Match info page - require referee authentication
+app.get('/match-info', (req, res) => {
+  if (req.session && req.session.user && req.session.user.type === 'referee') {
+    res.render('match-info');
+  } else {
+    res.redirect('/?auth=required&type=referee');
+  }
+});
+
+// Scorecard page - require referee authentication
+app.get('/scorecard', (req, res) => {
+  if (req.session && req.session.user && req.session.user.type === 'referee') {
+    res.render('scorecard');
+  } else {
+    res.redirect('/?auth=required&type=referee');
+  }
 });
 
 

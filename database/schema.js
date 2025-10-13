@@ -17,15 +17,31 @@ const collegeInfoSchema = new mongoose.Schema({
 });
 
 const playerInfoIdSchema = new mongoose.Schema({
-    playerName: String,
-    email: String,
-    collegeEmail: String, // College email to link player to college
-    gender: String,
-    phone: String,
-    collegeEmail: String,  // Email of the college this player belongs to
-    collegeName: String    // Name of the college this player belongs to
+    playerName: { type: String, required: true },
+    email: { type: String, required: true, unique: true },
+    gender: { type: String, required: true, enum: ['male', 'female'] },
+    phone: { type: String },
+    collegeEmail: { type: String, required: true },  // Email of the college this player belongs to
+    collegeName: { type: String, required: true }    // Name of the college this player belongs to
 });
 
+// Scorecard data sub-schema for reusability
+const scorecardMatchSchema = new mongoose.Schema({
+    currentSet: { type: Number, default: 0 }, // Current set being played (0-indexed)
+    scores: [{
+        setNumber: Number,
+        player1Score: { type: Number, default: 0 },
+        player2Score: { type: Number, default: 0 },
+        isComplete: { type: Boolean, default: false },
+        completedAt: Date
+    }],
+    currentScore: {
+        player1: { type: Number, default: 0 },
+        player2: { type: Number, default: 0 },
+        server: { type: Number, default: 0 } // 0 or 1
+    },
+    lastUpdated: Date
+}, { _id: false });
 
 const matchesBoysSchema = new mongoose.Schema({
     college1Name: String,
@@ -36,26 +52,53 @@ const matchesBoysSchema = new mongoose.Schema({
     doublesMatchId: Array,
     winnerEmail: String,
     score:[],
-    refreeEmail: String, // Fixed typo
-    refreeName: String, // Fixed typo
+    refreeEmail: String,
+    refreeName: String,
     refreeId: Array, // Array of referee IDs assigned to this match
     matchStatus: String, // complete, live, upcoming, players_allocated
     date: String,
     time: String,
     court: String, // Added court field
     round: String, // Added round field for tournament progression
-    // Player allocations for the 5-match system
+    
+    // Player allocations for the 5-match system with integrated tracking
     match1Singles: {
         player1Name: String,
         player2Name: String,
         player1Email: String,
-        player2Email: String
+        player2Email: String,
+        // Match tracking fields
+        isStarted: { type: Boolean, default: false },
+        isCompleted: { type: Boolean, default: false },
+        winnerTeam: String, // 'team1' or 'team2'
+        winnerEmail: String,
+        startedAt: Date,
+        completedAt: Date,
+        matchSettings: {
+            maxPoints: Number,
+            numberOfSets: Number,
+            courtNumber: Number,
+            firstServePlayer: String
+        }
     },
     match2Singles: {
         player1Name: String,
         player2Name: String,
         player1Email: String,
-        player2Email: String
+        player2Email: String,
+        // Match tracking fields
+        isStarted: { type: Boolean, default: false },
+        isCompleted: { type: Boolean, default: false },
+        winnerTeam: String, // 'team1' or 'team2'
+        winnerEmail: String,
+        startedAt: Date,
+        completedAt: Date,
+        matchSettings: {
+            maxPoints: Number,
+            numberOfSets: Number,
+            courtNumber: Number,
+            firstServePlayer: String
+        }
     },
     match3Doubles: {
         team1Player1Name: String,
@@ -65,13 +108,39 @@ const matchesBoysSchema = new mongoose.Schema({
         team1Player1Email: String,
         team1Player2Email: String,
         team2Player1Email: String,
-        team2Player2Email: String
+        team2Player2Email: String,
+        // Match tracking fields
+        isStarted: { type: Boolean, default: false },
+        isCompleted: { type: Boolean, default: false },
+        winnerTeam: String, // 'team1' or 'team2'
+        winnerEmail: String,
+        startedAt: Date,
+        completedAt: Date,
+        matchSettings: {
+            maxPoints: Number,
+            numberOfSets: Number,
+            courtNumber: Number,
+            firstServePlayer: String
+        }
     },
     match4Singles: {
         player1Name: String,
         player2Name: String,
         player1Email: String,
-        player2Email: String
+        player2Email: String,
+        // Match tracking fields
+        isStarted: { type: Boolean, default: false },
+        isCompleted: { type: Boolean, default: false },
+        winnerTeam: String, // 'team1' or 'team2'
+        winnerEmail: String,
+        startedAt: Date,
+        completedAt: Date,
+        matchSettings: {
+            maxPoints: Number,
+            numberOfSets: Number,
+            courtNumber: Number,
+            firstServePlayer: String
+        }
     },
     match5Doubles: {
         team1Player1Name: String,
@@ -81,22 +150,42 @@ const matchesBoysSchema = new mongoose.Schema({
         team1Player1Email: String,
         team1Player2Email: String,
         team2Player1Email: String,
-        team2Player2Email: String
-    },
-    // Match results for overall winner calculation
-    matchResults: [{
-        matchNumber: Number, // 1-5
+        team2Player2Email: String,
+        // Match tracking fields
+        isStarted: { type: Boolean, default: false },
+        isCompleted: { type: Boolean, default: false },
         winnerTeam: String, // 'team1' or 'team2'
         winnerEmail: String,
-        isComplete: Boolean
-    }],
+        startedAt: Date,
+        completedAt: Date,
+        matchSettings: {
+            maxPoints: Number,
+            numberOfSets: Number,
+            courtNumber: Number,
+            firstServePlayer: String
+        }
+    },
+
     overallWinner: String, // 'team1' or 'team2'
     completedMatches: Number, // Count of completed matches (0-5)
-    maxPoints: { type: Number},
-    numberOfSets: { type: Number},
-    courtNumber: { type: Number}
+    maxPoints: { type: Number },
+    numberOfSets: { type: Number },
+    courtNumber: { type: Number },
+    
+    // Set tracking fields
+    setStarted: { type: Boolean, default: false }, // Whether referee has started this set
+    setStartedAt: { type: Date }, // When the set was started
+    setInProgress: { type: Boolean, default: false }, // Whether set is currently in progress
+    
+    // Scorecard data for persistent score tracking - FIXED STRUCTURE
+    scorecardData: {
+        match1: scorecardMatchSchema,
+        match2: scorecardMatchSchema,
+        match3: scorecardMatchSchema,
+        match4: scorecardMatchSchema,
+        match5: scorecardMatchSchema
+    }
 });
-
 
 const singlesMatchSchema = new mongoose.Schema({
     matchNumber: Number, // singles 1, singles 2, singles 3
@@ -115,7 +204,6 @@ const singlesMatchSchema = new mongoose.Schema({
     court: String, // court_1, court_2, court_3, court_4
     sets: Array, // set Id
 });
-
 
 const doublesMatchSchema = new mongoose.Schema({
     matchNumber: Number, // singles 1, singles 2, singles 3
@@ -147,7 +235,6 @@ const setSchema = new mongoose.Schema({
     setWinnerEmail: String
 });
 
-
 const refreeInfoSchema = new mongoose.Schema({
     name: String,
     password: String,
@@ -171,12 +258,26 @@ const matchesGirlsSchema = new mongoose.Schema({
     time: String,
     court: String,
     round: String,
-    // Player allocations for the 3-match system (Girls)
+    
+    // Player allocations for the 3-match system (Girls) with integrated tracking
     match1Singles: {
         player1Name: String,
         player2Name: String,
         player1Email: String,
-        player2Email: String
+        player2Email: String,
+        // Match tracking fields
+        isStarted: { type: Boolean, default: false },
+        isCompleted: { type: Boolean, default: false },
+        winnerTeam: String, // 'team1' or 'team2'
+        winnerEmail: String,
+        startedAt: Date,
+        completedAt: Date,
+        matchSettings: {
+            maxPoints: Number,
+            numberOfSets: Number,
+            courtNumber: Number,
+            firstServePlayer: String
+        }
     },
     match2Doubles: {
         team1Player1Name: String,
@@ -186,26 +287,58 @@ const matchesGirlsSchema = new mongoose.Schema({
         team1Player1Email: String,
         team1Player2Email: String,
         team2Player1Email: String,
-        team2Player2Email: String
+        team2Player2Email: String,
+        // Match tracking fields
+        isStarted: { type: Boolean, default: false },
+        isCompleted: { type: Boolean, default: false },
+        winnerTeam: String, // 'team1' or 'team2'
+        winnerEmail: String,
+        startedAt: Date,
+        completedAt: Date,
+        matchSettings: {
+            maxPoints: Number,
+            numberOfSets: Number,
+            courtNumber: Number,
+            firstServePlayer: String
+        }
     },
     match3Singles: {
         player1Name: String,
         player2Name: String,
         player1Email: String,
-        player2Email: String
-    },
-    // Match results for overall winner calculation
-    matchResults: [{
-        matchNumber: Number, // 1-3
+        player2Email: String,
+        // Match tracking fields
+        isStarted: { type: Boolean, default: false },
+        isCompleted: { type: Boolean, default: false },
         winnerTeam: String, // 'team1' or 'team2'
         winnerEmail: String,
-        isComplete: Boolean
-    }],
+        startedAt: Date,
+        completedAt: Date,
+        matchSettings: {
+            maxPoints: Number,
+            numberOfSets: Number,
+            courtNumber: Number,
+            firstServePlayer: String
+        }
+    },
+
     overallWinner: String, // 'team1' or 'team2'
     completedMatches: Number, // Count of completed matches (0-3)
-    maxPoints: { type: Number},
-    numberOfSets: { type: Number},
-    courtNumber: { type: Number}
+    maxPoints: { type: Number },
+    numberOfSets: { type: Number },
+    courtNumber: { type: Number },
+    
+    // Set tracking fields
+    setStarted: { type: Boolean, default: false }, // Whether referee has started this set
+    setStartedAt: { type: Date }, // When the set was started
+    setInProgress: { type: Boolean, default: false }, // Whether set is currently in progress
+    
+    // Scorecard data for persistent score tracking - FIXED STRUCTURE
+    scorecardData: {
+        match1: scorecardMatchSchema,
+        match2: scorecardMatchSchema,
+        match3: scorecardMatchSchema
+    }
 });
 
 // Combined matches schema for admin assignment
@@ -226,7 +359,6 @@ const matchesSchema = new mongoose.Schema({
     assignedBy: String,
     createdAt: { type: Date, default: Date.now }
 });
-
 
 const collegeInfo = mongoose.model('collegeInfo', collegeInfoSchema);
 const playerInfoId = mongoose.model('playerInfoId', playerInfoIdSchema);

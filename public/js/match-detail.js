@@ -1,5 +1,3 @@
-// Configuration
-// USE_DUMMY_DATA, API_BASE_URL, and all dummy data constants are loaded from matches.js
 
 // Initialize page
 document.addEventListener('DOMContentLoaded', function() {
@@ -29,8 +27,8 @@ async function loadMatchDetail() {
             console.log('Match data loaded:', matchData);
         } else {
             console.log('Fetching from API for matchId:', matchId);
-            const apiUrl = typeof API_BASE_URL !== 'undefined' ? API_BASE_URL : 'http://localhost:8080';
-            const response = await fetch(`${apiUrl}/api/matches/${matchId}`);
+        
+            const response = await fetch(`/api/matches/${matchId}`);
             
             if (!response.ok) {
                 const errorData = await response.json().catch(() => ({ message: response.statusText }));
@@ -234,7 +232,7 @@ async function loadSubmatchDetails(submatchId, type) {
             matchData = await fetchDummySubmatchData(submatchId, type);
         } else {
             const endpoint = type === 'Singles' ? 'singles' : 'doubles';
-            const response = await fetch(`${API_BASE_URL}/api/matches/${endpoint}/${submatchId}`);
+            const response = await fetch(`/api/matches/${endpoint}/${submatchId}`);
             matchData = await response.json();
         }
         
