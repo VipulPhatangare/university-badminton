@@ -1,10 +1,11 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Shuttle Showdown - Scorecard</title>
-    <link rel="icon" type="image/png" href="/assets/shuttlecock-favicon.png">
+    <title>Inter Collegiate Badminton Competition - Scorecard</title>
+    <link rel="icon" type="image/png" href="/assets/badminton-shuttle-1000x1000-removebg-preview.png">
+    <link rel="stylesheet" href="/css/scorecard.css">
 
     <style>
         /* Reset and Base Styles */
@@ -543,8 +544,13 @@
             
             .match-info-header {
                 flex-direction: column;
-                gap: 10px;
+                gap: 8px;
                 align-items: center;
+            }
+            
+            .match-info-header div {
+                padding: 4px 10px;
+                font-size: 0.9rem;
             }
         }
 
@@ -902,10 +908,18 @@
         </div>
     </div>
 
-    <!-- Match number and set display -->
+    <!-- Match information display -->
     <div class="match-info-header">
         <div>Match #: <span id="matchNumber">1</span></div>
+        <div>Round: <span id="roundDisplay">Round 1</span></div>
         <div>Current Set: <span id="currentSetDisplay">-</span></div>
+    </div>
+    
+    <!-- Tournament context -->
+    <div class="tournament-context" style="display: flex; justify-content: space-between; padding: 12px 18px; background: rgba(255, 215, 0, 0.1); border-bottom: 1px solid rgba(178, 34, 34, 0.1); font-size: 0.9rem; color: var(--dark-red);">
+        <div><i class="fas fa-trophy"></i> <span id="tournamentRound">Boys Tournament</span></div>
+        <div><i class="fas fa-clock"></i> <span id="matchStartTime">--:--</span></div>
+        <div><i class="fas fa-map-marker-alt"></i> Court <span id="courtNumber">1</span></div>
     </div>
 
     <!-- Set start button -->
@@ -915,7 +929,7 @@
 
     <div class="match-info" aria-hidden="false">
         <div class="info-pill">Max Points: <strong id="displayMaxPoints">15</strong></div>
-        <div class="info-pill">Number of sets: <strong id="displayMaxSets">3</strong></div>
+        <div class="info-pill">Total Sets: <strong id="displayNumberOfSets">3</strong></div>
         <div class="info-pill">First Server: <strong id="initialServerIndicator">Player 1</strong></div>
     </div>
 
@@ -1025,7 +1039,7 @@
     </div>
 </div>
 
-<script src="/js/referee-scorecard.js"></script>
+<script src="/js/scorecard.js"></script>
 
 </body>
 </html>

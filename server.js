@@ -13,6 +13,10 @@ const app = express();
 const PORT = process.env.PORT;
 
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+// Handle text/plain content type for sendBeacon
+app.use('/api/referee/update-score', express.text());
+// Handle multipart/form-data for sendBeacon with FormData
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, "views"));
 app.use(express.static(path.join(__dirname, 'public')));
@@ -42,6 +46,7 @@ app.use('/api/auth', authRoutes);
 
 const refereeRoutes = require('./routes/referee');
 app.use('/api/referee', refereeRoutes);
+app.use('/referee', refereeRoutes);
 
 const matchesRoutes = require('./routes/matches');
 app.use('/api/matches', matchesRoutes);
@@ -53,8 +58,8 @@ app.use('/team', teamRoutes);
 const adminRoutes = require('./routes/admin');
 app.use('/api/admin', adminRoutes);
 
-// const scorecardRoutes = require('./routes/scorecard');
-// app.use('/scorecard', scorecardRoutes);
+const scorecardRoutes = require('./routes/scorecard');
+app.use('/scorecard', scorecardRoutes);
 
 app.get('/', (req, res)=>{
   res.render('homepage');
@@ -93,14 +98,7 @@ app.get('/admin', (req, res) => {
   res.render('admin-dashboard');
 });
 
-// Referee dashboard page - require referee authentication
-app.get('/referee-dashboard', (req, res) => {
-  if (req.session && req.session.user && req.session.user.type === 'referee') {
-    res.render('referee-dashboard');
-  } else {
-    res.redirect('/?auth=required&type=referee');
-  }
-});
+// Referee dashboard routes are handled by referee.js router
 
 // Match sets page - require referee authentication
 app.get('/match-sets', (req, res) => {

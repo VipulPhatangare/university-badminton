@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard - Badminton Tournament</title>
+    <title>Admin Dashboard - Inter Collegiate Badminton Competition</title>
     <link rel="icon" type="image/png" href="/assets/shuttlecock-favicon.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -414,6 +414,57 @@
             display: flex;
             align-items: center;
             gap: 5px;
+        }
+
+        /* Bye Match Styles */
+        .match-card.bye-match {
+            background: linear-gradient(135deg, #9c27b0 0%, #673ab7 100%);
+            color: white;
+            border: 2px solid #7b1fa2;
+        }
+
+        .match-card.bye-match:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 8px 25px rgba(156, 39, 176, 0.3);
+        }
+
+        .match-card.bye-match .match-header {
+            background: transparent;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .match-card.bye-match .match-status.bye {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            animation: pulse-glow 2s infinite;
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% {
+                box-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
+            }
+            50% {
+                box-shadow: 0 0 15px rgba(255, 255, 255, 0.6);
+            }
+        }
+
+        .match-card.bye-match .team-name,
+        .match-card.bye-match .team-email {
+            color: white;
+        }
+
+        .match-card.bye-match .vs-divider {
+            color: #FFD700;
+            font-weight: bold;
+        }
+
+        .match-card.bye-match .match-info {
+            color: rgba(255, 255, 255, 0.9);
+            border-top: 1px solid rgba(255, 255, 255, 0.3);
+            padding-top: 10px;
         }
 
         .logout-btn {

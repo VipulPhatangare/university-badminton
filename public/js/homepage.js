@@ -266,7 +266,7 @@ async function handleRefereeLogin(e) {
                 
                 // Redirect to referee dashboard
                 setTimeout(() => {
-                    window.location.href = '/referee-dashboard';
+                    window.location.href = '/referee';
                 }, 1500);
             } else {
                 showError(data.message || 'Login failed');
@@ -353,42 +353,60 @@ async function logout() {
 // Live Matches Functions
 async function loadLiveMatches() {
     try {
-        // Fetch live matches from API
-        const response = await fetch(`/api/matches/live`);
+        // First, try to fetch live matches
+        console.log('Fetching live matches...');
+        const liveResponse = await fetch(`/api/matches/status/live`);
         
-        if (response.ok) {
-            const matches = await response.json();
+        if (liveResponse.ok) {
+            const liveMatches = await liveResponse.json();
             
-            if (matches && matches.length > 0) {
-                renderLiveMatches(matches);
-            } else {
-                console.log('No live matches found, using static cards for display');
-                addIdsToStaticCards();
-                updateLiveScores();
+            if (liveMatches && liveMatches.length > 0) {
+                console.log(`Found ${liveMatches.length} live matches`);
+                updateSectionTitle('Live Matches');
+                renderLiveMatches(liveMatches, true);
+                return;
             }
-        } else {
-            console.log('Could not fetch live matches, using static cards');
-            addIdsToStaticCards();
-            updateLiveScores();
         }
         
-        // Set up periodic updates for live scores (only set once)
-        if (!window.liveMatchesIntervalSet) {
-            window.liveMatchesIntervalSet = true;
-            setInterval(() => {
-                updateLiveScores(); // Just update scores, not full reload to avoid flicker
-            }, 30000); // Update every 30 seconds
+        // If no live matches, fetch upcoming matches (limit to 5)
+        console.log('No live matches found, fetching upcoming matches...');
+        const upcomingResponse = await fetch(`/api/matches/status/upcoming`);
+        
+        if (upcomingResponse.ok) {
+            const upcomingMatches = await upcomingResponse.json();
+            
+            if (upcomingMatches && upcomingMatches.length > 0) {
+                // Limit to 5 upcoming matches
+                const limitedMatches = upcomingMatches.slice(0, 5);
+                console.log(`Found ${limitedMatches.length} upcoming matches`);
+                updateSectionTitle('Upcoming Matches');
+                renderLiveMatches(limitedMatches, false);
+                return;
+            }
         }
+        
+        // Fallback to static cards if no matches found
+        console.log('No matches found, using static cards for display');
+        updateSectionTitle('Match Schedule');
+        addIdsToStaticCards();
         
     } catch (error) {
-        console.error('Error loading live matches:', error);
+        console.error('Error loading matches:', error);
         // Fallback to static cards with IDs
+        updateSectionTitle('Match Schedule');
         addIdsToStaticCards();
-        updateLiveScores();
     }
 }
 
-function renderLiveMatches(matches) {
+// Update section title based on match type
+function updateSectionTitle(title) {
+    const sectionTitle = document.querySelector('.live_heading h1');
+    if (sectionTitle) {
+        sectionTitle.textContent = title;
+    }
+}
+
+function renderLiveMatches(matches, isLive = true) {
     const container = document.querySelector('.match_cards_container');
     if (!container || !matches || matches.length === 0) {
         return;
@@ -397,32 +415,69 @@ function renderLiveMatches(matches) {
     container.innerHTML = '';
     
     matches.forEach(match => {
-        const matchCard = createMatchCard(match);
+        const matchCard = createMatchCard(match, isLive);
         container.appendChild(matchCard);
     });
 }
 
-function createMatchCard(match) {
+function createMatchCard(match, isLive = true) {
     const card = document.createElement('div');
     card.className = 'match_card';
     card.setAttribute('data-match-id', match._id);
     
-    // Determine team names and score based on match type
-    let teamNames = '';
-    let score = '0-0';
+    // Handle bye matches
+    if (match.isBye) {
+        const roundText = formatRoundName(match.round);
+        
+        card.innerHTML = `
+            <div class="card_bg_image bye-bg"></div>
+            <h2>${match.college1Name} (BYE)</h2>
+            <div class="match-round">${roundText}</div>
+            <div class="bye-info">Automatic Advancement</div>
+            <div class="card_bottom">
+                <div class="live_score">
+                    <span class="score">🏆</span>
+                    <span class="live_indicator bye">BYE</span>
+                </div>
+                <button class="watch_btn" onclick="watchLiveMatch('${match._id}')">View Details</button>
+            </div>
+        `;
+        
+        return card;
+    }
     
+    // Calculate college scores from completed matches
+    const collegeScores = calculateCollegeScores(match);
+    
+    // Determine team names
+    let teamNames = '';
     if (match.college1Name && match.college2Name) {
         teamNames = `${match.college1Name} vs ${match.college2Name}`;
-    } else if (match.match1Singles && match.match1Singles.player1Name && match.match1Singles.player2Name) {
-        teamNames = `${match.match1Singles.player1Name} vs ${match.match1Singles.player2Name}`;
     } else {
         teamNames = 'Match Loading...';
     }
     
-    // Get current score if available
-    if (match.score && match.score.length > 0) {
-        const latestScore = match.score[match.score.length - 1];
-        score = `${latestScore.team1Score || 0}-${latestScore.team2Score || 0}`;
+    // Format score display
+    let score = `${collegeScores.college1Score}-${collegeScores.college2Score}`;
+    
+    // Determine status display
+    let statusText = '';
+    let buttonText = '';
+    
+    if (isLive && match.matchStatus === 'live') {
+        statusText = 'LIVE';
+        buttonText = 'Watch Live';
+    } else if (match.matchStatus === 'scheduled' || match.matchStatus === 'upcoming') {
+        statusText = 'UPCOMING';
+        buttonText = 'View Details';
+        // For upcoming matches, show scheduled time if available
+        if (match.scheduledTime) {
+            const time = new Date(match.scheduledTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            statusText = `${time}`;
+        }
+    } else {
+        statusText = match.matchStatus ? match.matchStatus.toUpperCase() : 'SCHEDULED';
+        buttonText = 'View Details';
     }
     
     card.innerHTML = `
@@ -431,9 +486,9 @@ function createMatchCard(match) {
         <div class="card_bottom">
             <div class="live_score">
                 <span class="score">${score}</span>
-                <span class="live_indicator">${match.matchStatus === 'live' ? 'LIVE' : match.matchStatus.toUpperCase()}</span>
+                <span class="live_indicator ${isLive && match.matchStatus === 'live' ? 'live' : 'upcoming'}">${statusText}</span>
             </div>
-            <button class="watch_btn" onclick="watchLiveMatch('${match._id}')">Watch Live</button>
+            <button class="watch_btn" onclick="watchLiveMatch('${match._id}')">${buttonText}</button>
         </div>
     `;
     
@@ -588,6 +643,89 @@ function handleKeyPress(e) {
         e.preventDefault();
         openLoginModal();
     }
+}
+
+// Calculate college scores from individual match results
+function calculateCollegeScores(match) {
+    let college1Score = 0;
+    let college2Score = 0;
+    
+    // Check boys matches (5-match format)
+    if (match.match1Singles || match.match2Singles || match.match3Doubles || match.match4Singles || match.match5Doubles) {
+        const matches = [
+            match.match1Singles,
+            match.match2Singles,
+            match.match3Doubles,
+            match.match4Singles,
+            match.match5Doubles
+        ];
+        
+        matches.forEach(submatch => {
+            if (submatch && submatch.isCompleted && submatch.winnerTeam) {
+                if (submatch.winnerTeam === 'team1') {
+                    college1Score++;
+                } else if (submatch.winnerTeam === 'team2') {
+                    college2Score++;
+                }
+            }
+        });
+    }
+    // Check girls matches (3-match format)
+    else if (match.match1Singles || match.match2Doubles || match.match3Singles) {
+        const matches = [
+            match.match1Singles,
+            match.match2Doubles,
+            match.match3Singles
+        ];
+        
+        matches.forEach(submatch => {
+            if (submatch && submatch.isCompleted && submatch.winnerTeam) {
+                if (submatch.winnerTeam === 'team1') {
+                    college1Score++;
+                } else if (submatch.winnerTeam === 'team2') {
+                    college2Score++;
+                }
+            }
+        });
+    }
+    // Fallback to existing score array or completedMatches
+    else if (match.score && Array.isArray(match.score) && match.score.length > 0) {
+        const latestScore = match.score[match.score.length - 1];
+        college1Score = latestScore.team1Score || 0;
+        college2Score = latestScore.team2Score || 0;
+    }
+    else if (match.completedMatches) {
+        // If we know the overall winner, assign scores accordingly
+        if (match.overallWinner === 'team1') {
+            college1Score = Math.ceil(match.completedMatches / 2);
+            college2Score = match.completedMatches - college1Score;
+        } else if (match.overallWinner === 'team2') {
+            college2Score = Math.ceil(match.completedMatches / 2);
+            college1Score = match.completedMatches - college2Score;
+        } else {
+            // Split evenly if no clear winner yet
+            college1Score = Math.floor(match.completedMatches / 2);
+            college2Score = match.completedMatches - college1Score;
+        }
+    }
+    
+    return { college1Score, college2Score };
+}
+
+// Format round name for display
+function formatRoundName(round) {
+    if (!round) return '';
+    
+    const roundMap = {
+        'round_1': 'Round 1',
+        'round_2': 'Round 2', 
+        'quarter': 'Quarter Final',
+        'quater': 'Quarter Final',
+        'semi': 'Semi Final',
+        'final': 'Final'
+    };
+    
+    return roundMap[round] || round.replace('_', ' ').toUpperCase();
 }
 
 // Export functions for potential use by other scripts

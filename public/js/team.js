@@ -496,10 +496,23 @@ function createMatchCard(match) {
     const isMyTeam1 = match.email1 === currentCollegeEmail;
     const isMyTeam2 = match.email2 === currentCollegeEmail;
     
+    // Format round and additional info
+    const round = formatRoundName(match.round);
+    const gender = match.gender === 'girls' ? 'Girls' : 'Boys';
+    const matchNo = match.matchNo || '1';
+    const court = match.court || 'TBD';
+    
     card.innerHTML = `
         <div class="match-card-header">
             <span class="match-status ${status}">${status.toUpperCase()}</span>
-            <span class="match-date-time">${match.date || '-'} | ${match.time || '-'}</span>
+            <span class="match-date-time">${formatMatchDate(match.date)} | ${match.time || '-'}</span>
+        </div>
+        <div class="match-context">
+            <small class="match-details">
+                <span><i class="fas fa-trophy"></i> ${gender} ${round}</span>
+                <span><i class="fas fa-hashtag"></i> Match #${matchNo}</span>
+                <span><i class="fas fa-map-marker-alt"></i> Court ${court}</span>
+            </small>
         </div>
         <div class="match-teams">
             <div class="team">
@@ -516,9 +529,41 @@ function createMatchCard(match) {
                 <div class="team-score">${score[1] !== undefined ? score[1] : '-'}</div>
             </div>
         </div>
+        ${match.refreeName ? `<div class="match-referee"><small><i class="fas fa-user-tie"></i> Ref: ${match.refreeName}</small></div>` : ''}
     `;
     
     return card;
+}
+
+// Helper functions for formatting
+function formatRoundName(round) {
+    if (!round) return 'Round 1';
+    
+    const roundMappings = {
+        'round_1': 'Round 1',
+        'round_2': 'Round 2', 
+        'round_3': 'Round 3',
+        'quater': 'Quarter Final',
+        'quarter': 'Quarter Final',
+        'semi': 'Semi Final',
+        'final': 'Final'
+    };
+    
+    return roundMappings[round] || round;
+}
+
+function formatMatchDate(dateString) {
+    if (!dateString) return '-';
+    
+    try {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric'
+        });
+    } catch (e) {
+        return dateString;
+    }
 }
 
 // Load players
@@ -671,12 +716,32 @@ function createPlayerCard(player) {
     const initials = player.playerName ? player.playerName.charAt(0).toUpperCase() : '?';
     const genderIcon = player.gender?.toLowerCase() === 'female' ? '♀' : '♂';
     
+    // Determine player position based on gender and order
+    const currentPlayers = currentPlayerGender === 'boys' ? allPlayers.boys : allPlayers.girls;
+    const playerIndex = currentPlayers.findIndex(p => p._id === player._id);
+    let position = '';
+    
+    if (currentPlayerGender === 'boys') {
+        if (playerIndex < 3) position = `Singles ${playerIndex + 1}`;
+        else if (playerIndex < 7) position = `Doubles ${playerIndex - 2}`;
+    } else {
+        if (playerIndex < 2) position = `Singles ${playerIndex + 1}`;
+        else if (playerIndex < 5) position = `Doubles ${playerIndex - 1}`;
+    }
+    
+    // Calculate some basic stats if needed
+    const joinDate = player.createdAt ? new Date(player.createdAt).toLocaleDateString('en-US', { 
+        month: 'short', 
+        day: 'numeric' 
+    }) : '-';
+    
     card.innerHTML = `
         <div class="player-header">
             <div class="player-avatar">${initials}</div>
             <div class="player-info">
                 <div class="player-name">${player.playerName || '-'}</div>
                 <div class="player-email">${player.email || '-'}</div>
+                ${position ? `<div class="player-position">${position}</div>` : ''}
             </div>
         </div>
         <div class="player-details">
@@ -688,9 +753,21 @@ function createPlayerCard(player) {
                 <span class="player-detail-label">Phone:</span>
                 <span class="player-detail-value">${player.phone || '-'}</span>
             </div>
+            <div class="player-detail-item">
+                <span class="player-detail-label">Joined:</span>
+                <span class="player-detail-value">${joinDate}</span>
+            </div>
+            ${player.department ? `
+                <div class="player-detail-item">
+                    <span class="player-detail-label">Department:</span>
+                    <span class="player-detail-value">${player.department}</span>
+                </div>
+            ` : ''}
         </div>
         <div class="player-actions">
-            <button class="btn-delete" onclick="deletePlayer('${player._id}')">Delete</button>
+            <button class="btn-delete" onclick="deletePlayer('${player._id}')">
+                <i class="fas fa-trash"></i> Delete
+            </button>
         </div>
     `;
     

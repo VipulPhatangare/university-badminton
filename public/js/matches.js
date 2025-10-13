@@ -1343,6 +1343,92 @@ function displayMatches(matches) {
     });
 }
 
+// Calculate college scores from individual match results
+function calculateCollegeScores(match) {
+    let college1Score = 0;
+    let college2Score = 0;
+    
+    // Check boys matches (5-match format)
+    if (match.match1Singles) {
+        const matches = [
+            match.match1Singles,
+            match.match2Singles,
+            match.match3Doubles,
+            match.match4Singles,
+            match.match5Doubles
+        ];
+        
+        matches.forEach(submatch => {
+            if (submatch && submatch.isCompleted && submatch.winnerTeam) {
+                if (submatch.winnerTeam === 'team1') {
+                    college1Score++;
+                } else if (submatch.winnerTeam === 'team2') {
+                    college2Score++;
+                }
+            }
+        });
+    }
+    
+    // Check girls matches (3-match format) 
+    else if (match.match1Singles && match.match2Doubles && match.match3Singles) {
+        const matches = [
+            match.match1Singles,
+            match.match2Doubles,
+            match.match3Singles
+        ];
+        
+        matches.forEach(submatch => {
+            if (submatch && submatch.isCompleted && submatch.winnerTeam) {
+                if (submatch.winnerTeam === 'team1') {
+                    college1Score++;
+                } else if (submatch.winnerTeam === 'team2') {
+                    college2Score++;
+                }
+            }
+        });
+    }
+    
+    // Fallback to existing score array or completedMatches
+    else if (match.score && Array.isArray(match.score)) {
+        college1Score = match.score[0] || 0;
+        college2Score = match.score[1] || 0;
+    }
+    
+    // Use completedMatches as fallback for total count
+    else if (match.completedMatches) {
+        // If we know the overall winner, assign scores accordingly
+        if (match.overallWinner === 'team1') {
+            college1Score = Math.ceil(match.completedMatches / 2);
+            college2Score = match.completedMatches - college1Score;
+        } else if (match.overallWinner === 'team2') {
+            college2Score = Math.ceil(match.completedMatches / 2);
+            college1Score = match.completedMatches - college2Score;
+        } else {
+            // Split evenly if no clear winner yet
+            college1Score = Math.floor(match.completedMatches / 2);
+            college2Score = match.completedMatches - college1Score;
+        }
+    }
+    
+    return { college1Score, college2Score };
+}
+
+// Format round name for display
+function formatRoundName(round) {
+    if (!round) return null;
+    
+    const roundMap = {
+        'round_1': 'Round 1',
+        'round_2': 'Round 2', 
+        'quater': 'Quarter Final',
+        'quarter': 'Quarter Final',
+        'semi': 'Semi Final',
+        'final': 'Final'
+    };
+    
+    return roundMap[round] || round.replace('_', ' ').toUpperCase();
+}
+
 // Create Match Card
 function createMatchCard(match) {
     const card = document.createElement('div');
@@ -1352,24 +1438,31 @@ function createMatchCard(match) {
     const status = match.matchStatus || 'upcoming';
     const statusClass = status.toLowerCase();
     const statusText = status.toUpperCase();
-    const score = match.score || [0, 0];
+    
+    // Calculate college scores from individual match wins
+    const collegeScores = calculateCollegeScores(match);
+    
+    // Add round information
+    const roundText = formatRoundName(match.round) || 'Round TBD';
     
     card.innerHTML = `
         <div class="match-card-header">
             <span class="match-status ${statusClass}">${statusText}</span>
+            <span class="match-round">${roundText}</span>
             <span class="match-date-time">${match.date || '-'} | ${match.time || '-'}</span>
         </div>
         <div class="match-teams">
-            <div class="team">
+            <div class="team ${collegeScores.college1Score > collegeScores.college2Score ? 'winner' : ''}">
                 <div class="team-name">${match.college1Name || '-'}</div>
-                <div class="team-score">${score[0] !== undefined ? score[0] : '-'}</div>
+                <div class="team-score">${collegeScores.college1Score}</div>
             </div>
             <div class="vs">VS</div>
-            <div class="team">
+            <div class="team ${collegeScores.college2Score > collegeScores.college1Score ? 'winner' : ''}">
                 <div class="team-name">${match.college2Name || '-'}</div>
-                <div class="team-score">${score[1] !== undefined ? score[1] : '-'}</div>
+                <div class="team-score">${collegeScores.college2Score}</div>
             </div>
         </div>
+        ${match.court ? `<div class="match-court">🏸 ${match.court}</div>` : ''}
     `;
     
     return card;

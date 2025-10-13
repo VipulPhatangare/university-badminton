@@ -330,7 +330,7 @@ button:focus {
     transition: all 0.3s ease;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     width: 320px;
-    height: 280px;
+    height: 320px;
     flex: 0 0 320px;
     display: flex;
     flex-direction: column;
@@ -403,13 +403,82 @@ button:focus {
     font-family: "Titillium Web", sans-serif;
     font-size: 0.75rem;
     font-weight: 600;
-    color: #e74c3c;
-    background: rgba(231, 76, 60, 0.1);
     padding: 0.25rem 0.5rem;
     border-radius: 12px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+}
+
+.live_indicator.live {
+    color: #e74c3c;
+    background: rgba(231, 76, 60, 0.1);
     animation: pulse 2s infinite;
+}
+
+.live_indicator.upcoming {
+    color: #3498db;
+    background: rgba(52, 152, 219, 0.1);
+}
+
+.live_indicator.completed {
+    color: #27ae60;
+    background: rgba(39, 174, 96, 0.1);
+}
+
+.live_indicator.scheduled {
+    color: #f39c12;
+    background: rgba(243, 156, 18, 0.1);
+}
+
+.live_indicator.bye {
+    color: #9c27b0;
+    background: rgba(156, 39, 176, 0.1);
+}
+
+/* Bye match specific styles */
+.bye-bg {
+    background: linear-gradient(135deg, #9c27b0 0%, #673ab7 100%) !important;
+}
+
+.bye-info {
+    font-family: "Titillium Web", sans-serif;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #9c27b0;
+    text-align: center;
+    margin: 0 1rem 0.5rem 1rem;
+    padding: 0.25rem 0.5rem;
+    background: rgba(156, 39, 176, 0.1);
+    border-radius: 8px;
+    font-style: italic;
+}
+
+/* Match card additional info styles */
+.match-round {
+    font-family: "Titillium Web", sans-serif;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #1565c0;
+    background: rgba(21, 101, 192, 0.1);
+    padding: 0.25rem 0.75rem;
+    border-radius: 10px;
+    text-align: center;
+    margin: 0.5rem 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.match-datetime {
+    font-family: "Titillium Web", sans-serif;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #6c757d;
+    text-align: center;
+    margin: 0 1rem 0.5rem 1rem;
+    padding: 0.25rem 0.5rem;
+    background: rgba(108, 117, 125, 0.1);
+    border-radius: 8px;
 }
 
 @keyframes pulse {
@@ -694,7 +763,7 @@ button:focus {
     
     .match_card {
         width: 280px;
-        height: 260px;
+        height: 300px;
         flex: 0 0 280px;
     }
     
@@ -776,7 +845,7 @@ button:focus {
     
     .match_card {
         width: 260px;
-        height: 240px;
+        height: 280px;
         flex: 0 0 260px;
     }
     
@@ -843,7 +912,7 @@ button:focus {
     
     .match_card {
         width: 300px;
-        height: 270px;
+        height: 310px;
         flex: 0 0 300px;
     }
 }

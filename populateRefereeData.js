@@ -1,226 +1,347 @@
-const { connectDB } = require('./database/db');
-const { refreeInfo, matchesBoys, matchesGirls, collegeInfo } = require('./database/schema');
+const mongoose = require('mongoose');
+const { matchesBoys, matchesGirls, refreeInfo } = require('./database/schema');
+
+// MongoDB connection
+const connectDB = async () => {
+    try {
+        await mongoose.connect('mongodb://localhost:27017/university-badminton');
+        console.log('✅ MongoDB Connected Successfully');
+    } catch (error) {
+        console.error('❌ Database connection failed:', error);
+        process.exit(1);
+    }
+};
 
 // Sample referee data
-const sampleReferees = [
+const refereeData = [
     {
-        name: 'John Smith',
-        refEmail: 'john.referee@example.com',
-        password: 'referee123',
-        phone: '9876543210'
-    },
-    {
-        name: 'Sarah Johnson', 
-        refEmail: 'sarah.referee@example.com',
-        password: 'referee123',
-        phone: '9876543211'
-    },
-    {
-        name: 'Mike Wilson',
-        refEmail: 'mike.referee@example.com', 
-        password: 'referee123',
-        phone: '9876543212'
-    }
-];
-
-// Sample match data with referee assignments
-const sampleBoysMatches = [
-    {
-        college1Name: 'MIT College',
-        college2Name: 'Stanford University',
-        email1: 'mit.team@example.com',
-        email2: 'stanford.team@example.com',
-        refreeEmail: 'john.referee@example.com',
         refreeName: 'John Smith',
-        matchStatus: 'players_allocated',
-        date: '2025-10-14',
-        time: '10:00 AM',
-        court: 'court_1',
-        round: 'quarter-final',
-        setStarted: false,
-        setInProgress: false,
-        completedMatches: 0,
-        
-        // Player allocations
-        match1Singles: {
-            player1Name: 'Alex Chen',
-            player2Name: 'David Brown',
-            player1Email: 'alex.chen@mit.edu',
-            player2Email: 'david.brown@stanford.edu'
-        },
-        match2Singles: {
-            player1Name: 'Ryan Kumar',
-            player2Name: 'James Wilson',
-            player1Email: 'ryan.kumar@mit.edu',
-            player2Email: 'james.wilson@stanford.edu'
-        },
-        match3Doubles: {
-            team1Player1Name: 'Alex Chen',
-            team1Player2Name: 'Ryan Kumar',
-            team2Player1Name: 'David Brown',
-            team2Player2Name: 'James Wilson',
-            team1Player1Email: 'alex.chen@mit.edu',
-            team1Player2Email: 'ryan.kumar@mit.edu',
-            team2Player1Email: 'david.brown@stanford.edu',
-            team2Player2Email: 'james.wilson@stanford.edu'
-        },
-        match4Singles: {
-            player1Name: 'Sam Patel',
-            player2Name: 'Tom Anderson',
-            player1Email: 'sam.patel@mit.edu',
-            player2Email: 'tom.anderson@stanford.edu'
-        },
-        match5Doubles: {
-            team1Player1Name: 'Sam Patel',
-            team1Player2Name: 'Alex Chen',
-            team2Player1Name: 'Tom Anderson',
-            team2Player2Name: 'David Brown',
-            team1Player1Email: 'sam.patel@mit.edu',
-            team1Player2Email: 'alex.chen@mit.edu',
-            team2Player1Email: 'tom.anderson@stanford.edu',
-            team2Player2Email: 'david.brown@stanford.edu'
-        }
+        email: 'referee1@example.com',
+        phone: '9876543210',
+        password: 'password123',
+        experience: 5,
+        certificationLevel: 'Level 3',
+        isActive: true
     },
     {
-        college1Name: 'Harvard University',
-        college2Name: 'Yale University',
-        email1: 'harvard.team@example.com',
-        email2: 'yale.team@example.com',
-        refreeEmail: 'sarah.referee@example.com',
         refreeName: 'Sarah Johnson',
-        matchStatus: 'players_allocated',
-        date: '2025-10-14',
-        time: '2:00 PM',
-        court: 'court_2',
-        round: 'quarter-final',
-        setStarted: false,
-        setInProgress: false,
-        completedMatches: 0,
-        
-        // Player allocations
-        match1Singles: {
-            player1Name: 'Kevin Lee',
-            player2Name: 'Mark Thompson',
-            player1Email: 'kevin.lee@harvard.edu',
-            player2Email: 'mark.thompson@yale.edu'
-        },
-        match2Singles: {
-            player1Name: 'Chris Martinez',
-            player2Name: 'Paul Davis',
-            player1Email: 'chris.martinez@harvard.edu',
-            player2Email: 'paul.davis@yale.edu'
-        },
-        match3Doubles: {
-            team1Player1Name: 'Kevin Lee',
-            team1Player2Name: 'Chris Martinez',
-            team2Player1Name: 'Mark Thompson',
-            team2Player2Name: 'Paul Davis',
-            team1Player1Email: 'kevin.lee@harvard.edu',
-            team1Player2Email: 'chris.martinez@harvard.edu',
-            team2Player1Email: 'mark.thompson@yale.edu',
-            team2Player2Email: 'paul.davis@yale.edu'
-        },
-        match4Singles: {
-            player1Name: 'Nick Garcia',
-            player2Name: 'Steve Miller',
-            player1Email: 'nick.garcia@harvard.edu',
-            player2Email: 'steve.miller@yale.edu'
-        },
-        match5Doubles: {
-            team1Player1Name: 'Nick Garcia',
-            team1Player2Name: 'Kevin Lee',
-            team2Player1Name: 'Steve Miller',
-            team2Player2Name: 'Mark Thompson',
-            team1Player1Email: 'nick.garcia@harvard.edu',
-            team1Player2Email: 'kevin.lee@harvard.edu',
-            team2Player1Email: 'steve.miller@yale.edu',
-            team2Player2Email: 'mark.thompson@yale.edu'
-        }
+        email: 'referee2@example.com', 
+        phone: '9876543211',
+        password: 'password123',
+        experience: 3,
+        certificationLevel: 'Level 2',
+        isActive: true
+    },
+    {
+        refreeName: 'Mike Wilson',
+        email: 'referee3@example.com',
+        phone: '9876543212', 
+        password: 'password123',
+        experience: 7,
+        certificationLevel: 'Level 4',
+        isActive: true
     }
 ];
 
-const sampleGirlsMatches = [
+// Sample boys match data
+const boysMatchData = [
     {
-        college1Name: 'Princeton University',
-        college2Name: 'Columbia University',
-        email1: 'princeton.team@example.com',
-        email2: 'columbia.team@example.com',
-        refreeEmail: 'mike.referee@example.com',
-        refreeName: 'Mike Wilson',
-        matchStatus: 'players_allocated',
-        date: '2025-10-14',
-        time: '11:30 AM',
-        court: 'court_3',
-        round: 'semi-final',
-        setStarted: false,
-        setInProgress: false,
-        completedMatches: 0,
+        college1Name: 'Pimpri Chinchwad College of Engineering',
+        college2Name: 'MIT World Peace University',
+        email1: 'pccoer@college.edu',
+        email2: 'mitwpu@college.edu',
+        refreeEmail: 'referee1@example.com',
+        refreeName: 'John Smith',
+        matchStatus: 'upcoming',
+        date: '2024-12-20',
+        time: '10:00 AM',
+        court: 'Court 1',
+        round: 'Quarter Final',
         
-        // Player allocations for girls (3 matches)
+        // Initialize match structure
         match1Singles: {
-            player1Name: 'Emma Watson',
-            player2Name: 'Lisa Chang',
-            player1Email: 'emma.watson@princeton.edu',
-            player2Email: 'lisa.chang@columbia.edu'
+            player1Name: 'Rahul Sharma',
+            player2Name: 'Amit Patel',
+            player1Email: 'rahul@pccoer.edu',
+            player2Email: 'amit@mitwpu.edu'
+        },
+        match2Singles: {
+            player1Name: 'Vikram Singh',
+            player2Name: 'Suresh Kumar',
+            player1Email: 'vikram@pccoer.edu',
+            player2Email: 'suresh@mitwpu.edu'
+        },
+        match3Doubles: {
+            team1Player1Name: 'Rohan Gupta',
+            team1Player2Name: 'Arjun Mehta',
+            team2Player1Name: 'Kiran Joshi',
+            team2Player2Name: 'Deepak Rao',
+            team1Player1Email: 'rohan@pccoer.edu',
+            team1Player2Email: 'arjun@pccoer.edu',
+            team2Player1Email: 'kiran@mitwpu.edu',
+            team2Player2Email: 'deepak@mitwpu.edu'
+        },
+        match4Singles: {
+            player1Name: 'Sanjay Verma',
+            player2Name: 'Rajesh Nair',
+            player1Email: 'sanjay@pccoer.edu',
+            player2Email: 'rajesh@mitwpu.edu'
+        },
+        match5Doubles: {
+            team1Player1Name: 'Manish Agarwal',
+            team1Player2Name: 'Pradeep Kumar',
+            team2Player1Name: 'Ravi Shankar',
+            team2Player2Name: 'Manoj Tiwari',
+            team1Player1Email: 'manish@pccoer.edu',
+            team1Player2Email: 'pradeep@pccoer.edu',
+            team2Player1Email: 'ravi@mitwpu.edu',
+            team2Player2Email: 'manoj@mitwpu.edu'
+        },
+        
+        completedMatches: 0,
+        setStarted: false,
+        setInProgress: false
+    },
+    {
+        college1Name: 'COEP Technological University',
+        college2Name: 'Pune Institute of Computer Technology',
+        email1: 'coep@college.edu',
+        email2: 'pict@college.edu',
+        refreeEmail: 'referee2@example.com',
+        refreeName: 'Sarah Johnson',
+        matchStatus: 'live',
+        date: '2024-12-20',
+        time: '2:00 PM',
+        court: 'Court 2',
+        round: 'Semi Final',
+        
+        match1Singles: {
+            player1Name: 'Aditya Bhosale',
+            player2Name: 'Chinmay Deshpande',
+            player1Email: 'aditya@coep.edu',
+            player2Email: 'chinmay@pict.edu'
+        },
+        match2Singles: {
+            player1Name: 'Omkar Patil',
+            player2Name: 'Siddharth More',
+            player1Email: 'omkar@coep.edu',
+            player2Email: 'siddharth@pict.edu'
+        },
+        match3Doubles: {
+            team1Player1Name: 'Aniket Jain',
+            team1Player2Name: 'Kunal Desai',
+            team2Player1Name: 'Harsh Kulkarni',
+            team2Player2Name: 'Yash Pawar',
+            team1Player1Email: 'aniket@coep.edu',
+            team1Player2Email: 'kunal@coep.edu',
+            team2Player1Email: 'harsh@pict.edu',
+            team2Player2Email: 'yash@pict.edu'
+        },
+        match4Singles: {
+            player1Name: 'Rohit Gadgil',
+            player2Name: 'Akshay Bhosle',
+            player1Email: 'rohit@coep.edu',
+            player2Email: 'akshay@pict.edu'
+        },
+        match5Doubles: {
+            team1Player1Name: 'Pranav Chavan',
+            team1Player2Name: 'Nikhil Sawant',
+            team2Player1Name: 'Vaibhav Joshi',
+            team2Player2Name: 'Sachin Kamble',
+            team1Player1Email: 'pranav@coep.edu',
+            team1Player2Email: 'nikhil@coep.edu',
+            team2Player1Email: 'vaibhav@pict.edu',
+            team2Player2Email: 'sachin@pict.edu'
+        },
+        
+        completedMatches: 0,
+        setStarted: true,
+        setInProgress: true,
+        setStartedAt: new Date()
+    }
+];
+
+// Sample girls match data
+const girlsMatchData = [
+    {
+        college1Name: 'Pimpri Chinchwad College of Engineering',
+        college2Name: 'MIT World Peace University',
+        email1: 'pccoer@college.edu',
+        email2: 'mitwpu@college.edu',
+        refreeEmail: 'referee3@example.com',
+        refreeName: 'Mike Wilson',
+        matchStatus: 'upcoming',
+        date: '2024-12-21',
+        time: '11:00 AM',
+        court: 'Court 3',
+        round: 'Final',
+        
+        match1Singles: {
+            player1Name: 'Priya Sharma',
+            player2Name: 'Sneha Patel',
+            player1Email: 'priya@pccoer.edu',
+            player2Email: 'sneha@mitwpu.edu'
         },
         match2Doubles: {
-            team1Player1Name: 'Emma Watson',
-            team1Player2Name: 'Sophie Turner',
-            team2Player1Name: 'Lisa Chang',
-            team2Player2Name: 'Anna Kim',
-            team1Player1Email: 'emma.watson@princeton.edu',
-            team1Player2Email: 'sophie.turner@princeton.edu',
-            team2Player1Email: 'lisa.chang@columbia.edu',
-            team2Player2Email: 'anna.kim@columbia.edu'
+            team1Player1Name: 'Kavya Singh',
+            team1Player2Name: 'Anjali Mehta',
+            team2Player1Name: 'Pooja Joshi',
+            team2Player2Name: 'Ritu Rao',
+            team1Player1Email: 'kavya@pccoer.edu',
+            team1Player2Email: 'anjali@pccoer.edu',
+            team2Player1Email: 'pooja@mitwpu.edu',
+            team2Player2Email: 'ritu@mitwpu.edu'
         },
         match3Singles: {
-            player1Name: 'Sophie Turner',
-            player2Name: 'Anna Kim',
-            player1Email: 'sophie.turner@princeton.edu',
-            player2Email: 'anna.kim@columbia.edu'
+            player1Name: 'Meera Verma',
+            player2Name: 'Nisha Nair',
+            player1Email: 'meera@pccoer.edu',
+            player2Email: 'nisha@mitwpu.edu'
+        },
+        
+        completedMatches: 0,
+        setStarted: false,
+        setInProgress: false
+    },
+    {
+        college1Name: 'COEP Technological University',
+        college2Name: 'Pune Institute of Computer Technology',
+        email1: 'coep@college.edu',
+        email2: 'pict@college.edu',
+        refreeEmail: 'referee1@example.com',
+        refreeName: 'John Smith',
+        matchStatus: 'completed',
+        date: '2024-12-19',
+        time: '3:00 PM',
+        court: 'Court 1',
+        round: 'Semi Final',
+        
+        match1Singles: {
+            player1Name: 'Aditi Bhosale',
+            player2Name: 'Shruti Deshpande',
+            player1Email: 'aditi@coep.edu',
+            player2Email: 'shruti@pict.edu',
+            isCompleted: true,
+            winnerTeam: 'team1',
+            winnerEmail: 'aditi@coep.edu'
+        },
+        match2Doubles: {
+            team1Player1Name: 'Sakshi Patil',
+            team1Player2Name: 'Manasi More',
+            team2Player1Name: 'Shweta Kulkarni',
+            team2Player2Name: 'Pallavi Pawar',
+            team1Player1Email: 'sakshi@coep.edu',
+            team1Player2Email: 'manasi@coep.edu',
+            team2Player1Email: 'shweta@pict.edu',
+            team2Player2Email: 'pallavi@pict.edu',
+            isCompleted: true,
+            winnerTeam: 'team2',
+            winnerEmail: 'shweta@pict.edu'
+        },
+        match3Singles: {
+            player1Name: 'Tejashree Gadgil',
+            player2Name: 'Aparna Bhosle',
+            player1Email: 'tejashree@coep.edu',
+            player2Email: 'aparna@pict.edu',
+            isCompleted: true,
+            winnerTeam: 'team1',
+            winnerEmail: 'tejashree@coep.edu'
+        },
+        
+        completedMatches: 3,
+        overallWinner: 'team1',
+        setStarted: true,
+        setInProgress: false,
+        setStartedAt: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
+        
+        // Add completed scorecard
+        scorecard: {
+            sets: [
+                {
+                    setNumber: 1,
+                    player1Score: 21,
+                    player2Score: 18,
+                    completed: true,
+                    startedAt: new Date(Date.now() - 2 * 60 * 60 * 1000),
+                    completedAt: new Date(Date.now() - 90 * 60 * 1000),
+                    lastUpdated: new Date(Date.now() - 90 * 60 * 1000)
+                },
+                {
+                    setNumber: 2,
+                    player1Score: 19,
+                    player2Score: 21,
+                    completed: true,
+                    startedAt: new Date(Date.now() - 90 * 60 * 1000),
+                    completedAt: new Date(Date.now() - 60 * 60 * 1000),
+                    lastUpdated: new Date(Date.now() - 60 * 60 * 1000)
+                },
+                {
+                    setNumber: 3,
+                    player1Score: 21,
+                    player2Score: 15,
+                    completed: true,
+                    startedAt: new Date(Date.now() - 60 * 60 * 1000),
+                    completedAt: new Date(Date.now() - 30 * 60 * 1000),
+                    lastUpdated: new Date(Date.now() - 30 * 60 * 1000)
+                }
+            ],
+            matchWinner: 'college1',
+            matchCompleted: true
         }
     }
 ];
 
-async function populateRefereeData() {
+const populateData = async () => {
     try {
-        console.log('Connecting to database...');
         await connectDB();
         
-        console.log('Clearing existing referee data...');
+        // Clear existing data
+        console.log('🧹 Clearing existing referee data...');
         await refreeInfo.deleteMany({});
-        await matchesBoys.deleteMany({ refreeEmail: { $exists: true } });
-        await matchesGirls.deleteMany({ refreeEmail: { $exists: true } });
+        await matchesBoys.deleteMany({ refreeEmail: { $in: refereeData.map(r => r.email) } });
+        await matchesGirls.deleteMany({ refreeEmail: { $in: refereeData.map(r => r.email) } });
         
-        console.log('Inserting sample referees...');
-        await refreeInfo.insertMany(sampleReferees);
-        console.log(`✓ Inserted ${sampleReferees.length} referees`);
+        // Insert referee data
+        console.log('👨‍⚖️ Creating referee accounts...');
+        const createdReferees = await refreeInfo.insertMany(refereeData);
+        console.log(`✅ Created ${createdReferees.length} referees`);
         
-        console.log('Inserting sample boys matches...');
-        await matchesBoys.insertMany(sampleBoysMatches);
-        console.log(`✓ Inserted ${sampleBoysMatches.length} boys matches`);
+        // Insert boys matches
+        console.log('🏸 Creating boys matches...');
+        const createdBoysMatches = await matchesBoys.insertMany(boysMatchData);
+        console.log(`✅ Created ${createdBoysMatches.length} boys matches`);
         
-        console.log('Inserting sample girls matches...');
-        await matchesGirls.insertMany(sampleGirlsMatches);
-        console.log(`✓ Inserted ${sampleGirlsMatches.length} girls matches`);
+        // Insert girls matches  
+        console.log('🏸 Creating girls matches...');
+        const createdGirlsMatches = await matchesGirls.insertMany(girlsMatchData);
+        console.log(`✅ Created ${createdGirlsMatches.length} girls matches`);
         
-        console.log('\n📋 Referee Login Credentials:');
-        sampleReferees.forEach(ref => {
-            console.log(`Name: ${ref.name}`);
-            console.log(`Email: ${ref.refEmail}`);
-            console.log(`Password: ${ref.password}`);
-            console.log('---');
-        });
+        console.log('\n🎉 Sample referee data populated successfully!');
+        console.log('\n📋 Test Login Credentials:');
+        console.log('Referee 1: referee1@example.com / password123');
+        console.log('Referee 2: referee2@example.com / password123');
+        console.log('Referee 3: referee3@example.com / password123');
         
-        console.log('\n✅ Referee data populated successfully!');
-        console.log('🏸 You can now login as a referee and manage matches.');
+        console.log('\n🏆 Match Assignment Summary:');
+        console.log('John Smith (referee1@example.com):');
+        console.log('  - Boys: PCCOE vs MIT WPU (Upcoming)');
+        console.log('  - Girls: COEP vs PICT (Completed)');
+        console.log('\nSarah Johnson (referee2@example.com):');
+        console.log('  - Boys: COEP vs PICT (Live)');
+        console.log('\nMike Wilson (referee3@example.com):');
+        console.log('  - Girls: PCCOE vs MIT WPU (Upcoming)');
         
     } catch (error) {
         console.error('❌ Error populating referee data:', error);
     } finally {
-        process.exit(0);
+        mongoose.connection.close();
+        console.log('\n📴 Database connection closed');
     }
-}
+};
 
 // Run the population script
-populateRefereeData();
+if (require.main === module) {
+    populateData();
+}
+
+module.exports = { populateData };

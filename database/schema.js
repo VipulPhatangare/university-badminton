@@ -60,6 +60,7 @@ const matchesBoysSchema = new mongoose.Schema({
     time: String,
     court: String, // Added court field
     round: String, // Added round field for tournament progression
+    isBye: { type: Boolean, default: false }, // True if this is a bye match
     
     // Player allocations for the 5-match system with integrated tracking
     match1Singles: {
@@ -182,6 +183,21 @@ const matchesBoysSchema = new mongoose.Schema({
         match3: scorecardMatchSchema,
         match4: scorecardMatchSchema,
         match5: scorecardMatchSchema
+    },
+    
+    // Simple scorecard for overall match tracking
+    scorecard: {
+        sets: [{
+            setNumber: { type: Number, required: true },
+            player1Score: { type: Number, default: 0 },
+            player2Score: { type: Number, default: 0 },
+            completed: { type: Boolean, default: false },
+            startedAt: { type: Date, default: Date.now },
+            completedAt: { type: Date },
+            lastUpdated: { type: Date, default: Date.now }
+        }],
+        matchWinner: { type: String }, // college1 or college2
+        matchCompleted: { type: Boolean, default: false }
     }
 });
 
@@ -256,6 +272,7 @@ const matchesGirlsSchema = new mongoose.Schema({
     time: String,
     court: String,
     round: String,
+    isBye: { type: Boolean, default: false }, // True if this is a bye match
     
     // Player allocations for the 3-match system (Girls) with integrated tracking
     match1Singles: {
@@ -337,6 +354,21 @@ const matchesGirlsSchema = new mongoose.Schema({
         match1: scorecardMatchSchema,
         match2: scorecardMatchSchema,
         match3: scorecardMatchSchema
+    },
+    
+    // Simple scorecard for overall match tracking
+    scorecard: {
+        sets: [{
+            setNumber: { type: Number, required: true },
+            player1Score: { type: Number, default: 0 },
+            player2Score: { type: Number, default: 0 },
+            completed: { type: Boolean, default: false },
+            startedAt: { type: Date, default: Date.now },
+            completedAt: { type: Date },
+            lastUpdated: { type: Date, default: Date.now }
+        }],
+        matchWinner: { type: String }, // college1 or college2
+        matchCompleted: { type: Boolean, default: false }
     }
 });
 

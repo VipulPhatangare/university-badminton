@@ -1712,7 +1712,7 @@ input:checked + .slider:before {
     .college-name {
         font-size: 0.85em;
     }
-    }
+    
 
     .btn-profile {
         padding: 6px 10px;
@@ -1750,3 +1750,4 @@ input:checked + .slider:before {
         font-size: 0.85em;
     }
 }
+

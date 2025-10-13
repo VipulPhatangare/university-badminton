@@ -3,191 +3,250 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Referee Dashboard - Shuttle Showdown</title>
+    <title>Referee Dashboard - Inter Collegiate Badminton Competition</title>
     <link rel="icon" type="image/png" href="/assets/shuttlecock-favicon.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/css/referee-dashboard.css">
 </head>
 <body>
-    <nav>
-        <div class="left_nav">
-            <img src="https://imgs.search.brave.com/5X28Tn65XcL0ddmlHA2cD4Hid5szvXvdXcpCcP0SiN0/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly91cGxv/YWQud2lraW1lZGlh/Lm9yZy93aWtpcGVk/aWEvY29tbW9ucy8w/LzAwL1BDQ09FLUxv/Z28tMjQucG5n" alt="PCCOE Logo">
-            <h3>Referee Dashboard</h3>
-        </div>
 
-        <div class="right_nav">
-            <span class="referee_name">Welcome, <span id="refereeName">Referee</span></span>
-            <button id="logoutBtn">Logout</button>
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <div class="logo">
+            <i class="fas fa-shuttlecock shuttlecock"></i>
+            <span>Referee Panel</span>
         </div>
-    </nav>
+    </div>
+    
+    <div class="sidebar-menu">
+        <div class="menu-item active" data-section="assignedMatches">
+            <i class="fas fa-calendar-check"></i>
+            <span>Assigned Matches</span>
+        </div>
+        <div class="menu-item" data-section="completedMatches">
+            <i class="fas fa-trophy"></i>
+            <span>Completed Matches</span>
+        </div>
+    </div>
+    
+    <button class="logout-btn" id="logoutBtn">
+        <i class="fas fa-sign-out-alt"></i>
+        Logout
+    </button>
+</div>
 
-    <div class="main_content">
+<div class="main-content">
+    <div class="header">
+        <div class="menu-toggle" id="menuToggle">
+            <i class="fas fa-bars"></i>
+        </div>
+        <div class="page-title">Referee Dashboard</div>
+        <div class="header-actions">
+            <div class="user-menu">
+                <div class="user-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <span id="refereeName">Referee</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="content">
         <!-- Assigned Matches Section -->
-        <section class="matches_section">
-            <div class="section_header">
-                <h2>Assigned Matches</h2>
-                <div class="refresh_btn">
-                    <button id="refreshMatches">🔄 Refresh</button>
+        <div class="section active" id="assignedMatchesSection">
+            <div class="section-header">
+                <div class="section-title">
+                    <i class="fas fa-calendar-check"></i>
+                    Assigned Matches
+                </div>
+                <div class="section-actions">
+                    <div class="search-box">
+                        <i class="fas fa-search search-icon"></i>
+                        <input type="text" id="assignedMatchesSearch" placeholder="Search matches...">
+                    </div>
                 </div>
             </div>
             
-            <div class="matches_container" id="assignedMatchesContainer">
-                <!-- Assigned matches will be loaded here -->
+            <div id="assignedMatchesContainer">
+                <div class="match-cards" id="assignedMatchesGrid">
+                    <!-- Match cards will be loaded dynamically -->
+                </div>
+                <div class="loading-state" id="assignedMatchesLoading">
+                    <i class="fas fa-circle-notch fa-spin"></i>
+                    <p>Loading assigned matches...</p>
+                </div>
+                <div class="no-matches-message" id="noAssignedMatches" style="display: none;">
+                    <i class="fas fa-calendar-xmark"></i>
+                    <h3>No Assigned Matches</h3>
+                    <p>You currently don't have any assigned matches.</p>
+                </div>
             </div>
-        </section>
+        </div>
 
         <!-- Completed Matches Section -->
-        <section class="matches_section">
-            <div class="section_header">
-                <h2>Completed Matches</h2>
-            </div>
-            
-            <div class="matches_container" id="completedMatchesContainer">
-                <!-- Completed matches will be loaded here -->
-            </div>
-        </section>
-    </div>
-
-    <!-- Start Set Confirmation Modal -->
-    <div id="startSetModal" class="modal">
-        <div class="modal_overlay"></div>
-        <div class="modal_content">
-            <div class="modal_header">
-                <h3>Start Match Set</h3>
-                <button class="close_btn" id="closeStartSetModal">&times;</button>
-            </div>
-            
-            <div class="modal_body">
-                <div class="match_info">
-                    <h4 id="matchTeams"></h4>
-                    <p id="matchDetails"></p>
+        <div class="section" id="completedMatchesSection" style="display: none;">
+            <div class="section-header">
+                <div class="section-title">
+                    <i class="fas fa-trophy"></i>
+                    Completed Matches
                 </div>
-                
-                <form id="startSetForm">
-                    <div class="form_group">
-                        <label for="courtNumber">Court Number</label>
-                        <select id="courtNumber" name="courtNumber" required>
-                            <option value="">Select Court</option>
-                            <option value="1">Court 1</option>
-                            <option value="2">Court 2</option>
-                            <option value="3">Court 3</option>
-                            <option value="4">Court 4</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form_group">
-                        <label for="firstServeCollege">First Serve</label>
-                        <select id="firstServeCollege" name="firstServeCollege" required>
-                            <option value="">Select College</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form_actions">
-                        <button type="button" class="cancel_btn" id="cancelStartSet">Cancel</button>
-                        <button type="submit" class="confirm_btn">Start Set</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- Match Sets Modal -->
-    <div id="matchSetsModal" class="modal">
-        <div class="modal_overlay"></div>
-        <div class="modal_content large">
-            <div class="modal_header">
-                <h3>Match Set - <span id="setMatchTeams"></span></h3>
-                <button class="close_btn" id="closeMatchSetsModal">&times;</button>
-            </div>
-            
-            <div class="modal_body">
-                <!-- Set Score Display -->
-                <div class="set_score_display">
-                    <div class="college_score">
-                        <h4 id="college1Name"></h4>
-                        <span class="score" id="college1Score">0</span>
-                    </div>
-                    <div class="vs_separator">VS</div>
-                    <div class="college_score">
-                        <h4 id="college2Name"></h4>
-                        <span class="score" id="college2Score">0</span>
+                <div class="section-actions">
+                    <div class="search-box">
+                        <i class="fas fa-search search-icon"></i>
+                        <input type="text" id="completedMatchesSearch" placeholder="Search completed matches...">
                     </div>
                 </div>
-
-                <!-- Individual Matches -->
-                <div class="individual_matches" id="individualMatches">
-                    <!-- Individual match cards will be generated here -->
+            </div>
+            
+            <div id="completedMatchesContainer">
+                <div class="match-cards" id="completedMatchesGrid">
+                    <!-- Completed match cards will be loaded dynamically -->
+                </div>
+                <div class="loading-state" id="completedMatchesLoading">
+                    <i class="fas fa-circle-notch fa-spin"></i>
+                    <p>Loading completed matches...</p>
+                </div>
+                <div class="no-matches-message" id="noCompletedMatches" style="display: none;">
+                    <i class="fas fa-calendar-check"></i>
+                    <h3>No Completed Matches</h3>
+                    <p>You haven't completed any matches yet.</p>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Start Individual Match Modal -->
-    <div id="startIndividualMatchModal" class="modal">
-        <div class="modal_overlay"></div>
-        <div class="modal_content">
-            <div class="modal_header">
-                <h3>Start Match</h3>
-                <button class="close_btn" id="closeIndividualMatchModal">&times;</button>
+        <!-- Match Set View Section -->
+        <div class="section" id="matchSetSection" style="display: none;">
+            <div class="section-header">
+                <div class="section-title">
+                    <i class="fas fa-table-tennis"></i>
+                    <span id="matchSetTitle">Match Details</span>
+                </div>
+                <div class="section-actions">
+                    <button class="btn btn-primary" id="backToMatches">
+                        <i class="fas fa-arrow-left"></i> Back to Matches
+                    </button>
+                </div>
             </div>
             
-            <div class="modal_body">
-                <div class="match_info">
-                    <h4 id="individualMatchTitle"></h4>
-                    <p id="individualMatchPlayers"></p>
+            <div class="college-score">
+                <div>
+                    <div class="college-name" id="college1Name">College A</div>
+                    <div class="college-score-value" id="college1Score">0</div>
                 </div>
-                
-                <form id="startIndividualMatchForm">
-                    <div class="form_row">
-                        <div class="form_group">
-                            <label for="maxPoints">Max Points</label>
-                            <input type="number" id="maxPoints" name="maxPoints" value="21" min="1" max="30" required>
-                        </div>
-                        
-                        <div class="form_group">
-                            <label for="numberOfSets">Number of Sets</label>
-                            <input type="number" id="numberOfSets" name="numberOfSets" value="3" min="1" max="5" required>
-                        </div>
-                    </div>
-                    
-                    <div class="form_row">
-                        <div class="form_group">
-                            <label for="matchCourtNumber">Court Number</label>
-                            <select id="matchCourtNumber" name="matchCourtNumber" required>
-                                <option value="">Select Court</option>
-                                <option value="1">Court 1</option>
-                                <option value="2">Court 2</option>
-                                <option value="3">Court 3</option>
-                                <option value="4">Court 4</option>
-                            </select>
-                        </div>
-                        
-                        <div class="form_group">
-                            <label for="firstServePlayer">First Serve</label>
-                            <select id="firstServePlayer" name="firstServePlayer" required>
-                                <option value="">Select Player/Team</option>
-                            </select>
-                        </div>
-                    </div>
-                    
-                    <div class="settings_note">
-                        <p>💡 You can modify max points and number of sets using the settings button after starting the match.</p>
-                    </div>
-                    
-                    <div class="form_actions">
-                        <button type="button" class="cancel_btn" id="cancelIndividualMatch">Cancel</button>
-                        <button type="submit" class="confirm_btn">Start Match</button>
-                    </div>
-                </form>
+                <div class="vs">VS</div>
+                <div>
+                    <div class="college-name" id="college2Name">College B</div>
+                    <div class="college-score-value" id="college2Score">0</div>
+                </div>
+            </div>
+            
+            <div class="submatches" id="subMatchesContainer">
+                <!-- Submatch cards will be loaded dynamically -->
             </div>
         </div>
     </div>
+</div>
 
-    <!-- Loading Spinner -->
-    <div id="loadingSpinner" class="loading_spinner">
-        <div class="spinner"></div>
-        <p>Loading matches...</p>
+<!-- Start Match Confirmation Modal -->
+<div id="startMatchModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Start Match</h3>
+            <span class="close" id="closeStartMatchModal">&times;</span>
+        </div>
+        <div class="modal-body">
+            <p>Are you sure you want to start this match?</p>
+            <p><strong id="matchTeams">College A vs College B</strong></p>
+        </div>
+        <div class="modal-footer">
+            <button class="btn" id="cancelStartMatch">Cancel</button>
+            <button class="btn btn-primary" id="confirmStartMatch">Start Match</button>
+        </div>
     </div>
+</div>
 
-    <script src="/js/referee-dashboard.js"></script>
+<!-- Start Submatch Modal -->
+<div id="startSubmatchModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Start Submatch</h3>
+            <span class="close" id="closeSubmatchModal">&times;</span>
+        </div>
+        <div class="modal-body">
+            <p>Please enter the match details:</p>
+            <div class="form-group">
+                <label for="maxPoints">Max Points per Set:</label>
+                <select id="maxPoints" class="form-control">
+                    <option value="11">11 Points</option>
+                    <option value="15">15 Points</option>
+                    <option value="21" selected>21 Points</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="numberOfSets">Number of Sets:</label>
+                <select id="numberOfSets" class="form-control">
+                    <option value="1">Best of 1</option>
+                    <option value="3" selected>Best of 3</option>
+                    <option value="5">Best of 5</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="courtNumber">Court Number:</label>
+                <select id="courtNumber" class="form-control">
+                    <option value="1">Court 1</option>
+                    <option value="2">Court 2</option>
+                    <option value="3">Court 3</option>
+                    <option value="4">Court 4</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="initialServer">Initial Server:</label>
+                <select id="initialServer" class="form-control">
+                    <option value="team1">College A</option>
+                    <option value="team2">College B</option>
+                </select>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn" id="cancelSubmatch">Cancel</button>
+            <button class="btn btn-primary" id="confirmSubmatch">Start</button>
+        </div>
+    </div>
+</div>
+
+
+<!-- Completed Submatch / Match Summary Modal -->
+<div id="completedSubmatchModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="completedModalTitle">Match Summary</h3>
+            <span class="close" id="closeCompletedModal">&times;</span>
+        </div>
+        <div class="modal-body" id="completedModalBody">
+            <!-- Summary content populated dynamically -->
+            <div id="completedSummary"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Automatic Match Winner Modal (No Cancel Button) -->
+<div id="matchWinnerModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="winnerModalTitle">Match Completed!</h3>
+            <span class="close" id="closeWinnerModal">&times;</span>
+        </div>
+        <div class="modal-body" id="winnerModalBody">
+            <div id="winnerSummary"></div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-primary" id="finalEndMatchBtn">
+                <i class="fas fa-flag-checkered"></i> End Match
+            </button>
+        </div>
+    </div>
+</div>
+
+<script src="/js/referee-dashboard.js"></script>
 </body>
 </html>

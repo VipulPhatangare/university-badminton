@@ -611,6 +611,9 @@ router.get('/matches', async (req, res) => {
                 query.matchStatus = { $in: ['upcoming', 'setup_completed', 'players_allocated'] };
             }
         }
+        
+        // Always exclude completed matches from the match setup view
+        query.matchStatus = { $ne: 'complete' };
 
         const matches = await matchesBoys.find(query).sort({ date: 1, time: 1 });
 
@@ -618,7 +621,7 @@ router.get('/matches', async (req, res) => {
         const formattedMatches = await Promise.all(matches.map(async (match) => {
             // Get college info
             const college1 = await collegeInfo.findOne({ email: match.email1 });
-            const college2 = await collegeInfo.findOne({ email: match.email2 });
+            const college2 = match.isBye ? null : await collegeInfo.findOne({ email: match.email2 });
 
             return {
                 _id: match._id,
@@ -631,7 +634,8 @@ router.get('/matches', async (req, res) => {
                 court: match.court || 'TBD',
                 matchStatus: match.matchStatus,
                 refreeId: match.refreeId || [],
-                round: 'Round 1' // You might want to add this field to your schema
+                round: match.round || 'Round 1',
+                isBye: match.isBye || false
             };
         }));
 
@@ -676,7 +680,7 @@ router.get('/matches/:matchId', async (req, res) => {
 
         // Get college info
         const college1 = await collegeInfo.findOne({ email: match.email1 });
-        const college2 = await collegeInfo.findOne({ email: match.email2 });
+        const college2 = match.isBye ? null : await collegeInfo.findOne({ email: match.email2 });
 
         const matchDetails = {
             _id: match._id,
@@ -689,7 +693,8 @@ router.get('/matches/:matchId', async (req, res) => {
             court: match.court || 'TBD',
             matchStatus: match.matchStatus,
             refreeId: match.refreeId || [],
-            round: 'Round 1' // You might want to add this field to your schema
+            round: match.round || 'Round 1',
+            isBye: match.isBye || false
         };
 
         res.json(matchDetails);

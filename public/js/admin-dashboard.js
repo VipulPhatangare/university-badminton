@@ -701,11 +701,13 @@ async function loadMatches() {
         loading.style.display = 'flex';
         empty.style.display = 'none';
         
-        // Fetch matches for current gender
+        // Fetch matches for current gender (exclude completed matches)
         const response = await fetch(`${API_BASE_URL}/api/admin/matches?gender=${currentMatchGender}&status=upcoming,assigned,partial`);
         if (!response.ok) throw new Error('Failed to fetch matches');
         
-        const matches = await response.json();
+        const allMatches = await response.json();
+        // Filter out completed matches
+        const matches = allMatches.filter(match => match.matchStatus !== 'complete');
         
         // Hide loading
         loading.style.display = 'none';
@@ -727,6 +729,33 @@ async function loadMatches() {
 
 // Create match card HTML
 function createMatchCard(match) {
+    // Handle bye matches
+    if (match.isBye) {
+        return `
+            <div class="match-card bye-match" onclick="handleByeMatch('${match._id}')">
+                <div class="match-header">
+                    <span class="match-status bye">🏆 BYE Match</span>
+                </div>
+                <div class="match-teams">
+                    <div class="team-info">
+                        <div class="team-name">${match.college1Name}</div>
+                        <div class="team-email">${match.email1}</div>
+                    </div>
+                    <div class="vs-divider">BYE</div>
+                    <div class="team-info">
+                        <div class="team-name">Automatic Advancement</div>
+                        <div class="team-email">No Opponent</div>
+                    </div>
+                </div>
+                <div class="match-info">
+                    <span class="match-round">${match.round}</span>
+                    <span>No Referee Required</span>
+                    <span>Click to Complete</span>
+                </div>
+            </div>
+        `;
+    }
+    
     const statusClass = getMatchStatusClass(match);
     const statusText = getMatchStatusText(match);
     
@@ -1088,6 +1117,71 @@ function closeMatchAssignmentModal() {
     team1Players = [];
     team2Players = [];
     availableReferees = [];
+}
+
+// ===========================
+// BYE MATCH HANDLING
+// ===========================
+
+// Handle bye match confirmation and completion
+async function handleByeMatch(matchId) {
+    try {
+        // Get match details first
+        const response = await fetch(`${API_BASE_URL}/api/matches/${matchId}`);
+        if (!response.ok) {
+            throw new Error('Failed to fetch match details');
+        }
+        
+        const match = await response.json();
+        
+        // Confirm bye match completion
+        const confirmed = confirm(
+            `This match is a Bye. Do you want to mark this match as completed and move ${match.college1Name} to the next round?`
+        );
+        
+        if (!confirmed) {
+            return;
+        }
+        
+        // Complete the bye match
+        await completeByeMatch(matchId, match);
+        
+    } catch (error) {
+        console.error('Error handling bye match:', error);
+        showToast('Error processing bye match', 'error');
+    }
+}
+
+// Complete bye match and advance team
+async function completeByeMatch(matchId, match) {
+    try {
+        showLoading();
+        
+        const response = await fetch(`${API_BASE_URL}/api/matches/${matchId}/complete-bye`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({ message: response.statusText }));
+            throw new Error(errorData.message || 'Failed to complete bye match');
+        }
+        
+        const result = await response.json();
+        
+        showToast(`Bye match completed! ${match.college1Name} has been advanced to the next round.`, 'success');
+        
+        // Refresh the matches list to remove the completed bye match
+        await loadMatches();
+        
+    } catch (error) {
+        console.error('Error completing bye match:', error);
+        showToast(`Error: ${error.message}`, 'error');
+    } finally {
+        hideLoading();
+    }
 }
 
 // ===========================

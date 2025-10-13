@@ -39,7 +39,7 @@ const girlNames = [
     "Ritika Kumar", "Deepika Singh", "Prachi Gupta", "Vaishali Yadav", "Rashmi Kumar", "Sapna Singh", "Sunita Patel"
 ];
 
-const rounds = ["round_1", "round_2", "quarter", "semi", "final"];
+const rounds = ["round_1"]; // Only round 1 matches
 
 // Generate random phone number
 function generatePhone() {
@@ -99,8 +99,8 @@ async function populateDatabase() {
         });
         referees.push(vipulReferee);
         
-        // Create other referees
-        for (let i = 1; i <= 20; i++) {
+        // Create other referees (only 4 more to make total 5)
+        for (let i = 1; i <= 4; i++) {
             const refereeName = `Referee ${i}`;
             const referee = new refreeInfo({
                 name: refereeName,
@@ -143,24 +143,8 @@ async function populateDatabase() {
             // Save players to get their IDs
             const savedBoysPlayers = await playerInfoId.insertMany(boysPlayers);
 
-            // Determine current round (most colleges in round_1, some in advanced rounds)
-            let currentRoundBoys;
-            if (i < 40) {
-                // 40 colleges in round_1
-                currentRoundBoys = "round_1";
-            } else if (i < 45) {
-                // 5 colleges in round_2
-                currentRoundBoys = "round_2";
-            } else if (i < 48) {
-                // 3 colleges in quarter
-                currentRoundBoys = "quarter";
-            } else if (i < 49) {
-                // 1 college in semi
-                currentRoundBoys = "semi";
-            } else {
-                // 1 college in final
-                currentRoundBoys = "final";
-            }
+            // All colleges are in round_1 only
+            let currentRoundBoys = "round_1";
 
             // Create college (boys only tournament)
             const college = new collegeInfo({
@@ -190,27 +174,40 @@ async function populateDatabase() {
         const savedColleges = await collegeInfo.find({});
         const savedReferees = await refreeInfo.find({});
         
-        // Create 10 sample matches
+        // Create 10 sample matches (including some bye matches)
         const matches = [];
         for (let i = 0; i < 10; i++) {
             const college1 = getRandomElement(savedColleges);
-            const college2 = getRandomElement(savedColleges.filter(c => c._id !== college1._id));
-            const referee = getRandomElement(savedReferees);
+            
+            // Create some bye matches (20% chance)
+            const isByeMatch = Math.random() < 0.2;
+            let college2 = null;
+            let referee = null;
+            
+            if (!isByeMatch) {
+                college2 = getRandomElement(savedColleges.filter(c => c._id !== college1._id));
+                referee = getRandomElement(savedReferees);
+            }
 
             const match = new matchesBoys({
                 college1Name: college1.collegeName,
-                college2Name: college2.collegeName,
+                college2Name: isByeMatch ? null : college2.collegeName,
                 email1: college1.email,
-                email2: college2.email,
+                email2: isByeMatch ? null : college2.email,
                 singlesMatchId: [], // Will be populated with singles matches
                 doublesMatchId: [], // Will be populated with doubles matches
-                winnerEmail: Math.random() > 0.5 ? college1.email : college2.email,
+                winnerEmail: isByeMatch ? college1.email : null, // Winner is college1 for bye matches
                 score: [],
-                refreeEmail: referee.refEmail,
-                refreeName: referee.name,
-                matchStatus: getRandomElement(["complete", "live", "upcoming"]),
+                refreeEmail: isByeMatch ? null : referee.refEmail,
+                refreeName: isByeMatch ? null : referee.name,
+                matchStatus: isByeMatch ? "upcoming" : "upcoming", // Keep upcoming for admin to handle
                 date: new Date(Date.now() + Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // Random date in next 30 days
-                time: `${Math.floor(Math.random() * 12) + 8}:${Math.random() > 0.5 ? '00' : '30'}`
+                time: isByeMatch ? null : `${Math.floor(Math.random() * 12) + 8}:${Math.random() > 0.5 ? '00' : '30'}`,
+                court: isByeMatch ? null : `court_${Math.floor(Math.random() * 4) + 1}`, // No court for bye matches
+                round: "round_1", // Only round 1 matches
+                completedMatches: 0, // No completed matches for upcoming matches
+                overallWinner: isByeMatch ? 'team1' : null, // Team1 wins bye matches automatically
+                isBye: isByeMatch // Set isBye field
             });
 
             matches.push(match);
@@ -224,11 +221,106 @@ async function populateDatabase() {
         const savedMatches = await matchesBoys.find({});
         
         for (const match of savedMatches.slice(0, 5)) { // Create detailed matches for first 5
+            // Skip bye matches for detailed match creation
+            if (match.isBye) {
+                continue;
+            }
+            
             const college1 = savedColleges.find(c => c.email === match.email1);
             const college2 = savedColleges.find(c => c.email === match.email2);
             
+            if (!college1 || !college2) {
+                console.log('Skipping match due to missing college data');
+                continue;
+            }
+            
             const college1Players = await playerInfoId.find({ _id: { $in: college1.playerInfoIdBoys } });
             const college2Players = await playerInfoId.find({ _id: { $in: college2.playerInfoIdBoys } });
+            
+            // Update match with individual match data (5-match boys format) - all upcoming
+            const updateData = {
+                match1Singles: {
+                    player1Name: college1Players[0]?.playerName || 'TBD',
+                    player2Name: college2Players[0]?.playerName || 'TBD',
+                    player1Email: college1Players[0]?.email || '',
+                    player2Email: college2Players[0]?.email || '',
+                    isCompleted: false, // All matches are not completed yet
+                    winnerTeam: null, // No winner for upcoming matches
+                    matchSettings: {
+                        maxPoints: 21,
+                        numberOfSets: 3,
+                        courtNumber: Math.floor(Math.random() * 4) + 1
+                    }
+                },
+                match2Singles: {
+                    player1Name: college1Players[1]?.playerName || 'TBD',
+                    player2Name: college2Players[1]?.playerName || 'TBD',
+                    player1Email: college1Players[1]?.email || '',
+                    player2Email: college2Players[1]?.email || '',
+                    isCompleted: false, // All matches are not completed yet
+                    winnerTeam: null, // No winner for upcoming matches
+                    matchSettings: {
+                        maxPoints: 21,
+                        numberOfSets: 3,
+                        courtNumber: Math.floor(Math.random() * 4) + 1
+                    }
+                },
+                match3Doubles: {
+                    team1Player1Name: college1Players[2]?.playerName || 'TBD',
+                    team1Player2Name: college1Players[3]?.playerName || 'TBD',
+                    team2Player1Name: college2Players[2]?.playerName || 'TBD',
+                    team2Player2Name: college2Players[3]?.playerName || 'TBD',
+                    team1Player1Email: college1Players[2]?.email || '',
+                    team1Player2Email: college1Players[3]?.email || '',
+                    team2Player1Email: college2Players[2]?.email || '',
+                    team2Player2Email: college2Players[3]?.email || '',
+                    isCompleted: false, // All matches are not completed yet
+                    winnerTeam: null, // No winner for upcoming matches
+                    matchSettings: {
+                        maxPoints: 21,
+                        numberOfSets: 3,
+                        courtNumber: Math.floor(Math.random() * 4) + 1
+                    }
+                },
+                match4Singles: {
+                    player1Name: college1Players[4]?.playerName || 'TBD',
+                    player2Name: college2Players[4]?.playerName || 'TBD',
+                    player1Email: college1Players[4]?.email || '',
+                    player2Email: college2Players[4]?.email || '',
+                    isCompleted: false, // All matches are not completed yet
+                    winnerTeam: null, // No winner for upcoming matches
+                    matchSettings: {
+                        maxPoints: 21,
+                        numberOfSets: 3,
+                        courtNumber: Math.floor(Math.random() * 4) + 1
+                    }
+                },
+                match5Doubles: {
+                    team1Player1Name: college1Players[5]?.playerName || 'TBD',
+                    team1Player2Name: college1Players[6]?.playerName || 'TBD',
+                    team2Player1Name: college2Players[5]?.playerName || 'TBD',
+                    team2Player2Name: college2Players[6]?.playerName || 'TBD',
+                    team1Player1Email: college1Players[5]?.email || '',
+                    team1Player2Email: college1Players[6]?.email || '',
+                    team2Player1Email: college2Players[5]?.email || '',
+                    team2Player2Email: college2Players[6]?.email || '',
+                    isCompleted: false, // All matches are not completed yet
+                    winnerTeam: null, // No winner for upcoming matches
+                    matchSettings: {
+                        maxPoints: 21,
+                        numberOfSets: 3,
+                        courtNumber: Math.floor(Math.random() * 4) + 1
+                    }
+                }
+            };
+            
+            // Set completed matches count to 0 for upcoming matches
+            updateData.completedMatches = 0;
+            
+            // No overall winner for upcoming matches
+            updateData.overallWinner = null;
+            
+            await matchesBoys.findByIdAndUpdate(match._id, updateData);
 
             // Create 3 singles matches
             const singlesMatches = [];
@@ -242,12 +334,12 @@ async function populateDatabase() {
                     email2: player2.email,
                     player1Name: player1.playerName,
                     player2Name: player2.playerName,
-                    singlesMatchStatus: getRandomElement(["complete", "live", "upcoming"]),
+                    singlesMatchStatus: "upcoming", // Only upcoming matches
                     numberOfSet: Math.random() > 0.5 ? 2 : 3,
                     maxSetPoint: 21,
-                    singlesMatchWinnerEmail: Math.random() > 0.5 ? player1.email : player2.email,
-                    singlesMatchWinnerName: Math.random() > 0.5 ? player1.playerName : player2.playerName,
-                    isMatchComplete: Math.random() > 0.3,
+                    singlesMatchWinnerEmail: null, // No winner for upcoming matches
+                    singlesMatchWinnerName: null, // No winner for upcoming matches
+                    isMatchComplete: false, // Not complete for upcoming matches
                     court: `court_${Math.floor(Math.random() * 4) + 1}`,
                     sets: []
                 });
@@ -269,13 +361,13 @@ async function populateDatabase() {
                     team1Player2Name: team1Players[1].playerName,
                     team2Player1Name: team2Players[0].playerName,
                     team2Player2Name: team2Players[1].playerName,
-                    singlesMatchStatus: getRandomElement(["complete", "live", "upcoming"]),
+                    singlesMatchStatus: "upcoming", // Only upcoming matches
                     numberOfSet: Math.random() > 0.5 ? 2 : 3,
                     maxSetPoint: 21,
-                    doublesMatchWinnerEmail: Math.random() > 0.5 ? college1.email : college2.email,
-                    doublesMatchWinnerName1: Math.random() > 0.5 ? team1Players[0].playerName : team2Players[0].playerName,
-                    doublesMatchWinnerName2: Math.random() > 0.5 ? team1Players[1].playerName : team2Players[1].playerName,
-                    isMatchComplete: Math.random() > 0.3,
+                    doublesMatchWinnerEmail: null, // No winner for upcoming matches
+                    doublesMatchWinnerName1: null, // No winner for upcoming matches
+                    doublesMatchWinnerName2: null, // No winner for upcoming matches
+                    isMatchComplete: false, // Not complete for upcoming matches
                     court: `court_${Math.floor(Math.random() * 4) + 1}`,
                     sets: []
                 });

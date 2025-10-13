@@ -458,6 +458,20 @@ body::-webkit-scrollbar {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 15px;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.match-round {
+    padding: 4px 10px;
+    background: rgba(21, 101, 192, 0.1);
+    border: 1px solid rgba(21, 101, 192, 0.3);
+    border-radius: 6px;
+    font-family: "Titillium Web", sans-serif;
+    font-size: 0.75em;
+    font-weight: 600;
+    color: #1565c0;
+    white-space: nowrap;
 }
 
 .match-status {
@@ -499,6 +513,19 @@ body::-webkit-scrollbar {
     font-weight: 500;
 }
 
+.match-court {
+    margin-top: 10px;
+    padding: 6px 12px;
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    border-radius: 8px;
+    font-family: "Titillium Web", sans-serif;
+    font-size: 0.8em;
+    font-weight: 600;
+    color: #10b981;
+    text-align: center;
+}
+
 .match-teams {
     display: flex;
     justify-content: space-between;
@@ -529,6 +556,24 @@ body::-webkit-scrollbar {
     font-weight: 800;
     color: #1565c0;
     text-shadow: 0 2px 4px rgba(21, 101, 192, 0.2);
+    background: rgba(21, 101, 192, 0.1);
+    padding: 8px 12px;
+    border-radius: 12px;
+    border: 2px solid rgba(21, 101, 192, 0.3);
+    min-width: 50px;
+    text-align: center;
+}
+
+.team.winner .team-score {
+    background: #1565c0;
+    color: white;
+    border-color: #1565c0;
+    box-shadow: 0 4px 12px rgba(21, 101, 192, 0.4);
+}
+
+.team.winner .team-name {
+    color: #1565c0;
+    font-weight: 700;
 }
 
 .vs {

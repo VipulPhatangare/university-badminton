@@ -121,4 +121,79 @@ router.get('/doubles/:doublesId', async (req, res) => {
     }
 });
 
+// Complete bye match and advance team to next round
+router.post('/:matchId/complete-bye', async (req, res) => {
+    try {
+        const mongoose = require('mongoose');
+        if (!mongoose.Types.ObjectId.isValid(req.params.matchId)) {
+            return res.status(400).json({ 
+                message: 'Invalid match ID format' 
+            });
+        }
+        
+        const match = await matchesBoys.findById(req.params.matchId);
+        if (!match) {
+            return res.status(404).json({ message: 'Match not found' });
+        }
+        
+        // Verify this is actually a bye match
+        if (!match.isBye) {
+            return res.status(400).json({ 
+                message: 'This is not a bye match. Cannot complete as bye.' 
+            });
+        }
+        
+        // Update match status to completed
+        const updatedMatch = await matchesBoys.findByIdAndUpdate(
+            req.params.matchId,
+            {
+                matchStatus: 'complete',
+                overallWinner: 'team1', // College1 wins the bye
+                winnerEmail: match.email1,
+                completedAt: new Date()
+            },
+            { new: true }
+        );
+        
+        // TODO: In a real tournament system, you would also:
+        // 1. Create the next round match for this team
+        // 2. Update the college's currentRound status
+        // 3. Send notifications to the college
+        
+        // For now, we'll just update the college's round status
+        const { collegeInfo } = require('../database/schema');
+        await collegeInfo.findOneAndUpdate(
+            { email: match.email1 },
+            { 
+                $push: { matchesBoys: match._id },
+                // Advance to next round (this is a simplified version)
+                currentRoundBoys: getNextRound(match.round)
+            }
+        );
+        
+        res.json({
+            success: true,
+            message: 'Bye match completed successfully',
+            match: updatedMatch
+        });
+        
+    } catch (error) {
+        console.error('Error completing bye match:', error);
+        res.status(500).json({ message: error.message });
+    }
+});
+
+// Helper function to determine next round
+function getNextRound(currentRound) {
+    const roundProgression = {
+        'round_1': 'round_2',
+        'round_2': 'quarter', 
+        'quarter': 'semi',
+        'semi': 'final',
+        'final': 'champion'
+    };
+    
+    return roundProgression[currentRound] || currentRound;
+}
+
 module.exports = router;

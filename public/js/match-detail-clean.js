@@ -105,29 +105,6 @@ async function loadMatchDetail() {
 function transformMatchData(rawData) {
     console.log('Transforming match data:', rawData);
     
-    // Check if this is a bye match
-    if (rawData.isBye) {
-        return {
-            _id: rawData._id,
-            college1Name: rawData.college1Name,
-            college2Name: null,
-            date: rawData.date,
-            time: null,
-            matchStatus: "bye",
-            round: rawData.round,
-            court: null,
-            refreeName: null,
-            refreeEmail: null,
-            college1Score: 1,
-            college2Score: 0,
-            overallWinner: 'team1',
-            completedMatches: 0,
-            submatches: [],
-            structure: [],
-            isBye: true
-        };
-    }
-    
     // Determine match structure based on whether it's boys (5 matches) or girls (3 matches)
     let structure = [];
     
@@ -221,42 +198,23 @@ function transformMatchData(rawData) {
 
 // Populate match header
 function populateMatchHeader(matchData) {
-    // Safe element updates with null checks
-    const college1Element = document.getElementById('college1Name');
-    const college2Element = document.getElementById('college2Name');
-    const matchDateElement = document.getElementById('matchDate');
-    const matchTimeElement = document.getElementById('matchTime');
+    document.getElementById('college1Name').textContent = matchData.college1Name || '-';
+    document.getElementById('college2Name').textContent = matchData.college2Name || '-';
+    document.getElementById('matchDate').textContent = formatDate(matchData.date) || '-';
+    document.getElementById('matchTime').textContent = matchData.time || '-';
+    
     const statusElement = document.getElementById('matchStatus');
+    const status = matchData.matchStatus || 'upcoming';
+    const statusText = status.charAt(0).toUpperCase() + status.slice(1);
+    statusElement.innerHTML = `
+        <span class="status-dot"></span>
+        <span class="status-text">${statusText}</span>
+    `;
+    statusElement.className = `match-status ${status}`;
     
-    if (college1Element) college1Element.textContent = matchData.college1Name || '-';
-    
-    // Handle bye matches
-    if (matchData.isBye) {
-        if (college2Element) college2Element.textContent = 'BYE';
-        if (matchDateElement) matchDateElement.textContent = 'Automatic Advancement';
-        if (matchTimeElement) matchTimeElement.textContent = 'No Match Required';
-    } else {
-        if (college2Element) college2Element.textContent = matchData.college2Name || '-';
-        if (matchDateElement) matchDateElement.textContent = formatDate(matchData.date) || '-';
-        if (matchTimeElement) matchTimeElement.textContent = matchData.time || '-';
-    }
-    
-    if (statusElement) {
-        const status = matchData.matchStatus || 'upcoming';
-        const statusText = matchData.isBye ? 'Bye' : status.charAt(0).toUpperCase() + status.slice(1);
-        statusElement.innerHTML = `
-            <span class="status-dot"></span>
-            <span class="status-text">${statusText}</span>
-        `;
-        statusElement.className = `match-status ${status}`;
-    }
-    
-    // Set round and court info (these might not exist in all templates)
-    const matchRoundElement = document.getElementById('matchRound');
-    const matchCourtElement = document.getElementById('matchCourt');
-    
-    if (matchRoundElement) matchRoundElement.textContent = formatRoundName(matchData.round) || '-';
-    if (matchCourtElement) matchCourtElement.textContent = matchData.isBye ? 'N/A' : (matchData.court || '-');
+    // Set round and court info
+    document.getElementById('matchRound').textContent = formatRoundName(matchData.round) || '-';
+    document.getElementById('matchCourt').textContent = matchData.court || '-';
 }
 
 // Format round name for display
@@ -340,27 +298,6 @@ function populateOverallScore(matchData) {
     const container = document.getElementById('overallScoreContainer');
     if (!container) return;
     
-    if (matchData.isBye) {
-        container.innerHTML = `
-            <h2 class="section-title">Bye Match - Automatic Advancement</h2>
-            <div class="bye-match-display">
-                <div class="bye-team-card">
-                    <div class="team-section winner">
-                        <div class="college-name">${matchData.college1Name}</div>
-                        <div class="bye-badge">🏆 ADVANCES TO NEXT ROUND</div>
-                    </div>
-                </div>
-                <div class="bye-confirmation">
-                    <button onclick="confirmByeMatch('${matchData._id}')" class="confirm-bye-btn">
-                        ✓ Confirm Advancement
-                    </button>
-                    <p class="bye-note">Click to confirm this team advances to the next round</p>
-                </div>
-            </div>
-        `;
-        return;
-    }
-    
     const college1Score = matchData.college1Score || 0;
     const college2Score = matchData.college2Score || 0;
     
@@ -389,22 +326,6 @@ function populateRefereeInfo(matchData) {
     const refereeInfo = document.getElementById('refereeInfo');
     if (!refereeInfo) return;
     
-    if (matchData.isBye) {
-        refereeInfo.innerHTML = `
-            <div class="info-icon">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M9 12l2 2 4-4"></path>
-                    <circle cx="12" cy="12" r="10"></circle>
-                </svg>
-            </div>
-            <div class="info-content">
-                <div class="info-label">Referee</div>
-                <div class="info-value">Not Required (Bye Match)</div>
-            </div>
-        `;
-        return;
-    }
-    
     refereeInfo.innerHTML = `
         <div class="info-icon">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -425,19 +346,6 @@ function populateSubmatches(matchData) {
     if (!container) return;
     
     container.innerHTML = '';
-    
-    if (matchData.isBye) {
-        container.innerHTML = `
-            <div class="bye-matches-info">
-                <div class="bye-message">
-                    <h3>🏆 Bye Match</h3>
-                    <p><strong>${matchData.college1Name}</strong> automatically advances to the next round.</p>
-                    <p class="bye-explanation">This team received a bye in this round and does not need to play.</p>
-                </div>
-            </div>
-        `;
-        return;
-    }
     
     if (!matchData.submatches || matchData.submatches.length === 0) {
         container.innerHTML = '<div class="no-matches">No submatches available</div>';
@@ -719,99 +627,4 @@ function closeSubmatchDetails() {
     if (modal) {
         modal.remove();
     }
-}
-
-// Confirm bye match and advance team to next round
-async function confirmByeMatch(matchId) {
-    const confirmBtn = document.querySelector('.confirm-bye-btn');
-    
-    try {
-        // Show loading state
-        if (confirmBtn) {
-            confirmBtn.disabled = true;
-            confirmBtn.innerHTML = '⏳ Processing...';
-        }
-        
-        // Show confirmation dialog
-        const confirmed = confirm('Are you sure you want to confirm this bye match and advance the team to the next round?');
-        
-        if (!confirmed) {
-            // Reset button state
-            if (confirmBtn) {
-                confirmBtn.disabled = false;
-                confirmBtn.innerHTML = '✓ Confirm Advancement';
-            }
-            return;
-        }
-        
-        // Make API call to complete bye match
-        const response = await fetch(`/api/matches/${matchId}/complete-bye`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
-        
-        if (!response.ok) {
-            const errorData = await response.json().catch(() => ({ message: response.statusText }));
-            throw new Error(errorData.message || 'Failed to confirm bye match');
-        }
-        
-        const result = await response.json();
-        
-        // Show success message
-        if (confirmBtn) {
-            confirmBtn.innerHTML = '✅ Confirmed!';
-            confirmBtn.style.backgroundColor = '#27ae60';
-        }
-        
-        // Show success notification
-        showNotification('Bye match confirmed! Team has been advanced to the next round.', 'success');
-        
-        // Reload page after a short delay to show updated status
-        setTimeout(() => {
-            window.location.reload();
-        }, 2000);
-        
-    } catch (error) {
-        console.error('Error confirming bye match:', error);
-        
-        // Reset button state
-        if (confirmBtn) {
-            confirmBtn.disabled = false;
-            confirmBtn.innerHTML = '✓ Confirm Advancement';
-        }
-        
-        // Show error notification
-        showNotification(`Error: ${error.message}`, 'error');
-    }
-}
-
-// Show notification helper
-function showNotification(message, type = 'info') {
-    // Remove existing notification if any
-    const existingNotification = document.querySelector('.notification');
-    if (existingNotification) {
-        existingNotification.remove();
-    }
-    
-    // Create notification
-    const notification = document.createElement('div');
-    notification.className = `notification ${type}`;
-    notification.innerHTML = `
-        <div class="notification-content">
-            <span class="notification-message">${message}</span>
-            <button onclick="this.parentElement.parentElement.remove()" class="notification-close">&times;</button>
-        </div>
-    `;
-    
-    // Add to page
-    document.body.appendChild(notification);
-    
-    // Auto-remove after 5 seconds
-    setTimeout(() => {
-        if (notification && notification.parentElement) {
-            notification.remove();
-        }
-    }, 5000);
 }
