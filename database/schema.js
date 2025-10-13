@@ -168,9 +168,7 @@ const matchesBoysSchema = new mongoose.Schema({
 
     overallWinner: String, // 'team1' or 'team2'
     completedMatches: Number, // Count of completed matches (0-5)
-    maxPoints: { type: Number },
-    numberOfSets: { type: Number },
-    courtNumber: { type: Number },
+    currentActiveMatch: String, // Track which match is currently active (match1Singles, match2Singles, etc., null = none)
     
     // Set tracking fields
     setStarted: { type: Boolean, default: false }, // Whether referee has started this set
@@ -327,6 +325,7 @@ const matchesGirlsSchema = new mongoose.Schema({
     maxPoints: { type: Number },
     numberOfSets: { type: Number },
     courtNumber: { type: Number },
+    currentActiveMatch: String, // Track which match is currently active (match1Singles, match2Doubles, match3Singles, null = none)
     
     // Set tracking fields
     setStarted: { type: Boolean, default: false }, // Whether referee has started this set

@@ -53,8 +53,8 @@ app.use('/team', teamRoutes);
 const adminRoutes = require('./routes/admin');
 app.use('/api/admin', adminRoutes);
 
-const scorecardRoutes = require('./routes/scorecard');
-app.use('/scorecard', scorecardRoutes);
+// const scorecardRoutes = require('./routes/scorecard');
+// app.use('/scorecard', scorecardRoutes);
 
 app.get('/', (req, res)=>{
   res.render('homepage');

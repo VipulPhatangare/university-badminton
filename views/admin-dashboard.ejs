@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard - Badminton Tournament</title>
-    <link rel="icon" type="image/png" href="/assets/badminton-shuttle-1000x1000-removebg-preview.png">
+    <link rel="icon" type="image/png" href="/assets/shuttlecock-favicon.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         /* Enhanced CSS with homepage color scheme and fonts */
@@ -1657,6 +1657,48 @@
             box-shadow: var(--shadow-light);
         }
 
+        /* Small action buttons for tables */
+        .btn-sm {
+            padding: 5px 8px;
+            font-size: 0.8rem;
+            margin: 2px;
+            border-radius: 4px;
+        }
+
+        .btn-sm i {
+            font-size: 0.8rem;
+        }
+
+        /* Quick Configuration Helper Styles */
+        .quick-config-helper {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 20px;
+            border-radius: var(--border-radius);
+            margin-bottom: 25px;
+            border: 2px dashed var(--primary-blue);
+        }
+
+        .quick-config-actions {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .match-config-card {
+            margin-bottom: 20px;
+        }
+
+        /* Individual match config styling */
+        .match-config-card h4 {
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--light-blue) 100%);
+            color: white;
+            margin: 0 0 15px 0;
+            padding: 12px 15px;
+            border-radius: var(--border-radius);
+            font-size: 1.1rem;
+        }
+
         .player-details {
             display: flex;
             flex-direction: column;
@@ -1701,10 +1743,22 @@
             transition: var(--transition);
         }
 
-        .form-group input:focus {
+        .form-group input:focus,
+        .form-group textarea:focus {
             outline: none;
             border-color: var(--primary-blue);
             box-shadow: 0 0 0 3px rgba(178, 34, 34, 0.1);
+        }
+
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            transition: var(--transition);
+            resize: vertical;
+            font-family: inherit;
         }
 
         /* Empty State */
@@ -2488,6 +2542,161 @@
                             <p id="matchDetails"></p>
                         </div>
 
+                        <!-- Individual Match Configuration Section -->
+                        <div class="section">
+                            <div class="section-header">
+                                <h4><i class="fas fa-cog"></i> Match Configuration</h4>
+                                <p>Configure sets and points for each individual match</p>
+                            </div>
+                            
+                            <!-- Quick Configuration Helper -->
+                            <div class="quick-config-helper">
+                                <div class="config-row">
+                                    <div class="config-item">
+                                        <label for="quickSets">Quick Set All Matches:</label>
+                                        <select id="quickSets" class="form-control">
+                                            <option value="">-- Select to apply to all --</option>
+                                            <option value="1">Best of 1 Set</option>
+                                            <option value="3">Best of 3 Sets</option>
+                                            <option value="5">Best of 5 Sets</option>
+                                        </select>
+                                    </div>
+                                    <div class="config-item">
+                                        <label for="quickPoints">Quick Set All Points:</label>
+                                        <select id="quickPoints" class="form-control">
+                                            <option value="">-- Select to apply to all --</option>
+                                            <option value="11">11 Points</option>
+                                            <option value="15">15 Points</option>
+                                            <option value="21">21 Points</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="quick-config-actions">
+                                    <button type="button" class="btn btn-secondary" onclick="applyQuickConfig()">
+                                        <i class="fas fa-magic"></i> Apply to All Matches
+                                    </button>
+                                    <button type="button" class="btn btn-warning" onclick="resetAllConfigs()">
+                                        <i class="fas fa-undo"></i> Reset All to Default
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Match 1 Configuration -->
+                            <div class="match-config-card">
+                                <h4><i class="fas fa-trophy"></i> Match 1 - Singles</h4>
+                                <div class="config-row">
+                                    <div class="config-item">
+                                        <label for="match1_numberOfSets">Number of Sets</label>
+                                        <select id="match1_numberOfSets" class="form-control">
+                                            <option value="1">Best of 1 Set</option>
+                                            <option value="3" selected>Best of 3 Sets</option>
+                                            <option value="5">Best of 5 Sets</option>
+                                        </select>
+                                    </div>
+                                    <div class="config-item">
+                                        <label for="match1_maxSetPoints">Max Points per Set</label>
+                                        <select id="match1_maxSetPoints" class="form-control">
+                                            <option value="11">11 Points</option>
+                                            <option value="15">15 Points</option>
+                                            <option value="21" selected>21 Points</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Match 2 Configuration -->
+                            <div class="match-config-card">
+                                <h4><i class="fas fa-trophy"></i> Match 2 - Singles</h4>
+                                <div class="config-row">
+                                    <div class="config-item">
+                                        <label for="match2_numberOfSets">Number of Sets</label>
+                                        <select id="match2_numberOfSets" class="form-control">
+                                            <option value="1">Best of 1 Set</option>
+                                            <option value="3" selected>Best of 3 Sets</option>
+                                            <option value="5">Best of 5 Sets</option>
+                                        </select>
+                                    </div>
+                                    <div class="config-item">
+                                        <label for="match2_maxSetPoints">Max Points per Set</label>
+                                        <select id="match2_maxSetPoints" class="form-control">
+                                            <option value="11">11 Points</option>
+                                            <option value="15">15 Points</option>
+                                            <option value="21" selected>21 Points</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Match 3 Configuration -->
+                            <div class="match-config-card">
+                                <h4><i class="fas fa-trophy"></i> Match 3 - Doubles</h4>
+                                <div class="config-row">
+                                    <div class="config-item">
+                                        <label for="match3_numberOfSets">Number of Sets</label>
+                                        <select id="match3_numberOfSets" class="form-control">
+                                            <option value="1">Best of 1 Set</option>
+                                            <option value="3" selected>Best of 3 Sets</option>
+                                            <option value="5">Best of 5 Sets</option>
+                                        </select>
+                                    </div>
+                                    <div class="config-item">
+                                        <label for="match3_maxSetPoints">Max Points per Set</label>
+                                        <select id="match3_maxSetPoints" class="form-control">
+                                            <option value="11">11 Points</option>
+                                            <option value="15">15 Points</option>
+                                            <option value="21" selected>21 Points</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Match 4 Configuration -->
+                            <div class="match-config-card">
+                                <h4><i class="fas fa-trophy"></i> Match 4 - Singles</h4>
+                                <div class="config-row">
+                                    <div class="config-item">
+                                        <label for="match4_numberOfSets">Number of Sets</label>
+                                        <select id="match4_numberOfSets" class="form-control">
+                                            <option value="1">Best of 1 Set</option>
+                                            <option value="3" selected>Best of 3 Sets</option>
+                                            <option value="5">Best of 5 Sets</option>
+                                        </select>
+                                    </div>
+                                    <div class="config-item">
+                                        <label for="match4_maxSetPoints">Max Points per Set</label>
+                                        <select id="match4_maxSetPoints" class="form-control">
+                                            <option value="11">11 Points</option>
+                                            <option value="15">15 Points</option>
+                                            <option value="21" selected>21 Points</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Match 5 Configuration -->
+                            <div class="match-config-card">
+                                <h4><i class="fas fa-trophy"></i> Match 5 - Doubles</h4>
+                                <div class="config-row">
+                                    <div class="config-item">
+                                        <label for="match5_numberOfSets">Number of Sets</label>
+                                        <select id="match5_numberOfSets" class="form-control">
+                                            <option value="1">Best of 1 Set</option>
+                                            <option value="3" selected>Best of 3 Sets</option>
+                                            <option value="5">Best of 5 Sets</option>
+                                        </select>
+                                    </div>
+                                    <div class="config-item">
+                                        <label for="match5_maxSetPoints">Max Points per Set</label>
+                                        <select id="match5_maxSetPoints" class="form-control">
+                                            <option value="11">11 Points</option>
+                                            <option value="15">15 Points</option>
+                                            <option value="21" selected>21 Points</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Referee Assignment for All Matches -->
                         <div class="referee-assignment-section">
                             <div class="section-header">
@@ -2545,6 +2754,9 @@
                             </button>
                             <button onclick="refreshColleges()" class="btn btn-secondary">
                                 <i class="fas fa-sync-alt"></i> Refresh
+                            </button>
+                            <button onclick="openAddCollegeModal()" class="btn btn-primary">
+                                <i class="fas fa-plus"></i> Add College
                             </button>
                         </div>
                     </div>
@@ -2744,6 +2956,53 @@
                 </div>
             </div>
 
+            <!-- Add/Edit College Modal -->
+            <div id="addCollegeModal" class="modal" style="display: none;">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3 id="collegeModalTitle">Add College</h3>
+                        <span class="close-modal" onclick="closeAddCollegeModal()">&times;</span>
+                    </div>
+                    <div class="modal-body">
+                        <form id="collegeForm">
+                            <input type="hidden" id="collegeId" name="collegeId">
+                            
+                            <div class="form-group">
+                                <label for="collegeName">College Name *</label>
+                                <input type="text" id="collegeName" name="collegeName" class="form-control" required placeholder="Enter college name">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="collegeEmail">Email *</label>
+                                <input type="email" id="collegeEmail" name="email" class="form-control" required placeholder="Enter college email">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="collegeContact">Contact Number</label>
+                                <input type="tel" id="collegeContact" name="contactNumber" class="form-control" placeholder="Enter contact number">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="collegeAddress">Address</label>
+                                <textarea id="collegeAddress" name="address" class="form-control" rows="3" placeholder="Enter college address"></textarea>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="collegePassword">Password *</label>
+                                <input type="password" id="collegePassword" name="password" class="form-control" required placeholder="Enter college password">
+                                <small class="form-text text-muted">Password for college dashboard login</small>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" onclick="closeAddCollegeModal()">Cancel</button>
+                        <button type="button" class="btn btn-primary" onclick="saveCollege()">
+                            <span id="saveCollegeBtnText">Add College</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             <!-- Referees Page -->
             <div id="referees-page" style="display: none;">
                 <div class="section">
@@ -2894,6 +3153,12 @@
                 }
             });
 
+            document.getElementById('addCollegeModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeAddCollegeModal();
+                }
+            });
+
             // Close modals with Escape key
             document.addEventListener('keydown', function(e) {
                 if (e.key === 'Escape') {
@@ -2901,6 +3166,8 @@
                         closePlayerModal();
                     } else if (document.getElementById('collegeModal').style.display === 'flex') {
                         closeCollegeModal();
+                    } else if (document.getElementById('addCollegeModal').style.display === 'flex') {
+                        closeAddCollegeModal();
                     }
                 }
             });
@@ -3898,11 +4165,45 @@
                     return;
                 }
 
+                // Get individual match configuration values
+                const matchConfigurations = {
+                    match1: {
+                        numberOfSets: parseInt(document.getElementById('match1_numberOfSets').value || '3'),
+                        maxSetPoints: parseInt(document.getElementById('match1_maxSetPoints').value || '21')
+                    },
+                    match2: {
+                        numberOfSets: parseInt(document.getElementById('match2_numberOfSets').value || '3'),
+                        maxSetPoints: parseInt(document.getElementById('match2_maxSetPoints').value || '21')
+                    },
+                    match3: {
+                        numberOfSets: parseInt(document.getElementById('match3_numberOfSets').value || '3'),
+                        maxSetPoints: parseInt(document.getElementById('match3_maxSetPoints').value || '21')
+                    },
+                    match4: {
+                        numberOfSets: parseInt(document.getElementById('match4_numberOfSets').value || '3'),
+                        maxSetPoints: parseInt(document.getElementById('match4_maxSetPoints').value || '21')
+                    },
+                    match5: {
+                        numberOfSets: parseInt(document.getElementById('match5_numberOfSets').value || '3'),
+                        maxSetPoints: parseInt(document.getElementById('match5_maxSetPoints').value || '21')
+                    }
+                };
+
+                // Add configuration to each sub-match
+                subMatches.forEach(subMatch => {
+                    const matchKey = `match${subMatch.matchNumber}`;
+                    if (matchConfigurations[matchKey]) {
+                        subMatch.numberOfSets = matchConfigurations[matchKey].numberOfSets;
+                        subMatch.maxSetPoints = matchConfigurations[matchKey].maxSetPoints;
+                    }
+                });
+
                 // Prepare assignment data
                 const assignmentData = {
                     matchId: currentMatch._id,
                     gender: 'boys',
-                    subMatches: subMatches
+                    subMatches: subMatches,
+                    matchConfigurations: matchConfigurations
                 };
 
                 console.log('Saving match assignment:', assignmentData);
@@ -3978,36 +4279,65 @@
                 return;
             }
 
+            // Get individual match configuration values
+            const mainReferee = document.getElementById('main_referee').value;
+            
+            const matchConfigurations = {
+                match1: {
+                    numberOfSets: parseInt(document.getElementById('match1_numberOfSets').value || '3'),
+                    maxSetPoints: parseInt(document.getElementById('match1_maxSetPoints').value || '21')
+                },
+                match2: {
+                    numberOfSets: parseInt(document.getElementById('match2_numberOfSets').value || '3'),
+                    maxSetPoints: parseInt(document.getElementById('match2_maxSetPoints').value || '21')
+                },
+                match3: {
+                    numberOfSets: parseInt(document.getElementById('match3_numberOfSets').value || '3'),
+                    maxSetPoints: parseInt(document.getElementById('match3_maxSetPoints').value || '21')
+                },
+                match4: {
+                    numberOfSets: parseInt(document.getElementById('match4_numberOfSets').value || '3'),
+                    maxSetPoints: parseInt(document.getElementById('match4_maxSetPoints').value || '21')
+                },
+                match5: {
+                    numberOfSets: parseInt(document.getElementById('match5_numberOfSets').value || '3'),
+                    maxSetPoints: parseInt(document.getElementById('match5_maxSetPoints').value || '21')
+                }
+            };
+
             // Collect match configuration and player data
             const matchData = {
+                matchConfigurations: matchConfigurations,
                 matchSetup: {
                     match1: {
-                        referee: document.getElementById('match1_referee').value,
-                        maxPoints: parseInt(document.getElementById('match1_maxPoints').value),
-                        numberOfSets: parseInt(document.getElementById('match1_sets').value),
-                        courtNumber: parseInt(document.getElementById('match1_court').value)
+                        referee: mainReferee,
+                        maxPoints: matchConfigurations.match1.maxSetPoints,
+                        numberOfSets: matchConfigurations.match1.numberOfSets,
+                        courtNumber: 1
                     },
                     match2: {
-                        referee: document.getElementById('match2_referee').value,
-                        maxPoints: parseInt(document.getElementById('match2_maxPoints').value),
-                        numberOfSets: parseInt(document.getElementById('match2_sets').value),
-                        courtNumber: parseInt(document.getElementById('match2_court').value)
+                        referee: mainReferee,
+                        maxPoints: matchConfigurations.match2.maxSetPoints,
+                        numberOfSets: matchConfigurations.match2.numberOfSets,
+                        courtNumber: 2
                     },
                     match3: {
-                        referee: document.getElementById('match3_referee').value,
-                        maxPoints: parseInt(document.getElementById('match3_maxPoints').value),
-                        courtNumber: parseInt(document.getElementById('match3_court').value)
+                        referee: mainReferee,
+                        maxPoints: matchConfigurations.match3.maxSetPoints,
+                        numberOfSets: matchConfigurations.match3.numberOfSets,
+                        courtNumber: 3
                     },
                     match4: {
-                        referee: document.getElementById('match4_referee').value,
-                        maxPoints: parseInt(document.getElementById('match4_maxPoints').value),
-                        numberOfSets: parseInt(document.getElementById('match4_sets').value),
-                        courtNumber: parseInt(document.getElementById('match4_court').value)
+                        referee: mainReferee,
+                        maxPoints: matchConfigurations.match4.maxSetPoints,
+                        numberOfSets: matchConfigurations.match4.numberOfSets,
+                        courtNumber: 4
                     },
                     match5: {
-                        referee: document.getElementById('match5_referee').value,
-                        maxPoints: parseInt(document.getElementById('match5_maxPoints').value),
-                        courtNumber: parseInt(document.getElementById('match5_court').value)
+                        referee: mainReferee,
+                        maxPoints: matchConfigurations.match5.maxSetPoints,
+                        numberOfSets: matchConfigurations.match5.numberOfSets,
+                        courtNumber: 5
                     }
                 },
                 playerAllocations: {
@@ -4160,7 +4490,13 @@
                     <td><strong>${college.totalPlayers || 0}</strong></td>
                     <td>
                         <button class="btn btn-sm btn-primary" onclick="openCollegeDetailsModal('${college._id}')" title="View Details">
-                            <i class="fas fa-eye"></i> Edit
+                            <i class="fas fa-eye"></i> View
+                        </button>
+                        <button class="btn btn-sm btn-warning" onclick="editCollege('${college._id}')" title="Edit College">
+                            <i class="fas fa-edit"></i> Edit
+                        </button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteCollege('${college._id}', '${college.collegeName}')" title="Delete College">
+                            <i class="fas fa-trash"></i> Delete
                         </button>
                     </td>
                 </tr>
@@ -5963,6 +6299,186 @@
             const searchInput = document.getElementById('setupMatchesSearchInput');
             searchInput.value = '';
             filterSetupMatches();
+        }
+
+        // Quick Match Configuration Functions
+        function applyQuickConfig() {
+            const quickSets = document.getElementById('quickSets').value;
+            const quickPoints = document.getElementById('quickPoints').value;
+            
+            if (!quickSets && !quickPoints) {
+                showAlert('Please select sets or points to apply to all matches', 'warning');
+                return;
+            }
+            
+            for (let i = 1; i <= 5; i++) {
+                if (quickSets) {
+                    const setsSelect = document.getElementById(`match${i}_numberOfSets`);
+                    if (setsSelect) {
+                        setsSelect.value = quickSets;
+                    }
+                }
+                
+                if (quickPoints) {
+                    const pointsSelect = document.getElementById(`match${i}_maxSetPoints`);
+                    if (pointsSelect) {
+                        pointsSelect.value = quickPoints;
+                    }
+                }
+            }
+            
+            showTimedAlert('Configuration applied to all matches!', 'success', 2000);
+            
+            // Reset the quick selects
+            document.getElementById('quickSets').value = '';
+            document.getElementById('quickPoints').value = '';
+        }
+        
+        function resetAllConfigs() {
+            if (confirm('Are you sure you want to reset all matches to default configuration (Best of 3 sets, 21 points)?')) {
+                for (let i = 1; i <= 5; i++) {
+                    const setsSelect = document.getElementById(`match${i}_numberOfSets`);
+                    const pointsSelect = document.getElementById(`match${i}_maxSetPoints`);
+                    
+                    if (setsSelect) setsSelect.value = '3';
+                    if (pointsSelect) pointsSelect.value = '21';
+                }
+                
+                showTimedAlert('All matches reset to default configuration!', 'success', 2000);
+            }
+        }
+
+        // College Management Functions
+        let currentCollegeAction = '';
+        let currentCollegeModalData = null;
+
+        function openAddCollegeModal(action = 'add', collegeData = null) {
+            const modal = document.getElementById('addCollegeModal');
+            const title = document.getElementById('collegeModalTitle');
+            const saveBtn = document.getElementById('saveCollegeBtnText');
+            
+            currentCollegeAction = action;
+            currentCollegeModalData = collegeData;
+            
+            if (action === 'add') {
+                title.textContent = 'Add College';
+                saveBtn.textContent = 'Add College';
+                document.getElementById('collegeForm').reset();
+                document.getElementById('collegeId').value = '';
+            } else {
+                title.textContent = 'Edit College';
+                saveBtn.textContent = 'Update College';
+                populateCollegeForm(collegeData);
+            }
+            
+            modal.style.display = 'flex';
+        }
+
+        function closeAddCollegeModal() {
+            const modal = document.getElementById('addCollegeModal');
+            modal.style.display = 'none';
+            document.getElementById('collegeForm').reset();
+        }
+
+        function populateCollegeForm(college) {
+            document.getElementById('collegeId').value = college._id || '';
+            document.getElementById('collegeName').value = college.collegeName || '';
+            document.getElementById('collegeEmail').value = college.email || '';
+            document.getElementById('collegeContact').value = college.contactNumber || '';
+            document.getElementById('collegeAddress').value = college.address || '';
+            // Don't populate password for editing
+        }
+
+        async function saveCollege() {
+            const form = document.getElementById('collegeForm');
+            const formData = new FormData(form);
+            
+            // Validate required fields
+            const collegeName = formData.get('collegeName');
+            const email = formData.get('email');
+            const password = formData.get('password');
+            
+            if (!collegeName || !email || (!password && currentCollegeAction === 'add')) {
+                showAlert('Please fill in all required fields', 'error');
+                return;
+            }
+            
+            try {
+                let url = '/api/admin/colleges';
+                let method = 'POST';
+                
+                if (currentCollegeAction === 'edit') {
+                    url = `/api/admin/colleges/${formData.get('collegeId')}`;
+                    method = 'PUT';
+                    // Don't send password if it's empty for edit
+                    if (!password) {
+                        formData.delete('password');
+                    }
+                }
+                
+                const collegeData = {};
+                for (let [key, value] of formData.entries()) {
+                    collegeData[key] = value;
+                }
+                
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(collegeData)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showTimedAlert(
+                        currentCollegeAction === 'add' ? 'College added successfully!' : 'College updated successfully!',
+                        'success',
+                        2000
+                    );
+                    closeAddCollegeModal();
+                    refreshColleges(); // Refresh the colleges list
+                } else {
+                    showAlert(result.message || 'Error saving college', 'error');
+                }
+            } catch (error) {
+                console.error('Error saving college:', error);
+                showAlert('Error saving college: ' + error.message, 'error');
+            }
+        }
+
+        // Add edit college functionality
+        function editCollege(collegeId) {
+            const college = colleges.find(c => c._id === collegeId);
+            if (college) {
+                openAddCollegeModal('edit', college);
+            }
+        }
+
+        // Add delete college functionality
+        async function deleteCollege(collegeId, collegeName) {
+            if (!confirm(`Are you sure you want to delete ${collegeName}? This will also delete all associated players.`)) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/admin/colleges/${collegeId}`, {
+                    method: 'DELETE'
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showTimedAlert('College deleted successfully!', 'success', 2000);
+                    refreshColleges();
+                } else {
+                    showAlert(result.message || 'Error deleting college', 'error');
+                }
+            } catch (error) {
+                console.error('Error deleting college:', error);
+                showAlert('Error deleting college: ' + error.message, 'error');
+            }
         }
 
 
