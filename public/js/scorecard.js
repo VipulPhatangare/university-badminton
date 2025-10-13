@@ -32,6 +32,99 @@ const state = {
 };
 
 /* -------------------------
+   Mobile Enhancement Functions
+   ------------------------- */
+
+// Initialize mobile-specific features
+function initializeMobileEnhancements() {
+    // Handle orientation changes
+    handleOrientationChange();
+    window.addEventListener('orientationchange', () => {
+        setTimeout(handleOrientationChange, 100);
+    });
+    
+    // Prevent zoom on double-tap for score buttons
+    let lastTouchEnd = 0;
+    document.addEventListener('touchend', (e) => {
+        const now = (new Date()).getTime();
+        if (now - lastTouchEnd <= 300) {
+            e.preventDefault();
+        }
+        lastTouchEnd = now;
+    }, false);
+    
+    // Add swipe gesture for undo (swipe down)
+    initializeSwipeGestures();
+    
+    // Optimize for PWA if standalone mode
+    if (window.matchMedia('(display-mode: standalone)').matches) {
+        document.body.classList.add('pwa-mode');
+    }
+    
+    // Prevent pull-to-refresh on mobile
+    document.addEventListener('touchstart', (e) => {
+        if (e.touches.length !== 1) return;
+        
+        const { clientY } = e.touches[0];
+        const { scrollTop } = document.documentElement;
+        
+        if (clientY > 40 && scrollTop === 0) {
+            e.preventDefault();
+        }
+    }, { passive: false });
+}
+
+// Handle device orientation changes
+function handleOrientationChange() {
+    const container = document.querySelector('.container');
+    const isLandscape = window.innerHeight < window.innerWidth;
+    const isMobile = window.innerWidth <= 800;
+    
+    if (isMobile) {
+        if (isLandscape) {
+            container.classList.add('landscape-mode');
+            container.classList.remove('portrait-mode');
+        } else {
+            container.classList.add('portrait-mode');
+            container.classList.remove('landscape-mode');
+        }
+    }
+}
+
+// Initialize swipe gestures for mobile
+function initializeSwipeGestures() {
+    let startY = 0;
+    let startTime = 0;
+    let isTracking = false;
+    
+    document.addEventListener('touchstart', (e) => {
+        startY = e.touches[0].clientY;
+        startTime = Date.now();
+        isTracking = true;
+    }, { passive: true });
+    
+    document.addEventListener('touchend', (e) => {
+        if (!isTracking) return;
+        isTracking = false;
+        
+        const endY = e.changedTouches[0].clientY;
+        const deltaY = endY - startY;
+        const deltaTime = Date.now() - startTime;
+        
+        // Swipe down gesture for undo (minimum 100px, maximum 500ms)
+        if (deltaY > 100 && deltaTime < 500 && Math.abs(deltaY) > Math.abs(endY - startY)) {
+            if (state.lastActions.length > 0) {
+                undoLastAction();
+                // Haptic feedback for undo
+                if ('vibrate' in navigator) {
+                    navigator.vibrate([100, 50, 100]); // Double buzz for undo
+                }
+            }
+        }
+    }, { passive: true });
+}
+
+/* -------------------------
    Cached DOM nodes
    ------------------------- */
 const scoreEls = [document.getElementById('score0'), document.getElementById('score1')];
@@ -878,13 +971,59 @@ function hideSetConfirmation() {
    ------------------------- */
 
 // inc buttons (event delegation)
+// Enhanced touch and click handling for better mobile experience
 document.addEventListener('click', (e)=>{
     const target = e.target.closest('[data-action]');
     if(!target) return;
+    
+    // Prevent double-tap zoom on mobile
+    e.preventDefault();
+    
     const action = target.dataset.action;
     const p = parseInt(target.dataset.player);
-    if(action === 'inc') addPointToPlayer(p);
+    
+    if(action === 'inc') {
+        // Add visual feedback for touch
+        provideTouchFeedback(target);
+        addPointToPlayer(p);
+    }
 });
+
+// Add touch event listeners for better mobile responsiveness
+document.addEventListener('touchstart', (e) => {
+    const target = e.target.closest('[data-action]');
+    if (target) {
+        // Add active state immediately on touch
+        target.classList.add('touch-active');
+    }
+}, { passive: true });
+
+document.addEventListener('touchend', (e) => {
+    const target = e.target.closest('[data-action]');
+    if (target) {
+        // Remove active state after touch
+        setTimeout(() => {
+            target.classList.remove('touch-active');
+        }, 150);
+    }
+}, { passive: true });
+
+// Provide visual and haptic feedback for touch interactions
+function provideTouchFeedback(element) {
+    // Visual feedback
+    element.style.transform = 'scale(0.95)';
+    element.style.transition = 'transform 0.1s ease';
+    
+    setTimeout(() => {
+        element.style.transform = '';
+        element.style.transition = '';
+    }, 100);
+    
+    // Haptic feedback on supported devices
+    if ('vibrate' in navigator) {
+        navigator.vibrate(50); // Short vibration for score increment
+    }
+}
 
 // set start button
 setStartBtn.addEventListener('click', () => {
@@ -984,6 +1123,9 @@ document.addEventListener('visibilitychange', () => {
    Initialize the application
    ------------------------- */
 document.addEventListener('DOMContentLoaded', async () => {
+    // Initialize mobile enhancements
+    initializeMobileEnhancements();
+    
     // Fetch match data from backend
     const matchData = await fetchMatchInfo();
     

@@ -778,6 +778,8 @@ router.post('/matches/end-match', requireReferee, async (req, res) => {
                 const currentRound = winnerCollege.currentRoundBoys || winnerCollege.currentRoundGirls || null;
                 // We need to decide based on gender which field to use
                 const roundField = (gender === 'girls') ? 'currentRoundGirls' : 'currentRoundBoys';
+                const allocationField = (gender === 'girls') ? 'isMatchAllocateGirls' : 'isMatchAllocateBoys';
+                
                 let idx = rounds.indexOf(winnerCollege[roundField]);
                 if (idx === -1) idx = 0; // if null or unknown, treat as round_1
                 if (idx < rounds.length - 1) {
@@ -785,12 +787,21 @@ router.post('/matches/end-match', requireReferee, async (req, res) => {
                 } else {
                     winnerCollege[roundField] = 'final';
                 }
+                
+                // Reset the match allocation status so college can be allocated to new matches in next round
+                winnerCollege[allocationField] = false;
+                
                 await winnerCollege.save();
             }
 
             if (loserCollege) {
                 const roundField = (gender === 'girls') ? 'currentRoundGirls' : 'currentRoundBoys';
+                const allocationField = (gender === 'girls') ? 'isMatchAllocateGirls' : 'isMatchAllocateBoys';
+                
                 loserCollege[roundField] = null;
+                // Reset the match allocation status for eliminated college
+                loserCollege[allocationField] = false;
+                
                 await loserCollege.save();
             }
         } catch (e) {

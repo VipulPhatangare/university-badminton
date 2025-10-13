@@ -889,90 +889,270 @@ html::-webkit-scrollbar {
 
     .score {
         font-size: 3.5rem;
+        font-weight: 700;
     }
 
     .header {
-        padding: 12px;
+        padding: 16px;
         flex-direction: column;
         height: auto;
         gap: 16px;
+        border-radius: 12px;
     }
 
     .settings {
         flex-wrap: wrap;
         justify-content: center;
+        gap: 12px;
     }
 
     .settings input[type="number"],
     .settings select {
-        width: 70px;
+        width: 80px;
+        padding: 8px 12px;
+        font-size: 16px; /* Prevent zoom on iOS */
+        border-radius: 8px;
+        min-height: 44px;
     }
 
     .player {
-        min-height: 240px;
+        min-height: 280px;
+        padding: 20px;
+        border-radius: 12px;
     }
 
     .match-info {
         flex-direction: column;
         align-items: stretch;
+        padding: 16px;
+        border-radius: 12px;
     }
 
     .info-pill {
         text-align: center;
+        padding: 12px 16px;
+        border-radius: 8px;
+        margin-bottom: 8px;
     }
 
     .actions {
         flex-wrap: wrap;
+        gap: 12px;
+        justify-content: center;
     }
 
     .match-info-header {
         flex-direction: column;
-        gap: 8px;
+        gap: 12px;
         align-items: center;
     }
 
     .match-info-header div {
-        padding: 4px 10px;
+        padding: 8px 16px;
         font-size: 0.9rem;
+        border-radius: 8px;
+        min-width: 120px;
+        text-align: center;
+    }
+    
+    /* Enhanced buttons for tablet view */
+    .btn, button {
+        min-height: 44px;
+        padding: 12px 20px;
+        font-size: 0.95rem;
+        font-weight: 500;
+        border-radius: 8px;
+        touch-action: manipulation;
+    }
+    
+    .btn-lg {
+        min-height: 52px;
+        padding: 16px 24px;
+        font-size: 1.1rem;
     }
 }
 
 @media (max-width: 480px) {
     .container {
-        margin: 10px;
-        border-radius: var(--border-radius);
+        margin: 8px;
+        border-radius: 16px;
+        min-height: calc(100vh - 16px);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .header {
+        padding: 16px;
+        border-radius: 16px 16px 0 0;
     }
 
     .header h1 {
-        font-size: 1.2rem;
+        font-size: 1.3rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
     }
 
     .settings {
+        font-size: 0.9rem;
+        gap: 8px;
+        flex-wrap: wrap;
+        justify-content: space-around;
+    }
+
+    .settings label {
         font-size: 0.85rem;
+        font-weight: 500;
+    }
+
+    .settings input[type="number"],
+    .settings select {
+        width: 70px;
+        padding: 10px 8px;
+        font-size: 16px; /* Prevent zoom on iOS */
+        border-radius: 8px;
+        border: 2px solid #e5e7eb;
+        min-height: 44px;
+    }
+
+    .main {
+        flex: 1;
+        padding: 12px;
+        gap: 16px;
     }
 
     .btn {
-        padding: 12px 16px !important;
-        font-size: 0.9rem;
+        padding: 14px 20px !important;
+        font-size: 0.9rem !important;
+        font-weight: 500 !important;
+        border-radius: 10px !important;
+        min-height: 48px !important;
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
     }
 
     .btn-lg {
-        padding: 14px 18px !important;
-        font-size: 1rem;
+        padding: 16px 24px !important;
+        font-size: 1rem !important;
+        min-height: 52px !important;
+        border-radius: 12px !important;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #3b82f6, #1d4ed8) !important;
+        border: none !important;
+        color: white !important;
+    }
+
+    .btn-success {
+        background: linear-gradient(135deg, #10b981, #059669) !important;
+        border: none !important;
+        color: white !important;
+    }
+
+    .btn-warning {
+        background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+        border: none !important;
+        color: white !important;
+    }
+
+    .btn-danger {
+        background: linear-gradient(135deg, #ef4444, #dc2626) !important;
+        border: none !important;
+        color: white !important;
     }
 
     .score {
-        font-size: 3rem;
+        font-size: 2.5rem;
+        font-weight: 800;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
 
     .player {
-        padding: 16px;
-        gap: 12px;
+        padding: 20px;
+        gap: 16px;
+        border-radius: 16px;
+        min-height: 260px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .player-name {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 8px;
     }
 
     .info-pill {
-        padding: 8px 12px;
+        padding: 12px 16px;
         font-size: 0.9rem;
+        font-weight: 500;
+        border-radius: 12px;
+        margin-bottom: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    .actions {
+        gap: 12px;
+        padding: 16px 0;
+    }
+
+    .match-info {
+        padding: 20px;
+        border-radius: 16px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .match-info-header {
+        gap: 12px;
+        margin-bottom: 16px;
+    }
+
+    .match-info-header div {
+        padding: 10px 16px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        border-radius: 10px;
+        min-width: 100px;
+    }
+
+    /* Enhanced score buttons */
+    .score-btn {
+        min-height: 60px !important;
+        min-width: 60px !important;
+        border-radius: 50% !important;
+        font-size: 1.2rem !important;
+        font-weight: 600 !important;
+        margin: 8px !important;
+    }
+
+    /* Better modal presentation */
+    .modal-content {
+        margin: 5% auto;
+        max-width: 95%;
+        border-radius: 16px;
+    }
+
+    .modal-header,
+    .modal-body,
+    .modal-footer {
+        padding: 20px;
+    }
+
+    /* Improved form elements */
+    input[type="text"],
+    input[type="email"],
+    textarea {
+        padding: 12px 16px;
+        font-size: 16px; /* Prevent zoom on iOS */
+        border-radius: 10px;
+        border: 2px solid #e5e7eb;
+        min-height: 48px;
+    }
+
+    input[type="text"]:focus,
+    input[type="email"]:focus,
+    textarea:focus {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
     }
 }
 
@@ -1239,22 +1419,226 @@ html::-webkit-scrollbar {
 
 /* Touch-friendly improvements for mobile */
 @media (hover: none) and (pointer: coarse) {
-    button, .match_card, .action_btn {
-        min-height: 44px;
-        min-width: 44px;
+    button, 
+    .match_card, 
+    .action_btn,
+    .btn,
+    .score-btn,
+    input[type="submit"],
+    input[type="button"] {
+        min-height: 48px;
+        min-width: 48px;
+        cursor: pointer;
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
     }
     
     .right_nav button {
-        padding: 12px 20px;
+        padding: 14px 20px;
+        min-height: 48px;
     }
     
     .action_btn {
-        padding: 12px 16px !important;
+        padding: 14px 18px !important;
         font-size: 0.9rem !important;
+        min-height: 48px !important;
     }
     
     .toast-btn {
-        min-height: 44px !important;
-        padding: 12px 16px !important;
+        min-height: 48px !important;
+        padding: 14px 18px !important;
+        font-weight: 500 !important;
+    }
+    
+    /* Better touch feedback */
+    .btn:active,
+    button:active {
+        transform: scale(0.98);
+        transition: transform 0.1s ease;
+    }
+    
+    .btn:hover,
+    button:hover {
+        transform: none;
+    }
+    
+    /* Enhanced score buttons for touch */
+    .score-btn {
+        min-height: 60px !important;
+        min-width: 60px !important;
+        font-size: 1.2rem !important;
+        font-weight: 600 !important;
+        border-radius: 50% !important;
+        margin: 10px !important;
+    }
+    
+    /* Better scrolling experience */
+    .container,
+    .modal-body,
+    .main {
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior: contain;
+    }
+    
+    /* Improved form controls */
+    input[type="number"],
+    select,
+    input[type="text"],
+    input[type="email"] {
+        min-height: 48px;
+        padding: 12px 16px;
+        font-size: 16px; /* Prevent zoom on iOS */
+        border-radius: 8px;
+    }
+}
+
+/* Landscape orientation optimizations for mobile */
+@media screen and (max-width: 800px) and (orientation: landscape) {
+    .container {
+        margin: 4px;
+        min-height: calc(100vh - 8px);
+    }
+    
+    .main {
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        padding: 12px;
+    }
+    
+    .player {
+        min-height: 200px;
+        padding: 16px;
+    }
+    
+    .score {
+        font-size: 2.2rem;
+    }
+    
+    .header {
+        padding: 12px 16px;
+    }
+    
+    .modal-content {
+        max-height: 90vh;
+        margin: 2% auto;
+    }
+}
+
+/* Progressive Web App enhancements */
+@media (display-mode: standalone) {
+    .container {
+        padding-top: env(safe-area-inset-top);
+        padding-bottom: env(safe-area-inset-bottom);
+    }
+    
+    .header {
+        padding-top: calc(16px + env(safe-area-inset-top));
+    }
+}
+
+/* High DPI display optimizations */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .btn, button {
+        border-width: 0.5px;
+    }
+    
+    .score {
+        text-rendering: optimizeLegibility;
+        -webkit-font-smoothing: antialiased;
+    }
+}
+
+/* Mobile enhancement classes */
+.touch-active {
+    background-color: rgba(59, 130, 246, 0.1) !important;
+    transform: scale(0.98) !important;
+}
+
+.landscape-mode {
+    padding: 8px !important;
+}
+
+.landscape-mode .main {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 12px !important;
+    max-height: calc(100vh - 120px) !important;
+}
+
+.landscape-mode .player {
+    min-height: 180px !important;
+    padding: 16px !important;
+}
+
+.landscape-mode .score {
+    font-size: 2rem !important;
+}
+
+.landscape-mode .header {
+    padding: 8px 16px !important;
+}
+
+.portrait-mode .container {
+    min-height: 100vh;
+}
+
+.pwa-mode {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+}
+
+.pwa-mode .header {
+    padding-top: calc(16px + env(safe-area-inset-top));
+}
+
+/* Enhanced touch feedback */
+[data-action]:active {
+    background-color: rgba(59, 130, 246, 0.15) !important;
+    transform: scale(0.95) !important;
+    transition: all 0.1s ease !important;
+}
+
+/* Better button spacing for touch */
+.actions {
+    gap: 16px;
+    padding: 16px 0;
+}
+
+.actions .btn {
+    margin: 4px;
+}
+
+/* Improved modal for mobile */
+@media (max-width: 480px) {
+    .modal {
+        padding: 0 !important;
+    }
+    
+    .modal-content {
+        margin: 0 !important;
+        max-width: 100% !important;
+        height: 100vh !important;
+        border-radius: 0 !important;
+        display: flex !important;
+        flex-direction: column !important;
+    }
+    
+    .modal-header {
+        flex-shrink: 0;
+        padding: 20px;
+        border-bottom: 1px solid #e5e7eb;
+    }
+    
+    .modal-body {
+        flex: 1;
+        padding: 20px;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .modal-footer {
+        flex-shrink: 0;
+        padding: 20px;
+        border-top: 1px solid #e5e7eb;
+        background: #f9fafb;
     }
 }

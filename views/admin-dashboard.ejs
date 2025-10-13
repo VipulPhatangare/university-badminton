@@ -467,6 +467,178 @@
             padding-top: 10px;
         }
 
+        /* Bye Setup Match Card Styles */
+        .setup-match-card.bye-match {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            border: 2px solid #1e7e34;
+            box-shadow: 0 6px 25px rgba(40, 167, 69, 0.25);
+            animation: byeGlow 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes byeGlow {
+            0% {
+                box-shadow: 0 6px 25px rgba(40, 167, 69, 0.25);
+            }
+            100% {
+                box-shadow: 0 8px 30px rgba(40, 167, 69, 0.4);
+            }
+        }
+
+        .setup-match-card.bye-match:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 35px rgba(40, 167, 69, 0.4);
+            animation: none;
+        }
+
+        .setup-match-card.bye-match .setup-match-header {
+            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+            padding-bottom: 15px;
+        }
+
+        .setup-match-card.bye-match .setup-match-header h3 {
+            color: white;
+            font-weight: bold;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .setup-match-card.bye-match .setup-match-header h3 i {
+            color: #ffd700;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+
+        .setup-match-card.bye-match .setup-match-status {
+            background: linear-gradient(45deg, #ffd700, #ffed4e);
+            color: #333;
+            font-weight: bold;
+            box-shadow: 0 2px 8px rgba(255, 215, 0, 0.3);
+            animation: statusPulse 2s infinite;
+        }
+
+        @keyframes statusPulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        .setup-match-card.bye-match .setup-match-info {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+
+        .setup-match-card.bye-match .setup-match-info p {
+            color: white;
+            margin: 8px 0;
+            font-weight: 500;
+        }
+
+        .setup-match-card.bye-match .setup-match-info p strong {
+            color: #ffd700;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+        }
+
+        .setup-match-card.bye-match .btn-warning {
+            background: linear-gradient(45deg, #ff6b35, #f7931e);
+            border: none;
+            color: white;
+            font-weight: bold;
+            padding: 12px 24px;
+            border-radius: 25px;
+            box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .setup-match-card.bye-match .btn-warning:hover {
+            background: linear-gradient(45deg, #e55a2b, #e8851a);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(255, 107, 53, 0.4);
+        }
+
+        .setup-match-card.bye-match .btn-warning i {
+            margin-right: 8px;
+            font-size: 1.1em;
+        }
+
+        /* Bye Confirmation Modal Styles */
+        .modal#byeConfirmModal .modal-content {
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            border: none;
+            overflow: hidden;
+        }
+
+        .modal#byeConfirmModal .modal-header {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            border-bottom: none;
+            padding: 25px 30px;
+        }
+
+        .modal#byeConfirmModal .modal-header h3 {
+            margin: 0;
+            font-weight: bold;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal#byeConfirmModal .close-modal {
+            color: white;
+            font-size: 28px;
+            font-weight: bold;
+            opacity: 0.8;
+            transition: opacity 0.2s;
+        }
+
+        .modal#byeConfirmModal .close-modal:hover {
+            opacity: 1;
+        }
+
+        .modal#byeConfirmModal .modal-body {
+            padding: 30px;
+            background: #f8f9fa;
+        }
+
+        .modal#byeConfirmModal .modal-body h4 {
+            color: #28a745;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        .modal#byeConfirmModal .modal-footer {
+            padding: 20px 30px;
+            background: white;
+            border-top: 1px solid #dee2e6;
+        }
+
+        .modal#byeConfirmModal .btn-success {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .modal#byeConfirmModal .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+        }
+
+        .modal#byeConfirmModal .btn-secondary {
+            border-radius: 25px;
+            padding: 12px 25px;
+            font-weight: bold;
+        }
+
         .logout-btn {
             background-color: var(--danger);
             color: var(--white);
@@ -2111,11 +2283,75 @@
             background: linear-gradient(135deg, #dd6b20 0%, #c05621 100%);
         }
 
+        /* Bye Confirmation Modal Styles */
+        #byeConfirmModal .modal-content {
+            max-width: 550px;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            border: 2px solid #ffd700;
+        }
+
+        #byeConfirmModal .modal-header {
+            background: linear-gradient(135deg, #ffd700, #ffb300);
+            color: #333;
+            border-radius: 14px 14px 0 0;
+            padding: 20px;
+        }
+
+        #byeConfirmModal .modal-header h3 {
+            margin: 0;
+            font-weight: bold;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        #byeConfirmModal .modal-body {
+            padding: 30px;
+        }
+
+        #byeConfirmModal .fas.fa-trophy {
+            background: linear-gradient(45deg, #ffd700, #ffb300);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            filter: drop-shadow(2px 2px 4px rgba(255, 215, 0, 0.3));
+        }
+
+        #byeConfirmModal h4 {
+            color: #2c3e50;
+            font-weight: bold;
+            margin: 15px 0;
+        }
+
+        #byeConfirmModal .btn-success {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            border: none;
+            padding: 12px 25px;
+            font-weight: bold;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        #byeConfirmModal .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(40, 167, 69, 0.4);
+        }
+
         /* Responsive Design for Modals */
         @media (max-width: 768px) {
             .modal-content {
                 width: 95%;
                 margin: 20px;
+            }
+            
+            #byeConfirmModal .modal-content {
+                width: 95%;
+                max-width: none;
+                margin: 10px;
+            }
+            
+            #byeConfirmModal .modal-body {
+                padding: 20px;
             }
             
             .players-header {
@@ -3054,6 +3290,37 @@
                 </div>
             </div>
 
+            <!-- Bye Match Confirmation Modal -->
+            <div id="byeConfirmModal" class="modal" style="display: none;">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>Bye Match Confirmation</h3>
+                        <span class="close-modal" onclick="closeByeConfirmModal()">&times;</span>
+                    </div>
+                    <div class="modal-body">
+                        <div style="text-align: center; padding: 20px;">
+                            <i class="fas fa-trophy" style="font-size: 48px; color: #ffd700; margin-bottom: 20px;"></i>
+                            <h4 id="byeMessage">This is a Bye Match!</h4>
+                            <p id="byeDetails">College will automatically advance to the next round.</p>
+                            <div style="margin: 20px 0; padding: 15px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #28a745;">
+                                <strong>What happens when you confirm:</strong>
+                                <ul style="text-align: left; margin: 10px 0 0 20px;">
+                                    <li>The match will be marked as completed</li>
+                                    <li>The college will advance to the next round</li>
+                                    <li>Tournament bracket will be updated automatically</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" onclick="closeByeConfirmModal()">Cancel</button>
+                        <button type="button" class="btn btn-success" onclick="confirmByeMatch()" id="confirmByeBtn">
+                            <i class="fas fa-check"></i> Confirm & Complete Match
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             <!-- Referees Page -->
             <div id="referees-page" style="display: none;">
                 <div class="section">
@@ -3210,6 +3477,12 @@
                 }
             });
 
+            document.getElementById('byeConfirmModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeByeConfirmModal();
+                }
+            });
+
             // Close modals with Escape key
             document.addEventListener('keydown', function(e) {
                 if (e.key === 'Escape') {
@@ -3219,6 +3492,8 @@
                         closeCollegeModal();
                     } else if (document.getElementById('addCollegeModal').style.display === 'flex') {
                         closeAddCollegeModal();
+                    } else if (document.getElementById('byeConfirmModal').style.display === 'block') {
+                        closeByeConfirmModal();
                     }
                 }
             });
@@ -3466,7 +3741,15 @@
                                  match.matchStatus === 'setup_required' ||
                                  !match.matchStatus;
                 
-                // Check if match setup is complete (has players allocated)
+                // Check if this is a bye match
+                const isByeMatch = match.isBye || match.college2Name === 'BYE' || match.email2 === 'BYE';
+                
+                // If it's a bye match, include it if it's upcoming and not completed
+                if (isByeMatch) {
+                    return isUpcoming && match.matchStatus !== 'complete';
+                }
+                
+                // For normal matches, check if match setup is complete (has players allocated)
                 const hasPlayersAllocated = match.match1Singles && 
                                           match.match1Singles.player1Name &&
                                           match.match2Singles && 
@@ -3499,6 +3782,50 @@
         }
 
         function createSetupMatchCard(match) {
+            // Check if this is a bye match
+            const isByeMatch = match.isBye || match.college2Name === 'BYE' || match.email2 === 'BYE';
+            
+            if (isByeMatch) {
+                // Special handling for bye matches
+                const winningCollege = match.college1Name !== 'BYE' ? match.college1Name : match.college2Name;
+                // Simple round progression logic
+                const roundMap = {
+                    'round_1': 'Round 2',
+                    'round_2': 'Quarter Final',
+                    'quarter': 'Semi Final',
+                    'semi': 'Final',
+                    'final': 'Championship'
+                };
+                const nextRound = roundMap[match.round] || 'Next Round';
+                
+                return `
+                    <div class="setup-match-card bye-match" onclick="openMatchSetupModal('${match._id}')">
+                        <div class="setup-match-header">
+                            <h3>
+                                <i class="fas fa-trophy"></i>
+                                ${winningCollege} - BYE MATCH
+                            </h3>
+                            <span class="setup-match-status status-bye" style="background: #ffd700; color: #333;">Bye Match</span>
+                        </div>
+                        <div class="setup-match-info">
+                            <p><strong>Advancing College:</strong> ${winningCollege}</p>
+                            <p><strong>Current Round:</strong> ${match.round}</p>
+                            <p><strong>Advances to:</strong> ${nextRound}</p>
+                            <p><strong>Date:</strong> ${new Date(match.date).toLocaleDateString()}</p>
+                            <p style="color: #28a745; font-weight: bold;">
+                                <i class="fas fa-info-circle"></i> This college gets an automatic advancement
+                            </p>
+                        </div>
+                        <div class="setup-match-actions">
+                            <button class="btn btn-warning">
+                                <i class="fas fa-trophy"></i> Complete Bye & Advance
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Normal match handling
             const hasPlayersAllocated = match.match1Singles && match.match1Singles.player1Name;
             const statusText = hasPlayersAllocated ? 'Setup Complete' : 'Setup Required';
             const statusClass = hasPlayersAllocated ? 'configured' : 'needs-setup';
@@ -3577,6 +3904,12 @@
             currentMatch = matches.find(m => m._id === matchId);
             if (!currentMatch) {
                 showAlert('Match not found!', 'error');
+                return;
+            }
+
+            // Check if this is a bye match
+            if (currentMatch.isBye || currentMatch.college2Name === 'BYE' || currentMatch.email2 === 'BYE') {
+                openByeConfirmModal();
                 return;
             }
 
@@ -6530,6 +6863,90 @@
                 console.error('Error deleting college:', error);
                 showAlert('Error deleting college: ' + error.message, 'error');
             }
+        }
+
+        // ===========================
+        // BYE MATCH HANDLING
+        // ===========================
+        
+        function openByeConfirmModal() {
+            if (!currentMatch) return;
+            
+            // Update bye modal content
+            const winningCollege = currentMatch.college1Name !== 'BYE' ? currentMatch.college1Name : currentMatch.college2Name;
+            const nextRound = getNextRound(currentMatch.round);
+            
+            document.getElementById('byeMessage').textContent = `${winningCollege} gets a Bye!`;
+            document.getElementById('byeDetails').innerHTML = `
+                <p><strong>${winningCollege}</strong> will automatically advance to the <strong>${nextRound}</strong> round.</p>
+                <p><strong>Current Round:</strong> ${currentMatch.round}</p>
+                <p><strong>Match Date:</strong> ${new Date(currentMatch.date).toLocaleDateString()}</p>
+            `;
+            
+            // Store match ID for confirmation
+            document.getElementById('confirmByeBtn').setAttribute('data-match-id', currentMatch._id);
+            
+            // Show bye confirmation modal
+            document.getElementById('byeConfirmModal').style.display = 'block';
+        }
+        
+        function closeByeConfirmModal() {
+            document.getElementById('byeConfirmModal').style.display = 'none';
+        }
+        
+        async function confirmByeMatch() {
+            const matchId = document.getElementById('confirmByeBtn').getAttribute('data-match-id');
+            if (!matchId) return;
+            
+            try {
+                // Show loading
+                const confirmBtn = document.getElementById('confirmByeBtn');
+                const originalText = confirmBtn.innerHTML;
+                confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+                confirmBtn.disabled = true;
+                
+                const response = await fetch(`/api/matches/${matchId}/complete-bye`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showTimedAlert('Bye match completed successfully! College has been advanced to the next round.', 'success', 3000);
+                    closeByeConfirmModal();
+                    
+                    // Refresh matches to remove completed bye match
+                    await loadMatchesForSetup();
+                    displaySetupMatchCards();
+                    
+                } else {
+                    throw new Error(result.message || 'Failed to complete bye match');
+                }
+                
+            } catch (error) {
+                console.error('Error completing bye match:', error);
+                showAlert('Error: ' + error.message, 'error');
+            } finally {
+                // Reset button
+                const confirmBtn = document.getElementById('confirmByeBtn');
+                confirmBtn.innerHTML = '<i class="fas fa-check"></i> Confirm & Complete Match';
+                confirmBtn.disabled = false;
+            }
+        }
+        
+        function getNextRound(currentRound) {
+            const rounds = ['round_1', 'round_2', 'quarter', 'semi', 'final'];
+            const currentIndex = rounds.indexOf(currentRound);
+            
+            if (currentIndex === -1 || currentIndex === rounds.length - 1) {
+                return 'Championship'; // If final or unknown round
+            }
+            
+            const nextRound = rounds[currentIndex + 1];
+            return nextRound.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
         }
 
 

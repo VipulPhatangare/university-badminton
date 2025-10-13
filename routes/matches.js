@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { matchesBoys, singlesMatch, doublesMatch, set } = require('../database/schema');
+const { matchesBoys, matchesGirls, singlesMatch, doublesMatch, set } = require('../database/schema');
 
 // Get all matches
 router.get('/', async (req, res) => {
@@ -131,20 +131,51 @@ router.post('/:matchId/complete-bye', async (req, res) => {
             });
         }
         
-        const match = await matchesBoys.findById(req.params.matchId);
+        // Check both boys and girls matches
+        let match = await matchesBoys.findById(req.params.matchId);
+        let matchType = 'boys';
+        
+        if (!match) {
+            match = await matchesGirls.findById(req.params.matchId);
+            matchType = 'girls';
+        }
+        
         if (!match) {
             return res.status(404).json({ message: 'Match not found' });
         }
         
         // Verify this is actually a bye match
-        if (!match.isBye) {
+        const isByeMatch = match.isBye || 
+                          match.college2Name === 'BYE' || 
+                          match.email2 === 'BYE' || 
+                          !match.email2 || 
+                          match.email2 === null || 
+                          match.email2 === undefined;
+                          
+        console.log('Checking bye match:', {
+            matchId: req.params.matchId,
+            isBye: match.isBye,
+            college1Name: match.college1Name,
+            college2Name: match.college2Name,
+            email1: match.email1,
+            email2: match.email2,
+            isByeMatch: isByeMatch
+        });
+        
+        if (!isByeMatch) {
             return res.status(400).json({ 
-                message: 'This is not a bye match. Cannot complete as bye.' 
+                message: 'This is not a bye match. Cannot complete as bye.',
+                details: {
+                    isBye: match.isBye,
+                    college2Name: match.college2Name,
+                    email2: match.email2
+                }
             });
         }
         
-        // Update match status to completed
-        const updatedMatch = await matchesBoys.findByIdAndUpdate(
+        // Update match status to completed using the correct collection
+        const matchCollection = matchType === 'boys' ? matchesBoys : matchesGirls;
+        const updatedMatch = await matchCollection.findByIdAndUpdate(
             req.params.matchId,
             {
                 matchStatus: 'complete',
@@ -160,16 +191,45 @@ router.post('/:matchId/complete-bye', async (req, res) => {
         // 2. Update the college's currentRound status
         // 3. Send notifications to the college
         
-        // For now, we'll just update the college's round status
+        // Advance winner college round (similar to referee.js logic)
         const { collegeInfo } = require('../database/schema');
-        await collegeInfo.findOneAndUpdate(
-            { email: match.email1 },
-            { 
-                $push: { matchesBoys: match._id },
-                // Advance to next round (this is a simplified version)
-                currentRoundBoys: getNextRound(match.round)
+        
+        try {
+            const rounds = ['round_1', 'round_2', 'quater', 'semi', 'final'];
+            const winnerCollegeEmail = match.email1;
+            
+            // Load the winning college
+            const winnerCollege = await collegeInfo.findOne({ email: winnerCollegeEmail });
+            
+            if (winnerCollege) {
+                const roundField = matchType === 'boys' ? 'currentRoundBoys' : 'currentRoundGirls';
+                const currentRound = winnerCollege[roundField];
+                
+                // Find current round index and advance to next
+                const currentIndex = rounds.indexOf(currentRound);
+                if (currentIndex >= 0 && currentIndex < rounds.length - 1) {
+                    const nextRound = rounds[currentIndex + 1];
+                    
+                    const updateObj = {};
+                    updateObj[roundField] = nextRound;
+                    
+                    // Reset the match allocation status so college can be allocated to new matches in next round
+                    const allocationField = matchType === 'boys' ? 'isMatchAllocateBoys' : 'isMatchAllocateGirls';
+                    updateObj[allocationField] = false;
+                    
+                    await collegeInfo.findOneAndUpdate(
+                        { email: winnerCollegeEmail },
+                        updateObj
+                    );
+                    
+                    console.log(`Advanced college ${winnerCollege.collegeName} from ${currentRound} to ${nextRound} and reset allocation status`);
+                } else {
+                    console.log(`College ${winnerCollege.collegeName} is already in final round or invalid round`);
+                }
             }
-        );
+        } catch (e) {
+            console.error('Error advancing college round:', e);
+        }
         
         res.json({
             success: true,
@@ -187,8 +247,8 @@ router.post('/:matchId/complete-bye', async (req, res) => {
 function getNextRound(currentRound) {
     const roundProgression = {
         'round_1': 'round_2',
-        'round_2': 'quarter', 
-        'quarter': 'semi',
+        'round_2': 'quater', 
+        'quater': 'semi',
         'semi': 'final',
         'final': 'champion'
     };

@@ -21,6 +21,9 @@ document.addEventListener('DOMContentLoaded', () => {
     checkSession();
     initializeEventListeners();
     
+    // Initialize mobile-friendly features
+    initializeMobileSidebar();
+    
     // Check URL parameters for section navigation
     checkUrlParams();
     
@@ -165,9 +168,103 @@ function switchSection(sectionName) {
 function toggleSidebar() {
     const sidebar = document.getElementById('sidebar');
     const mainContent = document.querySelector('.main-content');
+    const overlay = document.querySelector('.sidebar-overlay');
     
-    sidebar.classList.toggle('active');
-    mainContent.classList.toggle('sidebar-active');
+    const isOpen = sidebar.classList.contains('open');
+    
+    if (isOpen) {
+        closeSidebar();
+    } else {
+        openSidebar();
+    }
+}
+
+function openSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.querySelector('.sidebar-overlay') || createSidebarOverlay();
+    
+    sidebar.classList.add('open');
+    overlay.classList.add('active');
+    
+    // Prevent body scrolling when sidebar is open on mobile
+    if (window.innerWidth <= 768) {
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+function closeSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.querySelector('.sidebar-overlay');
+    
+    sidebar.classList.remove('open');
+    if (overlay) overlay.classList.remove('active');
+    
+    // Restore body scrolling
+    document.body.style.overflow = '';
+}
+
+function createSidebarOverlay() {
+    let overlay = document.querySelector('.sidebar-overlay');
+    if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.className = 'sidebar-overlay';
+        overlay.addEventListener('click', closeSidebar);
+        overlay.addEventListener('touchstart', closeSidebar, { passive: true });
+        document.body.appendChild(overlay);
+    }
+    return overlay;
+}
+
+// Enhanced touch support for mobile sidebar
+function initializeMobileSidebar() {
+    if (window.innerWidth <= 768) {
+        createSidebarOverlay();
+        
+        // Add swipe gesture support for opening/closing sidebar
+        let startX = 0;
+        let currentX = 0;
+        let isTracking = false;
+        
+        document.addEventListener('touchstart', (e) => {
+            startX = e.touches[0].clientX;
+            isTracking = true;
+        }, { passive: true });
+        
+        document.addEventListener('touchmove', (e) => {
+            if (!isTracking) return;
+            currentX = e.touches[0].clientX;
+        }, { passive: true });
+        
+        document.addEventListener('touchend', (e) => {
+            if (!isTracking) return;
+            isTracking = false;
+            
+            const diffX = currentX - startX;
+            const sidebar = document.getElementById('sidebar');
+            const isOpen = sidebar.classList.contains('open');
+            
+            // Swipe right from left edge to open sidebar
+            if (startX < 50 && diffX > 100 && !isOpen) {
+                openSidebar();
+            }
+            // Swipe left to close sidebar when open
+            else if (diffX < -100 && isOpen) {
+                closeSidebar();
+            }
+        }, { passive: true });
+        
+        // Close sidebar when clicking outside
+        document.addEventListener('click', (e) => {
+            const sidebar = document.getElementById('sidebar');
+            const menuToggle = document.getElementById('menuToggle');
+            
+            if (sidebar.classList.contains('open') && 
+                !sidebar.contains(e.target) && 
+                !menuToggle.contains(e.target)) {
+                closeSidebar();
+            }
+        });
+    }
 }
 
 // ===========================
@@ -673,7 +770,6 @@ function renderMatchSetView(match) {
         matchSetSection.innerHTML = `
             <div class="section-header">
                 <div class="section-title">
-                    <i class="fas fa-table-tennis"></i>
                     <span id="matchSetTitle">Match Details</span>
                 </div>
                 <div class="section-actions">
@@ -719,7 +815,7 @@ function renderMatchSetView(match) {
     const college2ScoreEl = document.getElementById('college2Score');
     
     if (matchSetTitle) {
-        matchSetTitle.textContent = `${match.college1Name} vs ${match.college2Name}`;
+        matchSetTitle.innerHTML = `${match.college1Name} <span style="color: #1d67fbff;">VS</span> ${match.college2Name}`;
     }
     
     // Update college names and scores
