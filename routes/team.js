@@ -123,10 +123,29 @@ router.post('/players/:email', async (req, res) => {
             return res.status(400).json({ message: 'A player with this name and gender already exists in your college' });
         }
         
+        // Generate unique email: collegename.playername@gmail.com
+        const collegeNameClean = college.collegeName
+            .toLowerCase()
+            .replace(/\s+/g, '')
+            .replace(/[^a-zA-Z0-9]/g, '');
+        
+        const playerNameClean = playerName
+            .toLowerCase()
+            .replace(/\s+/g, '')
+            .replace(/[^a-zA-Z0-9]/g, '');
+        
+        let generatedEmail = `${collegeNameClean}.${playerNameClean}@gmail.com`;
+        let emailCounter = 1;
+        while (await playerInfoId.findOne({ email: generatedEmail })) {
+            generatedEmail = `${collegeNameClean}.${playerNameClean}${emailCounter}@gmail.com`;
+            emailCounter++;
+        }
+        
         // Create new player
         const newPlayer = new playerInfoId({
             playerName,
             gender,
+            email: generatedEmail,
             collegeEmail: college.email,
             collegeName: college.collegeName,
             playerIdentifier

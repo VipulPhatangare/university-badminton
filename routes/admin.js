@@ -419,10 +419,29 @@ router.post('/players', async (req, res) => {
         }
         console.log('No existing player found');
 
+        // Generate unique email: collegename.playername@gmail.com
+        const collegeNameClean = college.collegeName
+            .toLowerCase()
+            .replace(/\s+/g, '')
+            .replace(/[^a-zA-Z0-9]/g, '');
+        
+        const playerNameClean = playerName
+            .toLowerCase()
+            .replace(/\s+/g, '')
+            .replace(/[^a-zA-Z0-9]/g, '');
+        
+        let generatedEmail = `${collegeNameClean}.${playerNameClean}@gmail.com`;
+        let emailCounter = 1;
+        while (await playerInfoId.findOne({ email: generatedEmail })) {
+            generatedEmail = `${collegeNameClean}.${playerNameClean}${emailCounter}@gmail.com`;
+            emailCounter++;
+        }
+
         // Create new player
         console.log('Creating new player with data:', {
             playerName,
             gender,
+            email: generatedEmail,
             collegeEmail: college.email,
             collegeName: college.collegeName,
             playerIdentifier
@@ -431,6 +450,7 @@ router.post('/players', async (req, res) => {
         const newPlayer = new playerInfoId({
             playerName,
             gender,
+            email: generatedEmail,
             collegeEmail: college.email,
             collegeName: college.collegeName,
             playerIdentifier
