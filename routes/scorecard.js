@@ -28,7 +28,7 @@ router.get('/get-match-info', async (req, res) => {
             college2Name: match.college2Name,
             playerName1: match.college1Name,
             playerName2: match.college2Name,
-            maxSets: matchType === 'boys' ? 5 : 3,
+            maxSets: 5, // All tournaments now use 5-match format
             maxSetPoint: 21,
             set: match.scorecard.sets.map((set, index) => ({
                 setNumber: index + 1,

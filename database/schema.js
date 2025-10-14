@@ -64,10 +64,10 @@ const matchesBoysSchema = new mongoose.Schema({
     round: String, // Added round field for tournament progression (round_1, round_2, quarter_final, semi_final, final)
     isBye: { type: Boolean, default: false }, // True if this is a bye match
     
-    // Tournament format based on round
-    matchFormat: { type: String, enum: ['best_of_3', 'best_of_5'], default: 'best_of_3' }, // Format based on round
-    requiredWins: { type: Number, default: 2 }, // Wins needed to advance (2 for best_of_3, 3 for best_of_5)
-    totalMatches: { type: Number, default: 3 }, // Total sub-matches (3 for best_of_3, 5 for best_of_5)
+    // Tournament format based on round - All rounds now use best_of_5
+    matchFormat: { type: String, enum: ['best_of_3', 'best_of_5'], default: 'best_of_5' }, // Format based on round
+    requiredWins: { type: Number, default: 3 }, // Wins needed to advance (2 for best_of_3, 3 for best_of_5)
+    totalMatches: { type: Number, default: 5 }, // Total sub-matches (3 for best_of_3, 5 for best_of_5)
     
     // Player allocations for the 5-match system with integrated tracking
     match1Singles: {
@@ -263,7 +263,7 @@ const refreeInfoSchema = new mongoose.Schema({
     phone: String
 });
 
-// Girls matches schema (3-match format)
+// Girls matches schema (now also uses 5-match format like boys)
 const matchesGirlsSchema = new mongoose.Schema({
     college1Name: String,
     college2Name: String,
@@ -345,11 +345,11 @@ const matchesGirlsSchema = new mongoose.Schema({
     },
 
     overallWinner: String, // 'team1' or 'team2'
-    completedMatches: Number, // Count of completed matches (0-3)
+    completedMatches: Number, // Count of completed matches (0-5)
     maxPoints: { type: Number },
     numberOfSets: { type: Number },
     courtNumber: { type: Number },
-    currentActiveMatch: String, // Track which match is currently active (match1Singles, match2Doubles, match3Singles, null = none)
+    currentActiveMatch: String, // Track which match is currently active (match1Singles, match2Singles, match3Doubles, match4Singles, match5Doubles, null = none)
     
     // Set tracking fields
     setStarted: { type: Boolean, default: false }, // Whether referee has started this set
@@ -360,7 +360,9 @@ const matchesGirlsSchema = new mongoose.Schema({
     scorecardData: {
         match1: scorecardMatchSchema,
         match2: scorecardMatchSchema,
-        match3: scorecardMatchSchema
+        match3: scorecardMatchSchema,
+        match4: scorecardMatchSchema,
+        match5: scorecardMatchSchema
     },
     
     // Simple scorecard for overall match tracking

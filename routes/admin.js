@@ -15,35 +15,14 @@ const {
 function getTournamentFormat(round) {
     const roundLower = round.toLowerCase();
     
-    // Best of 3 format (2 singles + 1 doubles, need 2 wins)
-    if (roundLower.includes('round_1') || roundLower.includes('round_2') || roundLower.includes('quarter')) {
-        return {
-            matchFormat: 'best_of_3',
-            requiredWins: 2,
-            totalMatches: 3,
-            matchTypes: ['singles', 'singles', 'doubles'], // Match 1: Singles, Match 2: Singles, Match 3: Doubles
-            matchNames: ['Singles 1', 'Singles 2', 'Doubles 1']
-        };
-    }
-    
-    // Best of 5 format (3 singles + 2 doubles, need 3 wins)
-    if (roundLower.includes('semi') || roundLower.includes('final')) {
-        return {
-            matchFormat: 'best_of_5',
-            requiredWins: 3,
-            totalMatches: 5,
-            matchTypes: ['singles', 'singles', 'doubles', 'singles', 'doubles'], // S-S-D-S-D format
-            matchNames: ['Singles 1', 'Singles 2', 'Doubles 1', 'Singles 3', 'Doubles 2']
-        };
-    }
-    
-    // Default to best of 3 for unknown rounds
+    // All rounds now use Best of 5 format (3 singles + 2 doubles, need 3 wins)
+    // This includes round_1, round_2, quarter, semi, and final rounds
     return {
-        matchFormat: 'best_of_3',
-        requiredWins: 2,
-        totalMatches: 3,
-        matchTypes: ['singles', 'singles', 'doubles'],
-        matchNames: ['Singles 1', 'Singles 2', 'Doubles 1']
+        matchFormat: 'best_of_5',
+        requiredWins: 3,
+        totalMatches: 5,
+        matchTypes: ['singles', 'singles', 'doubles', 'singles', 'doubles'], // S-S-D-S-D format
+        matchNames: ['Singles 1', 'Singles 2', 'Doubles 1', 'Singles 3', 'Doubles 2']
     };
 }
 

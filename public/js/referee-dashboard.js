@@ -468,7 +468,7 @@ function isMatchActuallyCompleted(match) {
     
     // Check if enough submatches are completed to determine a winner
     const gender = match.gender || 'boys';
-    const neededWins = gender === 'girls' ? 2 : 3; // Girls need 2/3, Boys need 3/5
+    const neededWins = 3; // All rounds now need 3 wins for best of 5 format
     
     let team1Wins = 0;
     let team2Wins = 0;
@@ -841,24 +841,17 @@ async function renderMatchSetView(match) {
     
     // Fallback to legacy logic if tournament format fetch fails
     if (!tournamentFormat) {
-        console.log('Using fallback tournament format logic');
+        console.log('Using fallback tournament format logic - All rounds now use 5 matches');
         tournamentFormat = {
-            totalMatches: match.gender === 'girls' ? 3 : 5,
-            matchNames: match.gender === 'girls' ? 
-                ['Singles 1', 'Doubles', 'Singles 2'] :
-                ['Singles 1', 'Singles 2', 'Doubles 1', 'Singles 3', 'Doubles 2']
+            totalMatches: 5, // All rounds now use 5 matches
+            matchNames: ['Singles 1', 'Singles 2', 'Doubles 1', 'Singles 3', 'Doubles 2']
         };
     }
     
     // Determine submatch keys based on tournament format
     let submatchKeys = [];
-    if (tournamentFormat.totalMatches === 3) {
-        // Best of 3 format (Round 1, Round 2, Quarter Finals)
-        submatchKeys = ['match1Singles', 'match2Singles', 'match3Doubles'];
-    } else {
-        // Best of 5 format (Semi Finals, Finals)
-        submatchKeys = ['match1Singles', 'match2Singles', 'match3Doubles', 'match4Singles', 'match5Doubles'];
-    }
+    // All rounds now use Best of 5 format
+    submatchKeys = ['match1Singles', 'match2Singles', 'match3Doubles', 'match4Singles', 'match5Doubles'];
     
     console.log('Using submatch keys based on tournament format:', {
         totalMatches: tournamentFormat.totalMatches,
@@ -890,105 +883,65 @@ async function renderMatchSetView(match) {
     }
     container.innerHTML = '';
     
-    // Create submatch cards based on tournament format
-    if (tournamentFormat.totalMatches === 3) {
-        // Best of 3 format: Singles 1, Singles 2, Doubles 1
-        console.log('Rendering Best of 3 format (3 matches)');
-        
-        // Singles 1
-        container.appendChild(createSubmatchCard(
-            match, 
-            'match1Singles', 
-            'Singles 1', 
-            match.match1Singles?.player1Name || 'Player 1', 
-            match.match1Singles?.player2Name || 'Player 2',
-            match.college1Name,
-            match.college2Name
-        ));
-        
-        // Singles 2
-        container.appendChild(createSubmatchCard(
-            match, 
-            'match2Singles', 
-            'Singles 2', 
-            match.match2Singles?.player1Name || 'Player 1', 
-            match.match2Singles?.player2Name || 'Player 2',
-            match.college1Name,
-            match.college2Name
-        ));
-        
-        // Doubles 1
-        container.appendChild(createSubmatchCard(
-            match, 
-            'match3Doubles', 
-            'Doubles 1', 
-            `${match.match3Doubles?.team1Player1Name || 'Player 1'} / ${match.match3Doubles?.team1Player2Name || 'Player 2'}`,
-            `${match.match3Doubles?.team2Player1Name || 'Player 1'} / ${match.match3Doubles?.team2Player2Name || 'Player 2'}`,
-            match.college1Name,
-            match.college2Name,
-            true
-        ));
-    } else {
-        // Best of 5 format: Singles 1, Singles 2, Doubles 1, Singles 3, Doubles 2
-        console.log('Rendering Best of 5 format (5 matches)');
-        
-        // Singles 1
-        container.appendChild(createSubmatchCard(
-            match, 
-            'match1Singles', 
-            'Singles 1', 
-            match.match1Singles?.player1Name || 'Player 1', 
-            match.match1Singles?.player2Name || 'Player 2',
-            match.college1Name,
-            match.college2Name
-        ));
-        
-        // Singles 2
-        container.appendChild(createSubmatchCard(
-            match, 
-            'match2Singles', 
-            'Singles 2', 
-            match.match2Singles?.player1Name || 'Player 1', 
-            match.match2Singles?.player2Name || 'Player 2',
-            match.college1Name,
-            match.college2Name
-        ));
-        
-        // Doubles 1
-        container.appendChild(createSubmatchCard(
-            match, 
-            'match3Doubles', 
-            'Doubles 1', 
-            `${match.match3Doubles?.team1Player1Name || 'Player 1'} / ${match.match3Doubles?.team1Player2Name || 'Player 2'}`,
-            `${match.match3Doubles?.team2Player1Name || 'Player 1'} / ${match.match3Doubles?.team2Player2Name || 'Player 2'}`,
-            match.college1Name,
-            match.college2Name,
-            true
-        ));
-        
-        // Singles 3
-        container.appendChild(createSubmatchCard(
-            match, 
-            'match4Singles', 
-            'Singles 3', 
-            match.match4Singles?.player1Name || 'Player 1', 
-            match.match4Singles?.player2Name || 'Player 2',
-            match.college1Name,
-            match.college2Name
-        ));
-        
-        // Doubles 2
-        container.appendChild(createSubmatchCard(
-            match, 
-            'match5Doubles', 
-            'Doubles 2', 
-            `${match.match5Doubles?.team1Player1Name || 'Player 1'} / ${match.match5Doubles?.team1Player2Name || 'Player 2'}`,
-            `${match.match5Doubles?.team2Player1Name || 'Player 1'} / ${match.match5Doubles?.team2Player2Name || 'Player 2'}`,
-            match.college1Name,
-            match.college2Name,
-            true
-        ));
-    }
+    // Create submatch cards - All rounds now use Best of 5 format
+    console.log('Rendering Best of 5 format (5 matches) for all rounds');
+    
+    // Singles 1
+    container.appendChild(createSubmatchCard(
+        match, 
+        'match1Singles', 
+        'Singles 1', 
+        match.match1Singles?.player1Name || 'Player 1', 
+        match.match1Singles?.player2Name || 'Player 2',
+        match.college1Name,
+        match.college2Name
+    ));
+    
+    // Singles 2
+    container.appendChild(createSubmatchCard(
+        match, 
+        'match2Singles', 
+        'Singles 2', 
+        match.match2Singles?.player1Name || 'Player 1', 
+        match.match2Singles?.player2Name || 'Player 2',
+        match.college1Name,
+        match.college2Name
+    ));
+    
+    // Doubles 1
+    container.appendChild(createSubmatchCard(
+        match, 
+        'match3Doubles', 
+        'Doubles 1', 
+        `${match.match3Doubles?.team1Player1Name || 'Player 1'} / ${match.match3Doubles?.team1Player2Name || 'Player 2'}`,
+        `${match.match3Doubles?.team2Player1Name || 'Player 1'} / ${match.match3Doubles?.team2Player2Name || 'Player 2'}`,
+        match.college1Name,
+        match.college2Name,
+        true
+    ));
+    
+    // Singles 3
+    container.appendChild(createSubmatchCard(
+        match, 
+        'match4Singles', 
+        'Singles 3', 
+        match.match4Singles?.player1Name || 'Player 1', 
+        match.match4Singles?.player2Name || 'Player 2',
+        match.college1Name,
+        match.college2Name
+    ));
+    
+    // Doubles 2
+    container.appendChild(createSubmatchCard(
+        match, 
+        'match5Doubles', 
+        'Doubles 2', 
+        `${match.match5Doubles?.team1Player1Name || 'Player 1'} / ${match.match5Doubles?.team1Player2Name || 'Player 2'}`,
+        `${match.match5Doubles?.team2Player1Name || 'Player 1'} / ${match.match5Doubles?.team2Player2Name || 'Player 2'}`,
+        match.college1Name,
+        match.college2Name,
+        true
+    ));
     
     // Use frontend function to check if match is complete based on tournament format
     const completionStatus = checkMatchCompletionWithFormat(match, tournamentFormat);
@@ -1265,16 +1218,14 @@ function getSubmatchDataKey(submatchKey) {
 
 // Frontend function to check if match is complete based on college wins
 function checkMatchCompletion(match) {
-    const matchesNeededToWin = match.gender === 'girls' ? 2 : 3;
+    const matchesNeededToWin = 3; // All rounds now need 3 wins for best of 5 format
     
     // Calculate wins for each team
     let team1Wins = 0;
     let team2Wins = 0;
     
-    // Check all submatches based on gender
-    const submatchKeys = match.gender === 'girls' 
-        ? ['match1Singles', 'match2Doubles', 'match3Singles'] 
-        : ['match1Singles', 'match2Singles', 'match3Doubles', 'match4Singles', 'match5Doubles'];
+    // All rounds now use best of 5 format
+    const submatchKeys = ['match1Singles', 'match2Singles', 'match3Doubles', 'match4Singles', 'match5Doubles'];
     
     submatchKeys.forEach(key => {
         const submatch = match[key];
@@ -1307,16 +1258,14 @@ function checkMatchCompletion(match) {
 
 // Frontend function to check if match is complete using tournament format
 function checkMatchCompletionWithFormat(match, tournamentFormat) {
-    const matchesNeededToWin = tournamentFormat.requiredWins || (tournamentFormat.totalMatches === 3 ? 2 : 3);
+    const matchesNeededToWin = tournamentFormat.requiredWins || 3; // All rounds now need 3 wins
     
     // Calculate wins for each team
     let team1Wins = 0;
     let team2Wins = 0;
     
-    // Determine submatch keys based on tournament format
-    const submatchKeys = tournamentFormat.totalMatches === 3 
-        ? ['match1Singles', 'match2Singles', 'match3Doubles']
-        : ['match1Singles', 'match2Singles', 'match3Doubles', 'match4Singles', 'match5Doubles'];
+    // All rounds now use best of 5 format
+    const submatchKeys = ['match1Singles', 'match2Singles', 'match3Doubles', 'match4Singles', 'match5Doubles'];
     
     submatchKeys.forEach(key => {
         const submatch = match[key];

@@ -105,26 +105,14 @@ async function loadMatchDetail() {
 function transformMatchData(rawData) {
     console.log('Transforming match data:', rawData);
     
-    // Determine match structure based on whether it's boys (5 matches) or girls (3 matches)
-    let structure = [];
-    
-    if (rawData.match1Singles && rawData.match2Singles && rawData.match3Doubles && rawData.match4Singles && rawData.match5Doubles) {
-        // Boys matches (5 matches)
-        structure = [
-            { type: 'Singles', number: 1, key: 'match1Singles' },
-            { type: 'Singles', number: 2, key: 'match2Singles' },
-            { type: 'Doubles', number: 1, key: 'match3Doubles' },
-            { type: 'Singles', number: 3, key: 'match4Singles' },
-            { type: 'Doubles', number: 2, key: 'match5Doubles' }
-        ];
-    } else if (rawData.match1Singles && rawData.match2Doubles && rawData.match3Singles) {
-        // Girls matches (3 matches)
-        structure = [
-            { type: 'Singles', number: 1, key: 'match1Singles' },
-            { type: 'Doubles', number: 1, key: 'match2Doubles' },
-            { type: 'Singles', number: 2, key: 'match3Singles' }
-        ];
-    }
+    // All matches now use the 5-match structure (best of 5)
+    let structure = [
+        { type: 'Singles', number: 1, key: 'match1Singles' },
+        { type: 'Singles', number: 2, key: 'match2Singles' },
+        { type: 'Doubles', number: 1, key: 'match3Doubles' },
+        { type: 'Singles', number: 3, key: 'match4Singles' },
+        { type: 'Doubles', number: 2, key: 'match5Doubles' }
+    ];
     
     // Transform submatches
     const submatches = structure.map(struct => {
@@ -257,7 +245,7 @@ function addMatchContextInfo(matchData) {
                 </div>
                 <div class="context-item">
                     <span class="context-label">Match Type:</span>
-                    <span class="context-value">${matchData.structure.length === 5 ? 'Boys (5 Matches)' : 'Girls (3 Matches)'}</span>
+                    <span class="context-value">Tournament (5 Matches)</span>
                 </div>
                 <div class="context-item">
                     <span class="context-label">Completed:</span>

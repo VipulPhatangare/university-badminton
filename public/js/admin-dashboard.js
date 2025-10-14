@@ -788,7 +788,7 @@ function createMatchCard(match) {
 function getMatchStatusClass(match) {
     if (!match.refreeId || match.refreeId.length === 0) return 'upcoming';
     
-    const requiredMatches = currentMatchGender === 'boys' ? 5 : 3;
+    const requiredMatches = 5; // All matches now use 5-match format
     const assignedMatches = (match.refreeId || []).length;
     
     if (assignedMatches === requiredMatches) return 'assigned';
@@ -800,7 +800,7 @@ function getMatchStatusClass(match) {
 function getMatchStatusText(match) {
     if (!match.refreeId || match.refreeId.length === 0) return 'Not Assigned';
     
-    const requiredMatches = currentMatchGender === 'boys' ? 5 : 3;
+    const requiredMatches = 5; // All matches now use 5-match format
     const assignedMatches = (match.refreeId || []).length;
     
     if (assignedMatches === requiredMatches) return 'Fully Assigned';
@@ -886,7 +886,7 @@ function updateMatchAssignmentModal() {
 // Populate referee dropdowns
 function populateRefereeDropdowns() {
     const prefix = currentMatchGender === 'boys' ? '' : 'girls';
-    const matchCount = currentMatchGender === 'boys' ? 5 : 3;
+    const matchCount = 5; // All matches now use 5-match format
     
     for (let i = 1; i <= matchCount; i++) {
         const selectId = `${prefix}${prefix ? 'R' : 'r'}eferee${i}`;
@@ -907,12 +907,11 @@ function populateRefereeDropdowns() {
 // Populate player dropdowns
 function populatePlayerDropdowns() {
     const prefix = currentMatchGender === 'boys' ? '' : 'girls';
-    const matchCount = currentMatchGender === 'boys' ? 5 : 3;
+    const matchCount = 5; // All matches now use 5-match format
     
     for (let i = 1; i <= matchCount; i++) {
-        // Singles matches
-        if ((currentMatchGender === 'boys' && (i === 1 || i === 2 || i === 4)) || 
-            (currentMatchGender === 'girls' && (i === 1 || i === 3))) {
+        // Singles matches (matches 1, 2, and 4 are singles)
+        if (i === 1 || i === 2 || i === 4) {
             
             const team1SelectId = `${prefix}${prefix ? 'T' : 't'}eam1Match${i}`;
             const team2SelectId = `${prefix}${prefix ? 'T' : 't'}eam2Match${i}`;
@@ -920,9 +919,9 @@ function populatePlayerDropdowns() {
             populatePlayerSelect(team1SelectId, team1Players);
             populatePlayerSelect(team2SelectId, team2Players);
         }
-        // Doubles matches
+        // Doubles matches (matches 3 and 5 are doubles)
         else {
-            const matchNum = currentMatchGender === 'boys' ? (i === 3 ? 3 : 5) : 2;
+            const matchNum = (i === 3) ? 3 : 5;
             
             const team1Player1Id = `${prefix}${prefix ? 'T' : 't'}eam1Match${matchNum}Player1`;
             const team1Player2Id = `${prefix}${prefix ? 'T' : 't'}eam1Match${matchNum}Player2`;
@@ -972,7 +971,7 @@ async function assignMatch() {
         }
         
         // Show confirmation
-        const matchCount = currentMatchGender === 'boys' ? 5 : 3;
+        const matchCount = 5; // All matches now use 5-match format
         const message = `Are you sure you want to assign all ${matchCount} sub-matches for ${currentMatchData.college1Name} vs ${currentMatchData.college2Name}?`;
         
         showConfirmModal(message, () => confirmAssignMatch(assignments));
@@ -992,7 +991,7 @@ function collectAssignments() {
     };
     
     const prefix = currentMatchGender === 'boys' ? '' : 'girls';
-    const matchCount = currentMatchGender === 'boys' ? 5 : 3;
+    const matchCount = 5; // All matches now use 5-match format
     
     for (let i = 1; i <= matchCount; i++) {
         const refereeSelectId = `${prefix}${prefix ? 'R' : 'r'}eferee${i}`;
@@ -1012,7 +1011,7 @@ function collectAssignments() {
             subMatch.team1Player = document.getElementById(team1SelectId)?.value;
             subMatch.team2Player = document.getElementById(team2SelectId)?.value;
         } else {
-            const matchNum = currentMatchGender === 'boys' ? (i === 3 ? 3 : 5) : 2;
+            const matchNum = (i === 3) ? 3 : 5; // Doubles matches are at positions 3 and 5
             
             subMatch.team1Player1 = document.getElementById(`${prefix}${prefix ? 'T' : 't'}eam1Match${matchNum}Player1`)?.value;
             subMatch.team1Player2 = document.getElementById(`${prefix}${prefix ? 'T' : 't'}eam1Match${matchNum}Player2`)?.value;
@@ -1026,13 +1025,10 @@ function collectAssignments() {
     return assignments;
 }
 
-// Get match type based on match number and gender
+// Get match type based on match number - All tournaments now use same format
 function getMatchType(matchNumber, gender) {
-    if (gender === 'boys') {
-        return [1, 2, 4].includes(matchNumber) ? 'singles' : 'doubles';
-    } else {
-        return [1, 3].includes(matchNumber) ? 'singles' : 'doubles';
-    }
+    // All tournaments use the same 5-match format: Singles 1, Singles 2, Doubles 1, Singles 3, Doubles 2
+    return [1, 2, 4].includes(matchNumber) ? 'singles' : 'doubles';
 }
 
 // Validate assignments

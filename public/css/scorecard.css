@@ -1206,122 +1206,7 @@ html::-webkit-scrollbar {
     }
 }
 
-/* TOAST NOTIFICATION SYSTEM */
-.toast-container {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    z-index: 10000;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    pointer-events: none;
-}
-
-.toast {
-    background: var(--white);
-    border-radius: var(--border-radius);
-    box-shadow: var(--shadow-heavy);
-    border-left: 4px solid var(--primary-blue);
-    min-width: 300px;
-    max-width: 400px;
-    opacity: 0;
-    transform: translateX(400px);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    pointer-events: auto;
-    backdrop-filter: blur(10px);
-}
-
-.toast.show {
-    opacity: 1;
-    transform: translateX(0);
-}
-
-.toast-content {
-    padding: 16px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    font-family: "Titillium Web", sans-serif;
-}
-
-.toast-icon {
-    font-size: 20px;
-    flex-shrink: 0;
-}
-
-.toast-message {
-    flex: 1;
-    color: var(--text-dark);
-    font-weight: 500;
-    line-height: 1.4;
-}
-
-.toast-buttons {
-    display: flex;
-    gap: 8px;
-    margin-top: 12px;
-    margin-left: 32px;
-}
-
-.toast-btn {
-    padding: 8px 16px !important;
-    border-radius: 6px !important;
-    font-size: 14px !important;
-    font-weight: 600 !important;
-    cursor: pointer;
-    transition: all 0.2s ease !important;
-    font-family: "Titillium Web", sans-serif !important;
-    border: none !important;
-}
-
-.toast-btn-confirm {
-    background: var(--gradient-blue) !important;
-    color: var(--white) !important;
-}
-
-.toast-btn-confirm:hover {
-    background: var(--dark-blue) !important;
-    transform: translateY(-1px);
-}
-
-.toast-btn-cancel {
-    background: rgba(21, 101, 192, 0.1) !important;
-    color: var(--primary-blue) !important;
-    border: 1px solid rgba(21, 101, 192, 0.2) !important;
-}
-
-.toast-btn-cancel:hover {
-    background: rgba(21, 101, 192, 0.2) !important;
-    transform: translateY(-1px);
-}
-
-/* Toast Type Variants */
-.toast-success {
-    border-left-color: var(--green) !important;
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(227, 242, 253, 0.8) 100%) !important;
-}
-
-.toast-error {
-    border-left-color: var(--red) !important;
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(254, 242, 242, 0.8) 100%) !important;
-}
-
-.toast-warning {
-    border-left-color: var(--yellow) !important;
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 248, 225, 0.8) 100%) !important;
-}
-
-.toast-info {
-    border-left-color: var(--primary-blue) !important;
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(227, 242, 253, 0.8) 100%) !important;
-}
-
-.toast-confirm {
-    border-left-color: var(--primary-blue) !important;
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(227, 242, 253, 0.9) 100%) !important;
-    box-shadow: 0 10px 40px rgba(21, 101, 192, 0.2) !important;
-}
+/* Toast notifications removed from scorecard */
 
 /* ENSURE ALL POPUPS USE BLUE COLORS - Override any red colors */
 .overlay .card,
@@ -1408,33 +1293,7 @@ html::-webkit-scrollbar {
     font-family: "Titillium Web", sans-serif;
 }
 
-/* Responsive toast notifications */
-@media (max-width: 480px) {
-    .toast-container {
-        top: 10px;
-        right: 10px;
-        left: 10px;
-    }
-    
-    .toast {
-        min-width: auto;
-        max-width: none;
-    }
-    
-    .toast-content {
-        padding: 12px;
-    }
-    
-    .toast-buttons {
-        margin-left: 0;
-        margin-top: 8px;
-    }
-    
-    .toast-btn {
-        flex: 1;
-        text-align: center;
-    }
-}
+
 
 /* Touch-friendly improvements for mobile */
 @media (hover: none) and (pointer: coarse) {
@@ -1463,11 +1322,7 @@ html::-webkit-scrollbar {
         min-height: 48px !important;
     }
     
-    .toast-btn {
-        min-height: 48px !important;
-        padding: 14px 18px !important;
-        font-weight: 500 !important;
-    }
+
     
     /* Better touch feedback */
     .btn:active,

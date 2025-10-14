@@ -4532,13 +4532,13 @@
             }
             
             // Default to best of 3 if API fails
-            console.log('Using default tournament format (best of 3)');
+            console.log('Using default tournament format (best of 5)');
             currentTournamentFormat = {
-                matchFormat: 'best_of_3',
-                requiredWins: 2,
-                totalMatches: 3,
-                matchTypes: ['singles', 'singles', 'doubles'],
-                matchNames: ['Singles 1', 'Singles 2', 'Doubles 1']
+                matchFormat: 'best_of_5',
+                requiredWins: 3,
+                totalMatches: 5,
+                matchTypes: ['singles', 'singles', 'doubles', 'singles', 'doubles'],
+                matchNames: ['Singles 1', 'Singles 2', 'Doubles 1', 'Singles 3', 'Doubles 2']
             };
             updateMatchSetupUI();
         }

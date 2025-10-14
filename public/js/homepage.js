@@ -650,62 +650,45 @@ function calculateCollegeScores(match) {
     let college1Score = 0;
     let college2Score = 0;
     
-    // Check boys matches (5-match format)
-    if (match.match1Singles || match.match2Singles || match.match3Doubles || match.match4Singles || match.match5Doubles) {
-        const matches = [
-            match.match1Singles,
-            match.match2Singles,
-            match.match3Doubles,
-            match.match4Singles,
-            match.match5Doubles
-        ];
-        
-        matches.forEach(submatch => {
-            if (submatch && submatch.isCompleted && submatch.winnerTeam) {
-                if (submatch.winnerTeam === 'team1') {
-                    college1Score++;
-                } else if (submatch.winnerTeam === 'team2') {
-                    college2Score++;
-                }
+    // All matches now use the 5-match format (best of 5)
+    const matches = [
+        match.match1Singles,
+        match.match2Singles,
+        match.match3Doubles,
+        match.match4Singles,
+        match.match5Doubles
+    ];
+    
+    matches.forEach(submatch => {
+        if (submatch && submatch.isCompleted && submatch.winnerTeam) {
+            if (submatch.winnerTeam === 'team1') {
+                college1Score++;
+            } else if (submatch.winnerTeam === 'team2') {
+                college2Score++;
             }
-        });
-    }
-    // Check girls matches (3-match format)
-    else if (match.match1Singles || match.match2Doubles || match.match3Singles) {
-        const matches = [
-            match.match1Singles,
-            match.match2Doubles,
-            match.match3Singles
-        ];
-        
-        matches.forEach(submatch => {
-            if (submatch && submatch.isCompleted && submatch.winnerTeam) {
-                if (submatch.winnerTeam === 'team1') {
-                    college1Score++;
-                } else if (submatch.winnerTeam === 'team2') {
-                    college2Score++;
-                }
+        }
+    });
+    
+    // If no submatch data found, fallback to existing score array or completedMatches
+    if (college1Score === 0 && college2Score === 0) {
+        if (match.score && Array.isArray(match.score) && match.score.length > 0) {
+            const latestScore = match.score[match.score.length - 1];
+            college1Score = latestScore.team1Score || 0;
+            college2Score = latestScore.team2Score || 0;
+        }
+        else if (match.completedMatches) {
+            // If we know the overall winner, assign scores accordingly
+            if (match.overallWinner === 'team1') {
+                college1Score = Math.ceil(match.completedMatches / 2);
+                college2Score = match.completedMatches - college1Score;
+            } else if (match.overallWinner === 'team2') {
+                college2Score = Math.ceil(match.completedMatches / 2);
+                college1Score = match.completedMatches - college2Score;
+            } else {
+                // Split evenly if no clear winner yet
+                college1Score = Math.floor(match.completedMatches / 2);
+                college2Score = match.completedMatches - college1Score;
             }
-        });
-    }
-    // Fallback to existing score array or completedMatches
-    else if (match.score && Array.isArray(match.score) && match.score.length > 0) {
-        const latestScore = match.score[match.score.length - 1];
-        college1Score = latestScore.team1Score || 0;
-        college2Score = latestScore.team2Score || 0;
-    }
-    else if (match.completedMatches) {
-        // If we know the overall winner, assign scores accordingly
-        if (match.overallWinner === 'team1') {
-            college1Score = Math.ceil(match.completedMatches / 2);
-            college2Score = match.completedMatches - college1Score;
-        } else if (match.overallWinner === 'team2') {
-            college2Score = Math.ceil(match.completedMatches / 2);
-            college1Score = match.completedMatches - college2Score;
-        } else {
-            // Split evenly if no clear winner yet
-            college1Score = Math.floor(match.completedMatches / 2);
-            college2Score = match.completedMatches - college1Score;
         }
     }
     

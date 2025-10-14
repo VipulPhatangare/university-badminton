@@ -192,131 +192,8 @@ const startNextSetBtn = document.getElementById('startNextSetBtn');
 const completeMatchBtn = document.getElementById('completeMatchBtn');
 
 /* -------------------------
-   Toast Notification System
+   Utility Functions (Toast System Removed)
    ------------------------- */
-
-// Show/hide updating indicator
-function showUpdatingIndicator() {
-    let indicator = document.querySelector('.updating-indicator');
-    if (!indicator) {
-        indicator = document.createElement('div');
-        indicator.className = 'updating-indicator';
-        indicator.innerHTML = `
-            <div class="updating-content">
-                <div class="updating-spinner"></div>
-                <span>Updating...</span>
-            </div>
-        `;
-        document.body.appendChild(indicator);
-    }
-    indicator.classList.add('show');
-}
-
-function hideUpdatingIndicator() {
-    const indicator = document.querySelector('.updating-indicator');
-    if (indicator) {
-        indicator.classList.remove('show');
-    }
-}
-
-function showToast(message, type = 'info', duration = 3000) {
-    // Create toast container if it doesn't exist
-    let toastContainer = document.querySelector('.toast-container');
-    if (!toastContainer) {
-        toastContainer = document.createElement('div');
-        toastContainer.className = 'toast-container';
-        document.body.appendChild(toastContainer);
-    }
-    
-    // Create toast element
-    const toast = document.createElement('div');
-    toast.className = `toast toast-${type}`;
-    
-    // Add icon based on type
-    let icon = '💙'; // default blue heart
-    if (type === 'success') icon = '✅';
-    if (type === 'warning') icon = '⚠️';
-    if (type === 'error') icon = '❌';
-    if (type === 'info') icon = 'ℹ️';
-    
-    toast.innerHTML = `
-        <div class="toast-content">
-            <span class="toast-icon">${icon}</span>
-            <span class="toast-message">${message}</span>
-        </div>
-    `;
-    
-    // Add to container
-    toastContainer.appendChild(toast);
-    
-    // Trigger animation
-    setTimeout(() => toast.classList.add('show'), 100);
-    
-    // Auto remove after duration
-    setTimeout(() => {
-        toast.classList.remove('show');
-        setTimeout(() => {
-            if (toast.parentNode) {
-                toast.parentNode.removeChild(toast);
-            }
-        }, 300);
-    }, duration);
-}
-
-function showConfirmToast(message, onConfirm, onCancel = null) {
-    // Create toast container if it doesn't exist
-    let toastContainer = document.querySelector('.toast-container');
-    if (!toastContainer) {
-        toastContainer = document.createElement('div');
-        toastContainer.className = 'toast-container';
-        document.body.appendChild(toastContainer);
-    }
-    
-    // Create confirm toast element
-    const toast = document.createElement('div');
-    toast.className = 'toast toast-confirm';
-    
-    toast.innerHTML = `
-        <div class="toast-content">
-            <span class="toast-icon">❓</span>
-            <span class="toast-message">${message}</span>
-            <div class="toast-buttons">
-                <button class="toast-btn toast-btn-confirm">Yes</button>
-                <button class="toast-btn toast-btn-cancel">Cancel</button>
-            </div>
-        </div>
-    `;
-    
-    // Add event listeners
-    const confirmBtn = toast.querySelector('.toast-btn-confirm');
-    const cancelBtn = toast.querySelector('.toast-btn-cancel');
-    
-    confirmBtn.addEventListener('click', () => {
-        toast.classList.remove('show');
-        setTimeout(() => {
-            if (toast.parentNode) {
-                toast.parentNode.removeChild(toast);
-            }
-        }, 300);
-        if (onConfirm) onConfirm();
-    });
-    
-    cancelBtn.addEventListener('click', () => {
-        toast.classList.remove('show');
-        setTimeout(() => {
-            if (toast.parentNode) {
-                toast.parentNode.removeChild(toast);
-            }
-        }, 300);
-        if (onCancel) onCancel();
-    });
-    
-    // Add to container
-    toastContainer.appendChild(toast);
-    
-    // Trigger animation
-    setTimeout(() => toast.classList.add('show'), 100);
-}
 
 /* -------------------------
    Utility Functions
@@ -458,25 +335,18 @@ function startMatch(){
 
 // Full reset
 function fullReset(){
-    showConfirmToast(
-        'Are you sure you want to reset the match to defaults? This action cannot be undone.',
-        () => {
-            startMatch();
-            hideOverlay();
-            // Also reset backend if needed
-            resetBackendMatch();
-            showToast('Match has been reset successfully!', 'success');
-        }
-    );
+    if (confirm('Are you sure you want to reset the match to defaults? This action cannot be undone.')) {
+        startMatch();
+        hideOverlay();
+        // Also reset backend if needed
+        resetBackendMatch();
+    }
 }
 
 // Start a new set
 function startNewSet() {
     if (state.currentSet === 0) {
         state.currentSet = 1;
-        showToast(`Set ${state.currentSet} has started! Good luck! 🏸`, 'info');
-    } else {
-        showToast(`Set ${state.currentSet} started successfully!`, 'success');
     }
     state.scores = [0, 0];
     state.lastActions = []; // Clear undo history for new set
@@ -538,14 +408,8 @@ function addPointToPlayer(pIndex){
         evaluateSetState();
         updateAllUI();
         
-        // Show updating indicator and update backend
-        showUpdatingIndicator();
-        updateBackendScore().then(success => {
-            hideUpdatingIndicator();
-            if (success) {
-                showToast('Score updated successfully!', 'success', 1500);
-            }
-        });
+        // Update backend
+        updateBackendScore();
     }
 }
 
@@ -672,7 +536,6 @@ function hideAdvantages(){
 /* Undo functionality - Only works for points, not set wins */
 function undoLastAction() {
     if (state.lastActions.length === 0) {
-        showToast('No actions to undo!', 'warning');
         return;
     }
     
@@ -699,8 +562,6 @@ function undoLastAction() {
         
         // Also update backend with the restored score
         updateBackendScore();
-        
-        showToast('Last action undone successfully!', 'info');
     }
 }
 
@@ -789,21 +650,18 @@ async function updateBackendScore() {
         if (!response.ok) {
             const errorText = await response.text();
             console.error('Failed to update score on backend:', response.status, errorText);
-            showToast('Failed to update score. Please check your connection.', 'error');
             return false;
         }
         
         const result = await response.json();
         if (!result.success) {
             console.error('Backend returned error:', result.message);
-            showToast('Score update failed: ' + result.message, 'error');
             return false;
         }
         
         return true;
     } catch (error) {
         console.error('Error updating score:', error);
-        showToast('Network error while updating score. Retrying...', 'warning');
         
         // Retry once after a delay
         setTimeout(() => {
