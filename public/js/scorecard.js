@@ -62,13 +62,23 @@ function initializeMobileEnhancements() {
     }
     
     // Prevent pull-to-refresh on mobile
+    let preventPullToRefresh = false;
+    
     document.addEventListener('touchstart', (e) => {
         if (e.touches.length !== 1) return;
         
         const { clientY } = e.touches[0];
         const { scrollTop } = document.documentElement;
         
-        if (clientY > 40 && scrollTop === 0) {
+        if (clientY < 100 && scrollTop === 0) {
+            preventPullToRefresh = true;
+        } else {
+            preventPullToRefresh = false;
+        }
+    }, { passive: true });
+    
+    document.addEventListener('touchmove', (e) => {
+        if (preventPullToRefresh) {
             e.preventDefault();
         }
     }, { passive: false });
@@ -94,13 +104,18 @@ function handleOrientationChange() {
 // Initialize swipe gestures for mobile
 function initializeSwipeGestures() {
     let startY = 0;
+    let startX = 0;
     let startTime = 0;
     let isTracking = false;
     
     document.addEventListener('touchstart', (e) => {
-        startY = e.touches[0].clientY;
-        startTime = Date.now();
-        isTracking = true;
+        // Only track if not touching a button
+        if (!e.target.closest('[data-action]') && !e.target.closest('button')) {
+            startY = e.touches[0].clientY;
+            startX = e.touches[0].clientX;
+            startTime = Date.now();
+            isTracking = true;
+        }
     }, { passive: true });
     
     document.addEventListener('touchend', (e) => {
@@ -108,11 +123,13 @@ function initializeSwipeGestures() {
         isTracking = false;
         
         const endY = e.changedTouches[0].clientY;
+        const endX = e.changedTouches[0].clientX;
         const deltaY = endY - startY;
+        const deltaX = endX - startX;
         const deltaTime = Date.now() - startTime;
         
-        // Swipe down gesture for undo (minimum 100px, maximum 500ms)
-        if (deltaY > 100 && deltaTime < 500 && Math.abs(deltaY) > Math.abs(endY - startY)) {
+        // Swipe down gesture for undo (minimum 100px vertically, maximum 500ms, more vertical than horizontal)
+        if (deltaY > 100 && deltaTime < 500 && Math.abs(deltaY) > Math.abs(deltaX) * 1.5) {
             if (state.lastActions.length > 0) {
                 undoLastAction();
                 // Haptic feedback for undo
@@ -177,6 +194,30 @@ const completeMatchBtn = document.getElementById('completeMatchBtn');
 /* -------------------------
    Toast Notification System
    ------------------------- */
+
+// Show/hide updating indicator
+function showUpdatingIndicator() {
+    let indicator = document.querySelector('.updating-indicator');
+    if (!indicator) {
+        indicator = document.createElement('div');
+        indicator.className = 'updating-indicator';
+        indicator.innerHTML = `
+            <div class="updating-content">
+                <div class="updating-spinner"></div>
+                <span>Updating...</span>
+            </div>
+        `;
+        document.body.appendChild(indicator);
+    }
+    indicator.classList.add('show');
+}
+
+function hideUpdatingIndicator() {
+    const indicator = document.querySelector('.updating-indicator');
+    if (indicator) {
+        indicator.classList.remove('show');
+    }
+}
 
 function showToast(message, type = 'info', duration = 3000) {
     // Create toast container if it doesn't exist
@@ -450,8 +491,20 @@ function startNewSet() {
  *  - Rally winner becomes server
  *  - Deuce / advantage logic and determining set winner
  */
+let lastPointTime = 0;
+const POINT_DEBOUNCE_TIME = 500; // 500ms debounce to prevent double-taps
+
 function addPointToPlayer(pIndex){
     if(!state.isMatchActive || state.currentSet === 0) return;
+    
+    // Debounce rapid clicks/taps
+    const now = Date.now();
+    if (now - lastPointTime < POINT_DEBOUNCE_TIME) {
+        console.log('Point update debounced - too fast');
+        return;
+    }
+    lastPointTime = now;
+    
     const other = 1 - pIndex;
 
     // Save snapshot for undo (only for points, not set wins)
@@ -484,7 +537,15 @@ function addPointToPlayer(pIndex){
         // No set win, just update UI
         evaluateSetState();
         updateAllUI();
-        updateBackendScore();
+        
+        // Show updating indicator and update backend
+        showUpdatingIndicator();
+        updateBackendScore().then(success => {
+            hideUpdatingIndicator();
+            if (success) {
+                showToast('Score updated successfully!', 'success', 1500);
+            }
+        });
     }
 }
 
@@ -706,27 +767,50 @@ async function updateBackendScore() {
     if (!state.matchId || !state.matchType || !state.submatchKey) return;
     
     try {
+        const requestData = {
+            player1Point: state.scores[0],
+            player2Point: state.scores[1],
+            currentSet: state.currentSet,
+            matchId: state.matchId,
+            matchType: state.matchType,
+            submatchKey: state.submatchKey,
+            server: state.server // Send server index (0 or 1) instead of player name
+        };
+
         const response = await fetch('/api/referee/update-score', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
             },
-            body: JSON.stringify({
-                player1Point: state.scores[0],
-                player2Point: state.scores[1],
-                currentSet: state.currentSet,
-                matchId: state.matchId,
-                matchType: state.matchType,
-                submatchKey: state.submatchKey,
-                server: state.server // Send server index (0 or 1) instead of player name
-            })
+            body: JSON.stringify(requestData)
         });
 
         if (!response.ok) {
-            console.error('Failed to update score on backend');
+            const errorText = await response.text();
+            console.error('Failed to update score on backend:', response.status, errorText);
+            showToast('Failed to update score. Please check your connection.', 'error');
+            return false;
         }
+        
+        const result = await response.json();
+        if (!result.success) {
+            console.error('Backend returned error:', result.message);
+            showToast('Score update failed: ' + result.message, 'error');
+            return false;
+        }
+        
+        return true;
     } catch (error) {
         console.error('Error updating score:', error);
+        showToast('Network error while updating score. Retrying...', 'warning');
+        
+        // Retry once after a delay
+        setTimeout(() => {
+            updateBackendScore();
+        }, 2000);
+        
+        return false;
     }
 }
 
@@ -972,9 +1056,50 @@ function hideSetConfirmation() {
 
 // inc buttons (event delegation)
 // Enhanced touch and click handling for better mobile experience
+let lastTouchTime = 0;
+let touchHandled = false;
+
+document.addEventListener('touchstart', (e) => {
+    const target = e.target.closest('[data-action]');
+    if (target) {
+        // Add active state immediately on touch
+        target.classList.add('touch-active');
+        touchHandled = false;
+    }
+}, { passive: true });
+
+document.addEventListener('touchend', (e) => {
+    const target = e.target.closest('[data-action]');
+    if (target && !touchHandled) {
+        touchHandled = true;
+        lastTouchTime = Date.now();
+        
+        // Remove active state after touch
+        setTimeout(() => {
+            target.classList.remove('touch-active');
+        }, 150);
+        
+        // Handle the action
+        const action = target.dataset.action;
+        const p = parseInt(target.dataset.player);
+        
+        if(action === 'inc') {
+            // Add visual feedback for touch
+            provideTouchFeedback(target);
+            addPointToPlayer(p);
+        }
+    }
+}, { passive: false });
+
 document.addEventListener('click', (e)=>{
     const target = e.target.closest('[data-action]');
     if(!target) return;
+    
+    // Prevent double handling on mobile (if touch was recent, skip click)
+    if (Date.now() - lastTouchTime < 500) {
+        e.preventDefault();
+        return;
+    }
     
     // Prevent double-tap zoom on mobile
     e.preventDefault();
@@ -988,25 +1113,6 @@ document.addEventListener('click', (e)=>{
         addPointToPlayer(p);
     }
 });
-
-// Add touch event listeners for better mobile responsiveness
-document.addEventListener('touchstart', (e) => {
-    const target = e.target.closest('[data-action]');
-    if (target) {
-        // Add active state immediately on touch
-        target.classList.add('touch-active');
-    }
-}, { passive: true });
-
-document.addEventListener('touchend', (e) => {
-    const target = e.target.closest('[data-action]');
-    if (target) {
-        // Remove active state after touch
-        setTimeout(() => {
-            target.classList.remove('touch-active');
-        }, 150);
-    }
-}, { passive: true });
 
 // Provide visual and haptic feedback for touch interactions
 function provideTouchFeedback(element) {

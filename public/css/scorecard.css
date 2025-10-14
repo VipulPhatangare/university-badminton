@@ -957,18 +957,37 @@ html::-webkit-scrollbar {
     
     /* Enhanced buttons for tablet view */
     .btn, button {
-        min-height: 44px;
-        padding: 12px 20px;
+        min-height: 48px; /* Increased for better touch target */
+        padding: 14px 20px; /* Better touch padding */
         font-size: 0.95rem;
         font-weight: 500;
         border-radius: 8px;
         touch-action: manipulation;
+        cursor: pointer;
+        user-select: none;
+        -webkit-tap-highlight-color: transparent;
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        -khtml-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
     }
     
     .btn-lg {
-        min-height: 52px;
-        padding: 16px 24px;
+        min-height: 56px; /* Larger touch target */
+        padding: 18px 24px;
         font-size: 1.1rem;
+        font-weight: 600;
+    }
+    
+    /* Better score button handling */
+    .btn[data-action="inc"] {
+        min-height: 64px !important;
+        min-width: 120px !important;
+        font-size: 1.2rem !important;
+        font-weight: 700 !important;
+        border-radius: 12px !important;
+        box-shadow: 0 4px 12px rgba(21, 101, 192, 0.3) !important;
     }
 }
 
@@ -1591,10 +1610,12 @@ html::-webkit-scrollbar {
 }
 
 /* Enhanced touch feedback */
-[data-action]:active {
-    background-color: rgba(59, 130, 246, 0.15) !important;
+[data-action]:active,
+[data-action].touch-active {
+    background-color: rgba(21, 101, 192, 0.3) !important;
     transform: scale(0.95) !important;
     transition: all 0.1s ease !important;
+    box-shadow: 0 2px 8px rgba(21, 101, 192, 0.4) !important;
 }
 
 /* Better button spacing for touch */
@@ -1605,6 +1626,108 @@ html::-webkit-scrollbar {
 
 .actions .btn {
     margin: 4px;
+}
+
+/* Mobile-specific optimizations */
+@media (hover: none) and (pointer: coarse) {
+    /* Force hardware acceleration for smoother touch interactions */
+    .btn, button, [data-action] {
+        -webkit-transform: translateZ(0);
+        transform: translateZ(0);
+        -webkit-backface-visibility: hidden;
+        backface-visibility: hidden;
+    }
+    
+    /* Prevent text selection on buttons during touch */
+    .btn, button, [data-action] {
+        -webkit-touch-callout: none !important;
+        -webkit-user-select: none !important;
+        -khtml-user-select: none !important;
+        -moz-user-select: none !important;
+        -ms-user-select: none !important;
+        user-select: none !important;
+    }
+    
+    /* Improve tap response */
+    .btn:active, button:active, [data-action]:active {
+        transform: scale(0.97) translateZ(0) !important;
+        transition: transform 0.1s ease !important;
+    }
+    
+    /* Better visual feedback for score buttons */
+    .btn[data-action="inc"]:active {
+        background: linear-gradient(135deg, #0d47a1, #1565c0) !important;
+        box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.2) !important;
+    }
+}
+
+/* iOS Safari specific fixes */
+@supports (-webkit-touch-callout: none) {
+    .container {
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .btn, button, [data-action] {
+        -webkit-appearance: none;
+        appearance: none;
+    }
+    
+    input[type="number"], select {
+        -webkit-appearance: none;
+        appearance: none;
+    }
+}
+
+/* Prevent zoom on double-tap for specific elements */
+.score, .btn[data-action="inc"], .player-name {
+    touch-action: manipulation;
+}
+
+/* Updating indicator */
+.updating-indicator {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.8);
+    color: var(--white);
+    padding: 16px 24px;
+    border-radius: 8px;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(5px);
+}
+
+.updating-indicator.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.updating-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-family: "Titillium Web", sans-serif;
+    font-weight: 600;
+}
+
+.updating-spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top: 2px solid var(--white);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }
 
 /* Improved modal for mobile */
