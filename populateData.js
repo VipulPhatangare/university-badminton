@@ -169,48 +169,65 @@ async function populateDatabase() {
         await collegeInfo.insertMany(colleges);
         console.log(`Created ${colleges.length} colleges with players`);
 
-        // Create some sample matches
-        console.log('Creating sample matches...');
+        // Create tournament matches with different rounds
+        console.log('Creating tournament matches with different rounds...');
         const savedColleges = await collegeInfo.find({});
         const savedReferees = await refreeInfo.find({});
         
-        // Create 10 sample matches (including some bye matches)
+        const tournamentRounds = [
+            { round: 'round_1', matches: 8 },      // 8 matches in round 1
+            { round: 'round_2', matches: 4 },      // 4 matches in round 2  
+            { round: 'quarter_final', matches: 2 }, // 2 quarter final matches
+            { round: 'semi_final', matches: 1 },    // 1 semi final match
+            { round: 'final', matches: 1 }          // 1 final match
+        ];
+        
         const matches = [];
-        for (let i = 0; i < 10; i++) {
-            const college1 = getRandomElement(savedColleges);
+        let matchCounter = 1;
+        
+        for (const roundInfo of tournamentRounds) {
+            console.log(`Creating ${roundInfo.matches} matches for ${roundInfo.round}...`);
             
-            // Create some bye matches (20% chance)
-            const isByeMatch = Math.random() < 0.2;
-            let college2 = null;
-            let referee = null;
-            
-            if (!isByeMatch) {
-                college2 = getRandomElement(savedColleges.filter(c => c._id !== college1._id));
-                referee = getRandomElement(savedReferees);
+            for (let i = 0; i < roundInfo.matches; i++) {
+                const college1 = getRandomElement(savedColleges);
+                let college2 = getRandomElement(savedColleges.filter(c => c._id.toString() !== college1._id.toString()));
+                
+                // Ensure we have a second college
+                if (!college2) {
+                    college2 = savedColleges.find(c => c._id.toString() !== college1._id.toString());
+                }
+                
+                const referee = getRandomElement(savedReferees);
+                
+                const match = new matchesBoys({
+                    college1Name: college1.collegeName,
+                    college2Name: college2.collegeName,
+                    email1: college1.email,
+                    email2: college2.email,
+                    singlesMatchId: [],
+                    doublesMatchId: [],
+                    winnerEmail: null,
+                    score: [],
+                    refreeEmail: referee.refEmail,
+                    refreeName: referee.name,
+                    refreeId: [referee._id],
+                    matchStatus: "upcoming",
+                    date: new Date(Date.now() + Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                    time: `${Math.floor(Math.random() * 12) + 8}:${Math.random() > 0.5 ? '00' : '30'}`,
+                    court: `court_${Math.floor(Math.random() * 4) + 1}`,
+                    round: roundInfo.round, // Different rounds for tournament format
+                    completedMatches: 0,
+                    overallWinner: null,
+                    isBye: false,
+                    // Tournament format fields based on round
+                    matchFormat: (roundInfo.round === 'semi_final' || roundInfo.round === 'final') ? 'best_of_5' : 'best_of_3',
+                    requiredWins: (roundInfo.round === 'semi_final' || roundInfo.round === 'final') ? 3 : 2,
+                    totalMatches: (roundInfo.round === 'semi_final' || roundInfo.round === 'final') ? 5 : 3
+                });
+
+                matches.push(match);
+                matchCounter++;
             }
-
-            const match = new matchesBoys({
-                college1Name: college1.collegeName,
-                college2Name: isByeMatch ? null : college2.collegeName,
-                email1: college1.email,
-                email2: isByeMatch ? null : college2.email,
-                singlesMatchId: [], // Will be populated with singles matches
-                doublesMatchId: [], // Will be populated with doubles matches
-                winnerEmail: isByeMatch ? college1.email : null, // Winner is college1 for bye matches
-                score: [],
-                refreeEmail: isByeMatch ? null : referee.refEmail,
-                refreeName: isByeMatch ? null : referee.name,
-                matchStatus: isByeMatch ? "upcoming" : "upcoming", // Keep upcoming for admin to handle
-                date: new Date(Date.now() + Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // Random date in next 30 days
-                time: isByeMatch ? null : `${Math.floor(Math.random() * 12) + 8}:${Math.random() > 0.5 ? '00' : '30'}`,
-                court: isByeMatch ? null : `court_${Math.floor(Math.random() * 4) + 1}`, // No court for bye matches
-                round: "round_1", // Only round 1 matches
-                completedMatches: 0, // No completed matches for upcoming matches
-                overallWinner: isByeMatch ? 'team1' : null, // Team1 wins bye matches automatically
-                isBye: isByeMatch // Set isBye field
-            });
-
-            matches.push(match);
         }
 
         await matchesBoys.insertMany(matches);
@@ -397,8 +414,26 @@ async function populateDatabase() {
         console.log(`Doubles Matches: ${doublesMatchCount}`);
         console.log(`Referees: ${refereeCount}`);
 
-        console.log('\n=== ROUND DISTRIBUTION ===');
-        const roundStats = await collegeInfo.aggregate([
+        console.log('\n=== TOURNAMENT MATCHES BY ROUND ===');
+        const matchRoundStats = await matchesBoys.aggregate([
+            {
+                $group: {
+                    _id: "$round",
+                    count: { $sum: 1 },
+                    format: { $first: "$matchFormat" },
+                    requiredWins: { $first: "$requiredWins" }
+                }
+            },
+            { $sort: { "_id": 1 } }
+        ]);
+        
+        matchRoundStats.forEach(stat => {
+            const formatInfo = stat.format ? `(${stat.format.replace('_', ' ')}, need ${stat.requiredWins} wins)` : '';
+            console.log(`${stat._id.toUpperCase()}: ${stat.count} matches ${formatInfo}`);
+        });
+
+        console.log('\n=== COLLEGE ROUND DISTRIBUTION ===');
+        const collegeRoundStats = await collegeInfo.aggregate([
             {
                 $group: {
                     _id: "$currentRoundBoys",
@@ -406,7 +441,7 @@ async function populateDatabase() {
                 }
             }
         ]);
-        roundStats.forEach(stat => {
+        collegeRoundStats.forEach(stat => {
             console.log(`${stat._id}: ${stat.count} colleges`);
         });
 

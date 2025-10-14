@@ -18,11 +18,13 @@ const collegeInfoSchema = new mongoose.Schema({
 
 const playerInfoIdSchema = new mongoose.Schema({
     playerName: { type: String, required: true },
-    email: { type: String, required: true, unique: true },
+    email: { type: String, required: false, unique: false },  // Made optional and removed unique constraint
     gender: { type: String, required: true, enum: ['male', 'female'] },
-    phone: { type: String },
+    phone: { type: String, required: false },  // Made optional
     collegeEmail: { type: String, required: true },  // Email of the college this player belongs to
-    collegeName: { type: String, required: true }    // Name of the college this player belongs to
+    collegeName: { type: String, required: true },    // Name of the college this player belongs to
+    // Add a unique identifier combining name, gender, and college for uniqueness
+    playerIdentifier: { type: String, required: true, unique: true }  // Will be generated as playerName_gender_collegeName
 });
 
 // Scorecard data sub-schema for reusability
@@ -59,8 +61,13 @@ const matchesBoysSchema = new mongoose.Schema({
     date: String,
     time: String,
     court: String, // Added court field
-    round: String, // Added round field for tournament progression
+    round: String, // Added round field for tournament progression (round_1, round_2, quarter_final, semi_final, final)
     isBye: { type: Boolean, default: false }, // True if this is a bye match
+    
+    // Tournament format based on round
+    matchFormat: { type: String, enum: ['best_of_3', 'best_of_5'], default: 'best_of_3' }, // Format based on round
+    requiredWins: { type: Number, default: 2 }, // Wins needed to advance (2 for best_of_3, 3 for best_of_5)
+    totalMatches: { type: Number, default: 3 }, // Total sub-matches (3 for best_of_3, 5 for best_of_5)
     
     // Player allocations for the 5-match system with integrated tracking
     match1Singles: {

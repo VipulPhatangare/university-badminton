@@ -100,35 +100,39 @@ router.get('/players/:email', async (req, res) => {
 // Add new player
 router.post('/players/:email', async (req, res) => {
     try {
-        const { playerName, email: playerEmail, gender, phone } = req.body;
+        const { playerName, gender } = req.body;
         const collegeEmail = req.params.email;
         
         // Validate required fields
-        if (!playerName || !playerEmail || !gender) {
-            return res.status(400).json({ message: 'Player name, email, and gender are required' });
+        if (!playerName || !gender) {
+            return res.status(400).json({ message: 'Player name and gender are required' });
         }
         
+        // Get college info to get college name for unique identifier
+        const college = await collegeInfo.findOne({ email: collegeEmail });
+        if (!college) {
+            return res.status(404).json({ message: 'College not found' });
+        }
+        
+        // Generate unique player identifier
+        const playerIdentifier = `${playerName.replace(/\s+/g, '_').toLowerCase()}_${gender}_${college.collegeName.replace(/\s+/g, '_').toLowerCase()}`;
+        
         // Check if player already exists
-        const existingPlayer = await playerInfoId.findOne({ email: playerEmail });
+        const existingPlayer = await playerInfoId.findOne({ playerIdentifier: playerIdentifier });
         if (existingPlayer) {
-            return res.status(400).json({ message: 'Player with this email already exists' });
+            return res.status(400).json({ message: 'A player with this name and gender already exists in your college' });
         }
         
         // Create new player
         const newPlayer = new playerInfoId({
             playerName,
-            email: playerEmail,
             gender,
-            phone: phone || ''
+            collegeEmail: college.email,
+            collegeName: college.collegeName,
+            playerIdentifier
         });
         
         await newPlayer.save();
-        
-        // Add player to college's player list
-        const college = await collegeInfo.findOne({ email: collegeEmail });
-        if (!college) {
-            return res.status(404).json({ message: 'College not found' });
-        }
         
         // Check player limits before adding
         if (gender.toLowerCase() === 'male' || gender.toLowerCase() === 'boys') {

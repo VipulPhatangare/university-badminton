@@ -3,6 +3,42 @@ const router = express.Router();
 const { matchesBoys, matchesGirls, refreeInfo, collegeInfo, matches } = require('../database/schema');
 const auth = require('./auth');
 
+// Utility function to determine tournament format based on round
+function getTournamentFormat(round) {
+    const roundLower = round.toLowerCase();
+    
+    // Best of 3 format (2 singles + 1 doubles, need 2 wins)
+    if (roundLower.includes('round_1') || roundLower.includes('round_2') || roundLower.includes('quarter')) {
+        return {
+            matchFormat: 'best_of_3',
+            requiredWins: 2,
+            totalMatches: 3,
+            matchTypes: ['singles', 'singles', 'doubles'],
+            matchNames: ['Singles 1', 'Singles 2', 'Doubles 1']
+        };
+    }
+    
+    // Best of 5 format (3 singles + 2 doubles, need 3 wins)
+    if (roundLower.includes('semi') || roundLower.includes('final')) {
+        return {
+            matchFormat: 'best_of_5',
+            requiredWins: 3,
+            totalMatches: 5,
+            matchTypes: ['singles', 'singles', 'doubles', 'singles', 'doubles'],
+            matchNames: ['Singles 1', 'Singles 2', 'Doubles 1', 'Singles 3', 'Doubles 2']
+        };
+    }
+    
+    // Default to best of 3 for unknown rounds
+    return {
+        matchFormat: 'best_of_3',
+        requiredWins: 2,
+        totalMatches: 3,
+        matchTypes: ['singles', 'singles', 'doubles'],
+        matchNames: ['Singles 1', 'Singles 2', 'Doubles 1']
+    };
+}
+
 // Middleware to check if user is a referee
 const requireReferee = (req, res, next) => {
     if (req.session && req.session.user && req.session.user.type === 'referee') {
@@ -66,6 +102,36 @@ router.get('/matches/assigned', requireReferee, async (req, res) => {
     } catch (error) {
         console.error('Error fetching assigned matches:', error);
         res.status(500).json({ success: false, message: 'Error fetching assigned matches' });
+    }
+});
+
+// Get tournament format for a specific match
+router.get('/match/:id/tournament-format', requireReferee, async (req, res) => {
+    try {
+        const matchId = req.params.id;
+        
+        // Try boys matches first
+        let match = await matchesBoys.findById(matchId);
+        if (!match) {
+            // Try girls matches
+            match = await matchesGirls.findById(matchId);
+        }
+        
+        if (!match) {
+            return res.status(404).json({ success: false, message: 'Match not found' });
+        }
+        
+        const tournamentFormat = getTournamentFormat(match.round || 'round_1');
+        
+        res.json({ 
+            success: true, 
+            tournamentFormat,
+            matchRound: match.round,
+            gender: match.gender || 'boys'
+        });
+    } catch (error) {
+        console.error('Error fetching tournament format:', error);
+        res.status(500).json({ success: false, message: 'Error fetching tournament format' });
     }
 });
 
@@ -627,18 +693,18 @@ router.post('/complete-match', requireReferee, async (req, res) => {
         updateObj[`${submatchKey}.completedAt`] = new Date();
         updateObj[`${submatchKey}.winnerTeam`] = winnerIndex === 0 ? 'team1' : 'team2';
         
-        // Update the match winner email based on the winner team
+        // Update the match winner name based on the winner team
         if (updateObj[`${submatchKey}.winnerTeam`] === 'team1') {
             if (submatchKey.includes('Singles')) {
-                updateObj[`${submatchKey}.winnerEmail`] = match[submatchKey].player1Email;
+                updateObj[`${submatchKey}.winnerName`] = match[submatchKey].player1Name;
             } else {
-                updateObj[`${submatchKey}.winnerEmail`] = match[submatchKey].team1Player1Email;
+                updateObj[`${submatchKey}.winnerName`] = `${match[submatchKey].team1Player1Name} / ${match[submatchKey].team1Player2Name}`;
             }
         } else {
             if (submatchKey.includes('Singles')) {
-                updateObj[`${submatchKey}.winnerEmail`] = match[submatchKey].player2Email;
+                updateObj[`${submatchKey}.winnerName`] = match[submatchKey].player2Name;
             } else {
-                updateObj[`${submatchKey}.winnerEmail`] = match[submatchKey].team2Player1Email;
+                updateObj[`${submatchKey}.winnerName`] = `${match[submatchKey].team2Player1Name} / ${match[submatchKey].team2Player2Name}`;
             }
         }
         
@@ -692,13 +758,16 @@ router.post('/reset-match', requireReferee, async (req, res) => {
             completedMatches: 0,
             currentActiveMatch: null,
             overallWinner: null,
-            winnerEmail: null,
+            winnerName: null,
             scorecardData: {}
         };
         
-        // Reset all submatches
-        const submatchKeys = matchType === 'girls' 
-            ? ['match1Singles', 'match2Doubles', 'match3Singles'] 
+        // Get tournament format to determine correct submatch keys
+        const tournamentFormat = getTournamentFormat(match.round || 'round_1');
+        
+        // Reset all submatches based on tournament format
+        const submatchKeys = tournamentFormat.totalMatches === 3 
+            ? ['match1Singles', 'match2Singles', 'match3Doubles'] 
             : ['match1Singles', 'match2Singles', 'match3Doubles', 'match4Singles', 'match5Doubles'];
         
         submatchKeys.forEach(key => {
@@ -707,7 +776,7 @@ router.post('/reset-match', requireReferee, async (req, res) => {
             updateObj[`${key}.startedAt`] = null;
             updateObj[`${key}.completedAt`] = null;
             updateObj[`${key}.winnerTeam`] = null;
-            updateObj[`${key}.winnerEmail`] = null;
+            updateObj[`${key}.winnerName`] = null;
             updateObj[`${key}.matchSettings.courtNumber`] = null;
             updateObj[`${key}.matchSettings.firstServePlayer`] = null;
         });
@@ -732,15 +801,21 @@ router.post('/matches/end-match', requireReferee, async (req, res) => {
         const match = await MatchModel.findById(matchId);
         if (!match) return res.status(404).json({ success: false, message: 'Match not found' });
 
-        // Determine overall winner email and team
-        const overallWinner = match.overallWinner || (match.winnerEmail ? (match.winnerEmail === match.email1 ? 'team1' : 'team2') : null);
-        const winnerEmail = match.winnerEmail || null;
+        // Determine overall winner team (no longer using emails)
+        const overallWinner = match.overallWinner || null;
 
         // If no overallWinner, compute based on completed submatches
         let winnerTeam = overallWinner;
         if (!winnerTeam) {
-            // Count wins
-            const submatchKeys = gender === 'girls' ? ['match1Singles','match2Doubles','match3Singles'] : ['match1Singles','match2Singles','match3Doubles','match4Singles','match5Doubles'];
+            // Get tournament format to determine match structure and required wins
+            const tournamentFormat = getTournamentFormat(match.round || 'round_1');
+            const requiredWins = tournamentFormat.requiredWins;
+            
+            // Count wins based on tournament format
+            const submatchKeys = tournamentFormat.totalMatches === 3 
+                ? ['match1Singles', 'match2Singles', 'match3Doubles'] 
+                : ['match1Singles', 'match2Singles', 'match3Doubles', 'match4Singles', 'match5Doubles'];
+                
             let team1Wins = 0, team2Wins = 0;
             submatchKeys.forEach(k => {
                 if (match[k]?.isCompleted) {
@@ -748,15 +823,19 @@ router.post('/matches/end-match', requireReferee, async (req, res) => {
                     if (match[k].winnerTeam === 'team2') team2Wins++;
                 }
             });
-            if (team1Wins > team2Wins) winnerTeam = 'team1';
-            else if (team2Wins > team1Wins) winnerTeam = 'team2';
+            
+            console.log(`Counting wins - Team1: ${team1Wins}, Team2: ${team2Wins}, Required: ${requiredWins}`);
+            
+            // Determine winner based on required wins for this tournament format
+            if (team1Wins >= requiredWins) winnerTeam = 'team1';
+            else if (team2Wins >= requiredWins) winnerTeam = 'team2';
         }
 
         // Update match status to complete if not already
         const updateObj = { matchStatus: 'complete', matchCompletedAt: new Date() };
         if (winnerTeam) {
             updateObj.overallWinner = winnerTeam;
-            updateObj.winnerEmail = winnerTeam === 'team1' ? match.email1 : match.email2;
+            updateObj.winnerCollegeEmail = winnerTeam === 'team1' ? match.email1 : match.email2;
         }
 
         await MatchModel.findByIdAndUpdate(matchId, updateObj);
@@ -765,8 +844,8 @@ router.post('/matches/end-match', requireReferee, async (req, res) => {
         try {
             // Determine next round mapping
             const rounds = ['round_1','round_2','quater','semi','final'];
-            // Winner & loser emails
-            const winnerCollegeEmail = updateObj.winnerEmail || match.email1;
+            // Winner & loser emails (college level)
+            const winnerCollegeEmail = updateObj.winnerCollegeEmail || match.email1;
             const loserCollegeEmail = (winnerCollegeEmail === match.email1) ? match.email2 : match.email1;
 
             // Load colleges
@@ -859,11 +938,15 @@ router.post('/matches/end-match', requireReferee, async (req, res) => {
 });
 
 // Helper function to get the submatch index from the key
-function getSubmatchIndex(submatchKey, matchType) {
-    const boysOrder = ['match1Singles', 'match2Singles', 'match3Doubles', 'match4Singles', 'match5Doubles'];
-    const girlsOrder = ['match1Singles', 'match2Doubles', 'match3Singles'];
+function getSubmatchIndex(submatchKey, matchType, round = 'round_1') {
+    // Get tournament format to determine correct order
+    const tournamentFormat = getTournamentFormat(round);
     
-    const order = matchType === 'girls' ? girlsOrder : boysOrder;
+    // Use tournament format to determine order
+    const order = tournamentFormat.totalMatches === 3 
+        ? ['match1Singles', 'match2Singles', 'match3Doubles']
+        : ['match1Singles', 'match2Singles', 'match3Doubles', 'match4Singles', 'match5Doubles'];
+    
     return order.indexOf(submatchKey) + 1;
 }
 
@@ -883,16 +966,19 @@ function getSubmatchDataKey(submatchKey) {
 
 // Helper function to check if a match is complete
 function checkMatchCompletion(match, submatchKey, winnerIndex, matchType) {
-    // Check if a team has won enough matches (3 for boys, 2 for girls)
-    const matchesNeeded = matchType === 'girls' ? 2 : 3;
+    // Get tournament format based on round to determine required wins
+    const tournamentFormat = getTournamentFormat(match.round || 'round_1');
+    const matchesNeeded = tournamentFormat.requiredWins;
+    
+    console.log(`Match round: ${match.round}, Required wins: ${matchesNeeded}, Format: ${tournamentFormat.matchFormat}`);
     
     // Calculate wins for each team
     let team1Wins = 0;
     let team2Wins = 0;
     
-    // Check all submatches
-    const submatchKeys = matchType === 'girls' 
-        ? ['match1Singles', 'match2Doubles', 'match3Singles'] 
+    // Check all submatches based on tournament format
+    const submatchKeys = tournamentFormat.totalMatches === 3 
+        ? ['match1Singles', 'match2Singles', 'match3Doubles'] 
         : ['match1Singles', 'match2Singles', 'match3Doubles', 'match4Singles', 'match5Doubles'];
     
     for (const key of submatchKeys) {

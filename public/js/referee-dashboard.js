@@ -763,7 +763,7 @@ function viewMatchSet(matchId, matchGender) {
 }
 
 // Render the match set view with submatch cards
-function renderMatchSetView(match) {
+async function renderMatchSetView(match) {
     // First, restore the original match set section structure if it was replaced due to an error
     const matchSetSection = document.getElementById('matchSetSection');
     if (!document.getElementById('matchSetTitle')) {
@@ -826,26 +826,54 @@ function renderMatchSetView(match) {
         college2Name.textContent = match.college2Name;
     }
     
-    // Calculate current scores (completed matches won by each college)
-    const college1ScoreValue = match.gender === 'boys' ? 
-        (match.match1Singles?.winnerTeam === 'team1' ? 1 : 0) +
-        (match.match2Singles?.winnerTeam === 'team1' ? 1 : 0) +
-        (match.match3Doubles?.winnerTeam === 'team1' ? 1 : 0) +
-        (match.match4Singles?.winnerTeam === 'team1' ? 1 : 0) +
-        (match.match5Doubles?.winnerTeam === 'team1' ? 1 : 0) :
-        (match.match1Singles?.winnerTeam === 'team1' ? 1 : 0) +
-        (match.match2Doubles?.winnerTeam === 'team1' ? 1 : 0) +
-        (match.match3Singles?.winnerTeam === 'team1' ? 1 : 0);
+    // Fetch tournament format for this match to determine correct match structure
+    let tournamentFormat = null;
+    try {
+        const formatResponse = await fetch(`${API_BASE_URL}/api/referee/match/${match._id}/tournament-format`);
+        if (formatResponse.ok) {
+            const formatData = await formatResponse.json();
+            tournamentFormat = formatData.tournamentFormat;
+            console.log('Tournament format for match:', tournamentFormat);
+        }
+    } catch (error) {
+        console.error('Error fetching tournament format:', error);
+    }
     
-    const college2ScoreValue = match.gender === 'boys' ? 
-        (match.match1Singles?.winnerTeam === 'team2' ? 1 : 0) +
-        (match.match2Singles?.winnerTeam === 'team2' ? 1 : 0) +
-        (match.match3Doubles?.winnerTeam === 'team2' ? 1 : 0) +
-        (match.match4Singles?.winnerTeam === 'team2' ? 1 : 0) +
-        (match.match5Doubles?.winnerTeam === 'team2' ? 1 : 0) :
-        (match.match1Singles?.winnerTeam === 'team2' ? 1 : 0) +
-        (match.match2Doubles?.winnerTeam === 'team2' ? 1 : 0) +
-        (match.match3Singles?.winnerTeam === 'team2' ? 1 : 0);
+    // Fallback to legacy logic if tournament format fetch fails
+    if (!tournamentFormat) {
+        console.log('Using fallback tournament format logic');
+        tournamentFormat = {
+            totalMatches: match.gender === 'girls' ? 3 : 5,
+            matchNames: match.gender === 'girls' ? 
+                ['Singles 1', 'Doubles', 'Singles 2'] :
+                ['Singles 1', 'Singles 2', 'Doubles 1', 'Singles 3', 'Doubles 2']
+        };
+    }
+    
+    // Determine submatch keys based on tournament format
+    let submatchKeys = [];
+    if (tournamentFormat.totalMatches === 3) {
+        // Best of 3 format (Round 1, Round 2, Quarter Finals)
+        submatchKeys = ['match1Singles', 'match2Singles', 'match3Doubles'];
+    } else {
+        // Best of 5 format (Semi Finals, Finals)
+        submatchKeys = ['match1Singles', 'match2Singles', 'match3Doubles', 'match4Singles', 'match5Doubles'];
+    }
+    
+    console.log('Using submatch keys based on tournament format:', {
+        totalMatches: tournamentFormat.totalMatches,
+        submatchKeys,
+        matchRound: match.round
+    });
+    
+    // Calculate current scores using the correct submatch keys
+    let college1ScoreValue = 0;
+    let college2ScoreValue = 0;
+    
+    submatchKeys.forEach(key => {
+        if (match[key]?.winnerTeam === 'team1') college1ScoreValue++;
+        if (match[key]?.winnerTeam === 'team2') college2ScoreValue++;
+    });
     
     if (college1Score) {
         college1Score.textContent = college1ScoreValue;
@@ -854,7 +882,7 @@ function renderMatchSetView(match) {
         college2ScoreEl.textContent = college2ScoreValue;
     }
     
-    // Render submatch cards
+    // Render submatch cards based on tournament format
     const container = document.getElementById('subMatchesContainer');
     if (!container) {
         console.error('subMatchesContainer not found');
@@ -862,8 +890,48 @@ function renderMatchSetView(match) {
     }
     container.innerHTML = '';
     
-    // For boys: 5 matches (3 singles, 2 doubles)
-    if (match.gender === 'boys' || !match.gender) {
+    // Create submatch cards based on tournament format
+    if (tournamentFormat.totalMatches === 3) {
+        // Best of 3 format: Singles 1, Singles 2, Doubles 1
+        console.log('Rendering Best of 3 format (3 matches)');
+        
+        // Singles 1
+        container.appendChild(createSubmatchCard(
+            match, 
+            'match1Singles', 
+            'Singles 1', 
+            match.match1Singles?.player1Name || 'Player 1', 
+            match.match1Singles?.player2Name || 'Player 2',
+            match.college1Name,
+            match.college2Name
+        ));
+        
+        // Singles 2
+        container.appendChild(createSubmatchCard(
+            match, 
+            'match2Singles', 
+            'Singles 2', 
+            match.match2Singles?.player1Name || 'Player 1', 
+            match.match2Singles?.player2Name || 'Player 2',
+            match.college1Name,
+            match.college2Name
+        ));
+        
+        // Doubles 1
+        container.appendChild(createSubmatchCard(
+            match, 
+            'match3Doubles', 
+            'Doubles 1', 
+            `${match.match3Doubles?.team1Player1Name || 'Player 1'} / ${match.match3Doubles?.team1Player2Name || 'Player 2'}`,
+            `${match.match3Doubles?.team2Player1Name || 'Player 1'} / ${match.match3Doubles?.team2Player2Name || 'Player 2'}`,
+            match.college1Name,
+            match.college2Name,
+            true
+        ));
+    } else {
+        // Best of 5 format: Singles 1, Singles 2, Doubles 1, Singles 3, Doubles 2
+        console.log('Rendering Best of 5 format (5 matches)');
+        
         // Singles 1
         container.appendChild(createSubmatchCard(
             match, 
@@ -920,46 +988,10 @@ function renderMatchSetView(match) {
             match.college2Name,
             true
         ));
-    } 
-    // For girls: 3 matches (2 singles, 1 doubles)
-    else if (match.gender === 'girls') {
-        // Singles 1
-        container.appendChild(createSubmatchCard(
-            match, 
-            'match1Singles', 
-            'Singles 1', 
-            match.match1Singles?.player1Name || 'Player 1', 
-            match.match1Singles?.player2Name || 'Player 2',
-            match.college1Name,
-            match.college2Name
-        ));
-        
-        // Doubles
-        container.appendChild(createSubmatchCard(
-            match, 
-            'match2Doubles', 
-            'Doubles', 
-            `${match.match2Doubles?.team1Player1Name || 'Player 1'} / ${match.match2Doubles?.team1Player2Name || 'Player 2'}`,
-            `${match.match2Doubles?.team2Player1Name || 'Player 1'} / ${match.match2Doubles?.team2Player2Name || 'Player 2'}`,
-            match.college1Name,
-            match.college2Name,
-            true
-        ));
-        
-        // Singles 2
-        container.appendChild(createSubmatchCard(
-            match, 
-            'match3Singles', 
-            'Singles 2', 
-            match.match3Singles?.player1Name || 'Player 1', 
-            match.match3Singles?.player2Name || 'Player 2',
-            match.college1Name,
-            match.college2Name
-        ));
     }
     
-    // Use frontend function to check if match is complete
-    const completionStatus = checkMatchCompletion(match);
+    // Use frontend function to check if match is complete based on tournament format
+    const completionStatus = checkMatchCompletionWithFormat(match, tournamentFormat);
     console.log('Frontend completion check result:', completionStatus);
     
     if (completionStatus.isComplete) {
@@ -1273,6 +1305,50 @@ function checkMatchCompletion(match) {
     };
 }
 
+// Frontend function to check if match is complete using tournament format
+function checkMatchCompletionWithFormat(match, tournamentFormat) {
+    const matchesNeededToWin = tournamentFormat.requiredWins || (tournamentFormat.totalMatches === 3 ? 2 : 3);
+    
+    // Calculate wins for each team
+    let team1Wins = 0;
+    let team2Wins = 0;
+    
+    // Determine submatch keys based on tournament format
+    const submatchKeys = tournamentFormat.totalMatches === 3 
+        ? ['match1Singles', 'match2Singles', 'match3Doubles']
+        : ['match1Singles', 'match2Singles', 'match3Doubles', 'match4Singles', 'match5Doubles'];
+    
+    submatchKeys.forEach(key => {
+        const submatch = match[key];
+        if (submatch && submatch.isCompleted && submatch.winnerTeam) {
+            if (submatch.winnerTeam === 'team1') {
+                team1Wins++;
+            } else if (submatch.winnerTeam === 'team2') {
+                team2Wins++;
+            }
+        }
+    });
+    
+    console.log('Frontend match completion check with tournament format:', {
+        matchFormat: tournamentFormat.matchFormat,
+        totalMatches: tournamentFormat.totalMatches,
+        matchesNeededToWin,
+        team1Wins,
+        team2Wins,
+        college1Name: match.college1Name,
+        college2Name: match.college2Name,
+        submatchKeys
+    });
+    
+    return {
+        isComplete: team1Wins >= matchesNeededToWin || team2Wins >= matchesNeededToWin,
+        team1Wins,
+        team2Wins,
+        winner: team1Wins >= matchesNeededToWin ? match.college1Name : 
+                team2Wins >= matchesNeededToWin ? match.college2Name : null
+    };
+}
+
 // Show automatic match winner modal when a college wins majority of submatches
 function showAutomaticMatchWinnerModal(match, college1Score, college2Score) {
     console.log('showAutomaticMatchWinnerModal called with:', { match, college1Score, college2Score });
@@ -1316,14 +1392,19 @@ function showAutomaticMatchWinnerModal(match, college1Score, college2Score) {
             </h4>
     `;
     
-    // Get all submatch keys based on gender
-    const submatchKeys = match.gender === 'girls' 
-        ? ['match1Singles', 'match2Doubles', 'match3Singles']
-        : ['match1Singles', 'match2Singles', 'match3Doubles', 'match4Singles', 'match5Doubles'];
+    // Get submatch keys based on tournament format (fallback to gender if format not available)
+    // Try to determine if this is a 3-match or 5-match format based on existing data
+    const hasMatch4 = match.match4Singles && (match.match4Singles.player1Name || match.match4Singles.player2Name);
+    const hasMatch5 = match.match5Doubles && (match.match5Doubles.team1Player1Name || match.match5Doubles.team2Player1Name);
+    const is5MatchFormat = hasMatch4 || hasMatch5;
     
-    const submatchTitles = match.gender === 'girls'
-        ? ['Singles 1', 'Doubles', 'Singles 2']
-        : ['Singles 1', 'Singles 2', 'Doubles 1', 'Singles 3', 'Doubles 2'];
+    const submatchKeys = is5MatchFormat
+        ? ['match1Singles', 'match2Singles', 'match3Doubles', 'match4Singles', 'match5Doubles']
+        : ['match1Singles', 'match2Singles', 'match3Doubles'];
+    
+    const submatchTitles = is5MatchFormat
+        ? ['Singles 1', 'Singles 2', 'Doubles 1', 'Singles 3', 'Doubles 2']
+        : ['Singles 1', 'Singles 2', 'Doubles 1'];
     
     submatchKeys.forEach((key, index) => {
         const submatch = match[key];

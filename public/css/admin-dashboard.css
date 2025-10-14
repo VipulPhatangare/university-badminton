@@ -1363,3 +1363,156 @@ body {
         justify-content: center;
     }
 }
+
+/* ===========================
+   TOURNAMENT FORMAT STYLES
+   =========================== */
+
+.tournament-format-display {
+    margin: 1rem 0;
+    padding: 0.75rem 1rem;
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+    border: 2px solid #0ea5e9;
+    border-radius: 0.5rem;
+    text-align: center;
+}
+
+.tournament-format-info {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    font-size: 0.95rem;
+    color: #0c4a6e;
+    font-weight: 500;
+}
+
+.tournament-format-info strong {
+    color: #0369a1;
+    font-weight: 700;
+    background: rgba(14, 165, 233, 0.1);
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+}
+
+.match-section {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-light);
+    border-radius: 0.5rem;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.match-section h4 {
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--border-light);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.match-section h5 {
+    color: var(--text-primary);
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+}
+
+.player-assignments {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.team-section {
+    padding: 0.75rem;
+    background: var(--bg-secondary);
+    border-radius: 0.375rem;
+    border: 1px solid var(--border-light);
+}
+
+.team-section label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+    font-weight: 500;
+    font-size: 0.875rem;
+}
+
+.team-section select {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid var(--border-medium);
+    border-radius: 0.25rem;
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+}
+
+.referee-section {
+    margin-bottom: 1rem;
+    padding: 0.75rem;
+    background: var(--bg-tertiary);
+    border-radius: 0.375rem;
+}
+
+.referee-section label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.referee-section select {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid var(--border-medium);
+    border-radius: 0.25rem;
+}
+
+.match-config {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    padding: 0.75rem;
+    background: var(--bg-secondary);
+    border-radius: 0.375rem;
+    border: 1px solid var(--border-light);
+}
+
+.match-config label {
+    display: block;
+    margin-bottom: 0.25rem;
+    color: var(--text-secondary);
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.match-config select,
+.match-config input {
+    width: 100%;
+    padding: 0.375rem;
+    border: 1px solid var(--border-medium);
+    border-radius: 0.25rem;
+    font-size: 0.875rem;
+}
+
+/* Responsive adjustments for tournament format */
+@media (max-width: 768px) {
+    .tournament-format-info {
+        flex-direction: column;
+        gap: 0.25rem;
+        font-size: 0.875rem;
+    }
+    
+    .player-assignments {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+    
+    .match-config {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+}

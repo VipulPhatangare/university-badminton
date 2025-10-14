@@ -11,6 +11,42 @@ const {
     refreeInfo
 } = require('../database/schema');
 
+// Utility function to determine tournament format based on round
+function getTournamentFormat(round) {
+    const roundLower = round.toLowerCase();
+    
+    // Best of 3 format (2 singles + 1 doubles, need 2 wins)
+    if (roundLower.includes('round_1') || roundLower.includes('round_2') || roundLower.includes('quarter')) {
+        return {
+            matchFormat: 'best_of_3',
+            requiredWins: 2,
+            totalMatches: 3,
+            matchTypes: ['singles', 'singles', 'doubles'], // Match 1: Singles, Match 2: Singles, Match 3: Doubles
+            matchNames: ['Singles 1', 'Singles 2', 'Doubles 1']
+        };
+    }
+    
+    // Best of 5 format (3 singles + 2 doubles, need 3 wins)
+    if (roundLower.includes('semi') || roundLower.includes('final')) {
+        return {
+            matchFormat: 'best_of_5',
+            requiredWins: 3,
+            totalMatches: 5,
+            matchTypes: ['singles', 'singles', 'doubles', 'singles', 'doubles'], // S-S-D-S-D format
+            matchNames: ['Singles 1', 'Singles 2', 'Doubles 1', 'Singles 3', 'Doubles 2']
+        };
+    }
+    
+    // Default to best of 3 for unknown rounds
+    return {
+        matchFormat: 'best_of_3',
+        requiredWins: 2,
+        totalMatches: 3,
+        matchTypes: ['singles', 'singles', 'doubles'],
+        matchNames: ['Singles 1', 'Singles 2', 'Doubles 1']
+    };
+}
+
 // Get admin dashboard
 router.get('/dashboard', async (req, res) => {
     try {
@@ -346,31 +382,21 @@ router.get('/players', async (req, res) => {
 router.post('/players', async (req, res) => {
     try {
         console.log('Received player data:', req.body);
-        const { playerName, email, phone, gender, collegeId } = req.body;
+        const { playerName, gender, collegeId } = req.body;
 
         // Validate required fields
-        if (!playerName || !email || !gender || !collegeId) {
-            console.log('Missing fields - playerName:', playerName, 'email:', email, 'gender:', gender, 'collegeId:', collegeId);
+        if (!playerName || !gender || !collegeId) {
+            console.log('Missing fields - playerName:', playerName, 'gender:', gender, 'collegeId:', collegeId);
             return res.status(400).json({ 
                 success: false, 
                 error: 'Missing required fields',
                 details: {
                     playerName: !playerName ? 'missing' : 'ok',
-                    email: !email ? 'missing' : 'ok',
                     gender: !gender ? 'missing' : 'ok',
                     collegeId: !collegeId ? 'missing' : 'ok'
                 }
             });
         }
-
-        // Check if player already exists
-        console.log('Checking for existing player with email:', email);
-        const existingPlayer = await playerInfoId.findOne({ email: email });
-        if (existingPlayer) {
-            console.log('Player already exists:', existingPlayer);
-            return res.status(400).json({ success: false, error: 'Player with this email already exists' });
-        }
-        console.log('No existing player found');
 
         // Get college info
         console.log('Looking for college with ID:', collegeId);
@@ -381,23 +407,33 @@ router.post('/players', async (req, res) => {
         }
         console.log('College found:', college.collegeName);
 
+        // Generate unique player identifier
+        const playerIdentifier = `${playerName.replace(/\s+/g, '_').toLowerCase()}_${gender}_${college.collegeName.replace(/\s+/g, '_').toLowerCase()}`;
+        
+        // Check if player already exists with this identifier
+        console.log('Checking for existing player with identifier:', playerIdentifier);
+        const existingPlayer = await playerInfoId.findOne({ playerIdentifier: playerIdentifier });
+        if (existingPlayer) {
+            console.log('Player already exists:', existingPlayer);
+            return res.status(400).json({ success: false, error: 'A player with this name and gender already exists in this college' });
+        }
+        console.log('No existing player found');
+
         // Create new player
         console.log('Creating new player with data:', {
             playerName,
-            email,
-            phone,
             gender,
             collegeEmail: college.email,
-            collegeName: college.collegeName
+            collegeName: college.collegeName,
+            playerIdentifier
         });
         
         const newPlayer = new playerInfoId({
             playerName,
-            email,
-            phone,
             gender,
             collegeEmail: college.email,
-            collegeName: college.collegeName
+            collegeName: college.collegeName,
+            playerIdentifier
         });
 
         console.log('Saving player...');
@@ -433,10 +469,10 @@ router.post('/players', async (req, res) => {
 router.put('/players/:playerId', async (req, res) => {
     try {
         const playerId = req.params.playerId;
-        const { playerName, email, phone, gender, collegeId } = req.body;
+        const { playerName, gender, collegeId } = req.body;
 
         // Get college info if collegeId is provided
-        let updateData = { playerName, email, phone, gender };
+        let updateData = { playerName, gender };
         
         if (collegeId) {
             const college = await collegeInfo.findById(collegeId);
@@ -445,6 +481,9 @@ router.put('/players/:playerId', async (req, res) => {
             }
             updateData.collegeEmail = college.email;
             updateData.collegeName = college.collegeName;
+            
+            // Update player identifier as well
+            updateData.playerIdentifier = `${playerName.replace(/\s+/g, '_').toLowerCase()}_${gender}_${college.collegeName.replace(/\s+/g, '_').toLowerCase()}`;
         }
 
         const updatedPlayer = await playerInfoId.findByIdAndUpdate(playerId, updateData, { new: true });
@@ -475,6 +514,108 @@ router.delete('/players/:playerId', async (req, res) => {
     } catch (error) {
         console.error('Error deleting player:', error);
         res.status(500).json({ success: false, error: 'Server error' });
+    }
+});
+
+// Get available players for match assignment (excluding already assigned players)
+router.get('/available-players/:collegeEmail/:gender', async (req, res) => {
+    try {
+        const { collegeEmail, gender } = req.params;
+
+        console.log('Getting available players for:', { collegeEmail, gender });
+
+        // Get all players for this college and gender
+        const allPlayers = await playerInfoId.find({ 
+            collegeEmail: collegeEmail, 
+            gender: gender === 'boys' ? 'male' : 'female' 
+        });
+
+        console.log('All players found:', allPlayers.length);
+
+        // Get all matches for this gender
+        const matchModel = gender === 'girls' ? matchesGirls : matchesBoys;
+        const allMatches = await matchModel.find({});
+
+        // Collect all assigned player IDs
+        const assignedPlayerIds = new Set();
+        
+        allMatches.forEach(match => {
+            // Check all possible player assignment fields
+            const fields = [
+                'match1_player1', 'match1_player2',
+                'match2_player1', 'match2_player2', 
+                'match3_team1_player1', 'match3_team1_player2',
+                'match3_team2_player1', 'match3_team2_player2',
+                'match4_player1', 'match4_player2',
+                'match5_team1_player1', 'match5_team1_player2',
+                'match5_team2_player1', 'match5_team2_player2'
+            ];
+
+            fields.forEach(field => {
+                if (match[field]) {
+                    assignedPlayerIds.add(match[field].toString());
+                }
+            });
+
+            // Also check singles and doubles match structures
+            if (match.match1Singles) {
+                if (match.match1Singles.player1Id) assignedPlayerIds.add(match.match1Singles.player1Id.toString());
+                if (match.match1Singles.player2Id) assignedPlayerIds.add(match.match1Singles.player2Id.toString());
+            }
+            if (match.match2Singles) {
+                if (match.match2Singles.player1Id) assignedPlayerIds.add(match.match2Singles.player1Id.toString());
+                if (match.match2Singles.player2Id) assignedPlayerIds.add(match.match2Singles.player2Id.toString());
+            }
+            if (match.match4Singles) {
+                if (match.match4Singles.player1Id) assignedPlayerIds.add(match.match4Singles.player1Id.toString());
+                if (match.match4Singles.player2Id) assignedPlayerIds.add(match.match4Singles.player2Id.toString());
+            }
+            if (match.match3Doubles) {
+                if (match.match3Doubles.team1Player1Id) assignedPlayerIds.add(match.match3Doubles.team1Player1Id.toString());
+                if (match.match3Doubles.team1Player2Id) assignedPlayerIds.add(match.match3Doubles.team1Player2Id.toString());
+                if (match.match3Doubles.team2Player1Id) assignedPlayerIds.add(match.match3Doubles.team2Player1Id.toString());
+                if (match.match3Doubles.team2Player2Id) assignedPlayerIds.add(match.match3Doubles.team2Player2Id.toString());
+            }
+            if (match.match5Doubles) {
+                if (match.match5Doubles.team1Player1Id) assignedPlayerIds.add(match.match5Doubles.team1Player1Id.toString());
+                if (match.match5Doubles.team1Player2Id) assignedPlayerIds.add(match.match5Doubles.team1Player2Id.toString());
+                if (match.match5Doubles.team2Player1Id) assignedPlayerIds.add(match.match5Doubles.team2Player2Id.toString());
+                if (match.match5Doubles.team2Player2Id) assignedPlayerIds.add(match.match5Doubles.team2Player2Id.toString());
+            }
+        });
+
+        console.log('Total assigned player IDs:', assignedPlayerIds.size);
+
+        // Filter out already assigned players
+        const availablePlayers = allPlayers.filter(player => 
+            !assignedPlayerIds.has(player._id.toString())
+        );
+
+        console.log('Available players:', availablePlayers.length);
+
+        res.json({
+            success: true,
+            players: availablePlayers.map(player => ({
+                _id: player._id,
+                playerName: player.playerName,
+                email: player.email,
+                phone: player.phone,
+                gender: player.gender,
+                collegeEmail: player.collegeEmail,
+                collegeName: player.collegeName
+            })),
+            totalPlayers: allPlayers.length,
+            availablePlayers: availablePlayers.length,
+            assignedPlayers: allPlayers.length - availablePlayers.length
+        });
+
+    } catch (error) {
+        console.error('Error getting available players:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'Error getting available players',
+            error: error.message 
+        });
     }
 });
 
@@ -731,6 +872,18 @@ router.post('/matches/assign', async (req, res) => {
             return res.status(404).json({ success: false, error: 'Match not found' });
         }
 
+        // Get tournament format for this match
+        const tournamentFormat = getTournamentFormat(match.round || 'round_1');
+        console.log('Tournament format for round', match.round, ':', tournamentFormat);
+
+        // Validate number of sub-matches matches the tournament format
+        if (subMatches.length > tournamentFormat.totalMatches) {
+            return res.status(400).json({ 
+                success: false, 
+                error: `Too many sub-matches. ${tournamentFormat.matchFormat} format allows maximum ${tournamentFormat.totalMatches} matches` 
+            });
+        }
+
         // Validate all referees exist
         const refereeIds = subMatches.map(sm => sm.refereeId).filter(id => id);
         const uniqueRefereeIds = [...new Set(refereeIds)]; // Remove duplicates
@@ -753,9 +906,11 @@ router.post('/matches/assign', async (req, res) => {
             return res.status(400).json({ success: false, error: 'One or more referees not found', missingReferees: missingRefereeIds });
         }
 
-        // Validate all players exist
+        // Validate all players exist and are not already assigned
         const playerIds = [];
         const invalidPlayerIds = [];
+
+        // Allow same players to be assigned to multiple matches - no restrictions
         
         subMatches.forEach((sm, index) => {
             console.log(`Processing submatch ${index + 1}:`, sm);
@@ -824,30 +979,79 @@ router.post('/matches/assign', async (req, res) => {
             });
         }
 
-        if (playerIds.length === 0) {
-            return res.status(400).json({ success: false, error: 'At least some players must be assigned' });
-        }
+        // Filter out empty or null player IDs
+        const validPlayerIds = playerIds.filter(id => id && id.trim() !== '');
+        console.log('Filtered valid player IDs:', validPlayerIds);
 
-        console.log('Looking up players with IDs:', playerIds);
-        const players = await playerInfoId.find({ _id: { $in: playerIds } });
-        console.log('Found players:', players.length, 'out of', playerIds.length, 'requested');
+        let players = [];
+        let playerLookup = {};
         
-        if (players.length !== playerIds.length) {
-            const foundPlayerIds = players.map(p => p._id.toString());
-            const missingPlayerIds = playerIds.filter(id => !foundPlayerIds.includes(id.toString()));
-            console.log('VALIDATION ERROR: Missing player IDs:', missingPlayerIds);
+        if (validPlayerIds.length === 0) {
+            console.log('No valid player IDs provided - this is allowed');
+            // Allow matches without players assigned - skip player validation
+        } else {
+            console.log('Looking up players with IDs:', validPlayerIds);
             
-            return res.status(400).json({ 
-                success: false, 
-                error: `Players not found with IDs: ${missingPlayerIds.join(', ')}` 
+            // Convert validPlayerIds to ObjectId for proper MongoDB query
+            const mongoose = require('mongoose');
+            const objectIdValidPlayerIds = validPlayerIds.map(id => {
+                try {
+                    return new mongoose.Types.ObjectId(id);
+                } catch (error) {
+                    console.error('Invalid ObjectId:', id, error.message);
+                    return null;
+                }
+            }).filter(id => id !== null);
+            
+            console.log('Converted to ObjectIds:', objectIdValidPlayerIds);
+            
+            players = await playerInfoId.find({ _id: { $in: objectIdValidPlayerIds } });
+            console.log('Found players:', players.length, 'out of', validPlayerIds.length, 'requested');
+            
+            // Since we allow duplicate assignments, check for unique player IDs
+            const uniqueValidPlayerIds = [...new Set(validPlayerIds)];
+            console.log('Unique player IDs needed:', uniqueValidPlayerIds.length, 'Total assignments:', validPlayerIds.length);
+            
+            if (players.length !== uniqueValidPlayerIds.length) {
+                const foundPlayerIds = players.map(p => p._id.toString());
+                const missingPlayerIds = uniqueValidPlayerIds.filter(id => !foundPlayerIds.includes(id.toString()));
+                console.log('VALIDATION ERROR: Missing player IDs:', missingPlayerIds);
+                
+                // Try to debug what's happening
+                console.log('Debug info:');
+                console.log('- Valid unique player IDs:', uniqueValidPlayerIds);
+                console.log('- Found player IDs:', foundPlayerIds);
+                console.log('- Missing IDs:', missingPlayerIds);
+                
+                // Try direct lookup for debugging
+                for (const missingId of missingPlayerIds) {
+                    try {
+                        const directLookup = await playerInfoId.findById(missingId);
+                        console.log(`Direct lookup for ${missingId}:`, directLookup ? 'Found' : 'Not found');
+                        if (directLookup) {
+                            console.log('Player data:', {
+                                name: directLookup.playerName,
+                                college: directLookup.collegeName,
+                                collegeEmail: directLookup.collegeEmail
+                            });
+                        }
+                    } catch (error) {
+                        console.log(`Error looking up ${missingId}:`, error.message);
+                    }
+                }
+                
+                return res.status(400).json({ 
+                    success: false, 
+                    error: `Players not found with IDs: ${missingPlayerIds.join(', ')}`,
+                    debug: 'Check console logs for detailed information'
+                });
+            }
+
+            // Create player lookup for easy access
+            players.forEach(player => {
+                playerLookup[player._id.toString()] = player;
             });
         }
-
-        // Create player lookup for easy access
-        const playerLookup = {};
-        players.forEach(player => {
-            playerLookup[player._id.toString()] = player;
-        });
 
         // Create referee lookup for easy access
         const refereeLookup = {};
@@ -861,7 +1065,11 @@ router.post('/matches/assign', async (req, res) => {
             assignedRefereeNames: referees.map(r => r.name),
             matchStatus: 'players_allocated',
             lastModified: new Date(),
-            subMatchAssignments: subMatches
+            subMatchAssignments: subMatches,
+            // Tournament format information
+            matchFormat: tournamentFormat.matchFormat,
+            requiredWins: tournamentFormat.requiredWins,
+            totalMatches: tournamentFormat.totalMatches
         };
 
         // Set primary referee (first one in the list)
@@ -1155,6 +1363,32 @@ router.post('/match/:id/reset-setup', async (req, res) => {
     }
 });
 
+// Get tournament format for a specific match
+router.get('/match/:id/tournament-format', async (req, res) => {
+    try {
+        const matchId = req.params.id;
+        
+        // Find the match to get its round
+        const match = await matchesBoys.findById(matchId);
+        if (!match) {
+            return res.status(404).json({ success: false, error: 'Match not found' });
+        }
+
+        // Get tournament format based on round
+        const format = getTournamentFormat(match.round || 'round_1');
+        
+        res.json({ 
+            success: true, 
+            format: format,
+            round: match.round,
+            matchId: matchId
+        });
+    } catch (error) {
+        console.error('Error getting tournament format:', error);
+        res.status(500).json({ success: false, error: 'Server error' });
+    }
+});
+
 // Get boys players for a college
 router.get('/college/:email/players', async (req, res) => {
     try {
@@ -1284,6 +1518,8 @@ router.post('/assign-match/:matchId', async (req, res) => {
             if (players.length !== playerIds.length) {
                 return res.status(400).json({ success: false, message: 'One or more players not found' });
             }
+
+            // Allow same players to be assigned to multiple matches - no validation needed
         }
 
         // Update match with referee and player assignments

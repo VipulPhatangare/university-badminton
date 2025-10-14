@@ -750,10 +750,6 @@ function createPlayerCard(player) {
                 <span class="player-detail-value">${genderIcon} ${player.gender || '-'}</span>
             </div>
             <div class="player-detail-item">
-                <span class="player-detail-label">Phone:</span>
-                <span class="player-detail-value">${player.phone || '-'}</span>
-            </div>
-            <div class="player-detail-item">
                 <span class="player-detail-label">Joined:</span>
                 <span class="player-detail-value">${joinDate}</span>
             </div>
@@ -812,12 +808,10 @@ async function handleAddPlayer(e) {
     
     const playerData = {
         playerName: document.getElementById('playerName').value.trim(),
-        email: document.getElementById('playerEmail').value.trim(),
-        gender: document.getElementById('playerGender').value,
-        phone: document.getElementById('playerPhone').value.trim()
+        gender: document.getElementById('playerGender').value
     };
     
-    if (!playerData.playerName || !playerData.email || !playerData.gender) {
+    if (!playerData.playerName || !playerData.gender) {
         alert('Please fill in all required fields');
         return;
     }

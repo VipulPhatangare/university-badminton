@@ -1037,7 +1037,7 @@ function getMatchType(matchNumber, gender) {
 
 // Validate assignments
 function validateAssignments(assignments) {
-    const usedPlayers = new Set();
+    // Allow same players to be assigned to multiple matches - no duplicate validation
     
     for (const subMatch of assignments.subMatches) {
         // Validate referee
@@ -1053,29 +1053,14 @@ function validateAssignments(assignments) {
                 return false;
             }
             
-            // Check for duplicate player assignments
-            if (usedPlayers.has(subMatch.team1Player) || usedPlayers.has(subMatch.team2Player)) {
-                showToast(`Player already assigned to another match`, 'error');
-                return false;
-            }
-            
-            usedPlayers.add(subMatch.team1Player);
-            usedPlayers.add(subMatch.team2Player);
+            // No duplicate validation - same players can be assigned to multiple matches
         } else {
             if (!subMatch.team1Player1 || !subMatch.team1Player2 || !subMatch.team2Player1 || !subMatch.team2Player2) {
                 showToast(`Please select all players for Match ${subMatch.matchNumber}`, 'error');
                 return false;
             }
             
-            // Check for duplicate player assignments
-            const doublePlayers = [subMatch.team1Player1, subMatch.team1Player2, subMatch.team2Player1, subMatch.team2Player2];
-            for (const player of doublePlayers) {
-                if (usedPlayers.has(player)) {
-                    showToast(`Player already assigned to another match`, 'error');
-                    return false;
-                }
-                usedPlayers.add(player);
-            }
+            // No duplicate validation - same players can be assigned to multiple matches
         }
     }
     

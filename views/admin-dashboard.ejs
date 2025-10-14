@@ -738,11 +738,38 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
+        @keyframes slideInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
         @keyframes pulse {
             0% { transform: scale(1); }
             50% { transform: scale(1.1); }
             100% { transform: scale(1); }
         }
+
+        @keyframes glow {
+            0% { box-shadow: 0 0 5px rgba(21, 101, 192, 0.3); }
+            50% { box-shadow: 0 0 20px rgba(21, 101, 192, 0.6); }
+            100% { box-shadow: 0 0 5px rgba(21, 101, 192, 0.3); }
+        }
+
+        /* Tournament Format Animations */
+        .tournament-format-display {
+            animation: slideInUp 0.5s ease-out;
+        }
+
+        .player-assignment-section {
+            animation: fadeIn 0.3s ease-out;
+            animation-fill-mode: both;
+        }
+
+        .player-assignment-section:nth-child(1) { animation-delay: 0.1s; }
+        .player-assignment-section:nth-child(2) { animation-delay: 0.2s; }
+        .player-assignment-section:nth-child(3) { animation-delay: 0.3s; }
+        .player-assignment-section:nth-child(4) { animation-delay: 0.4s; }
+        .player-assignment-section:nth-child(5) { animation-delay: 0.5s; }
 
         /* Badminton shuttlecock icon animation */
         .shuttlecock {
@@ -963,12 +990,28 @@
             color: white;
         }
 
+        /* Player Assignment Container */
+        #player-assignment-container {
+            background: var(--white);
+            border-radius: var(--border-radius);
+            padding: 25px;
+            margin-top: 20px;
+            box-shadow: var(--shadow-light);
+            border: 2px solid var(--light-gray);
+        }
+
         .player-assignment-section {
             background: #f8f9fa;
             border-radius: 10px;
             padding: 20px;
-            margin-top: 20px;
+            margin-bottom: 20px;
             border: 1px solid #e9ecef;
+            transition: var(--transition);
+        }
+
+        .player-assignment-section:hover {
+            box-shadow: var(--shadow-light);
+            border-color: var(--primary-blue);
         }
 
         .player-assignment-section h5 {
@@ -976,6 +1019,137 @@
             margin-bottom: 15px;
             font-weight: 600;
             text-align: center;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--primary-blue);
+        }
+
+        /* Match Section Styling */
+        .match-section {
+            margin-bottom: 25px;
+            padding: 20px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-light);
+            transition: var(--transition);
+        }
+
+        .match-section h4 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .player-assignments {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .team-section {
+            background: var(--white);
+            padding: 15px;
+            border-radius: var(--border-radius);
+            border: 2px solid #e9ecef;
+            transition: var(--transition);
+        }
+
+        .team-section:hover {
+            border-color: var(--primary-blue);
+        }
+
+        .team-section h5 {
+            margin-bottom: 15px;
+            font-weight: 600;
+            color: var(--dark-gray);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .team-section label {
+            font-weight: 500;
+            color: var(--dark-gray);
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        /* Singles Match Styling */
+        .singles-match {
+            background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+            border-left: 4px solid #ff9800;
+        }
+
+        .singles-match h5 {
+            color: #f57c00;
+            border-bottom-color: #ff9800;
+        }
+
+        /* Doubles Match Styling */
+        .doubles-match {
+            background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%);
+            border-left: 4px solid #4caf50;
+        }
+
+        .doubles-match h5 {
+            color: #2e7d32;
+            border-bottom-color: #4caf50;
+        }
+
+        /* Match Referee Section */
+        .match-referee-section {
+            background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%);
+            border-radius: var(--border-radius);
+            padding: 25px;
+            margin: 25px 0;
+            border: 2px solid #9c27b0;
+            box-shadow: var(--shadow-light);
+        }
+
+        .match-referee-section h4 {
+            color: #7b1fa2;
+            margin-bottom: 20px;
+            font-weight: 600;
+            text-align: center;
+            font-size: 1.2rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #9c27b0;
+        }
+
+        .referee-assignment-container {
+            background: var(--white);
+            padding: 20px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-light);
+        }
+
+        .referee-assignment-container label {
+            font-weight: 600;
+            color: var(--dark-gray);
+            margin-bottom: 10px;
+            display: block;
+            font-size: 1rem;
+        }
+
+        .match-referee-section .form-control {
+            background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+            border: 2px solid #9c27b0;
+        }
+
+        .match-referee-section .form-control:focus {
+            border-color: #7b1fa2;
+            box-shadow: 0 0 0 3px rgba(156, 39, 176, 0.1);
         }
 
         .team-selection {
@@ -1116,17 +1290,48 @@
 
         .form-control {
             width: 100%;
-            padding: 10px 12px;
+            padding: 12px 15px;
             border: 2px solid #e9ecef;
-            border-radius: 6px;
+            border-radius: var(--border-radius);
             font-size: 0.95rem;
             transition: var(--transition);
+            background: var(--white);
+            font-family: 'Titillium Web', sans-serif;
         }
 
         .form-control:focus {
             outline: none;
             border-color: var(--primary-blue);
-            box-shadow: 0 0 0 3px rgba(178, 34, 34, 0.1);
+            box-shadow: 0 0 0 3px rgba(21, 101, 192, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .form-control:hover {
+            border-color: var(--light-blue);
+        }
+
+        /* Player Select Dropdown Styling */
+        .player-select {
+            background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+            border: 2px solid #dee2e6;
+            padding: 12px 15px;
+            border-radius: var(--border-radius);
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .player-select:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 3px rgba(21, 101, 192, 0.1);
+            background: var(--white);
+        }
+
+        .player-select option {
+            padding: 10px;
+            font-weight: 500;
         }
 
         .referee-select {
@@ -1315,6 +1520,40 @@
             .stats-grid {
                 grid-template-columns: 1fr;
             }
+        }
+
+        /* Tournament Format Styles */
+        .tournament-format-display {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            padding: 20px;
+            border-radius: var(--border-radius);
+            margin-bottom: 25px;
+            border: 2px solid var(--primary-blue);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .tournament-format-info {
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--primary-blue);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 15px;
+            background: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-light);
+            margin-bottom: 20px;
+        }
+
+        .best-of-3-format {
+            border-color: #ff9800;
+            background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+        }
+
+        .best-of-5-format {
+            border-color: #4caf50;
+            background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%);
         }
 
         /* Match Assignment Card Styles */
@@ -2827,6 +3066,9 @@
                         <div class="setup-header">
                             <h3 id="matchTitle">Player Assignment</h3>
                             <p id="matchDetails"></p>
+                            <div id="tournament-format-info" class="tournament-format-display">
+                                <!-- Tournament format info will be displayed here -->
+                            </div>
                         </div>
 
                         <!-- Individual Match Configuration Section -->
@@ -3005,6 +3247,17 @@
                             <!-- Dynamic content will be generated by JavaScript -->
                         </div>
 
+                        <!-- Match Referee Assignment Section -->
+                        <div class="match-referee-section">
+                            <h4><i class="fas fa-whistle"></i> Match Referee</h4>
+                            <div class="referee-assignment-container">
+                                <label for="main-referee">Assign Referee for this Match:</label>
+                                <select id="main-referee" class="form-control" required>
+                                    <option value="">Select Referee</option>
+                                </select>
+                            </div>
+                        </div>
+
                         <!-- Save Actions Section -->
                         <div class="setup-actions">
                             <div class="actions-header">
@@ -3179,16 +3432,6 @@
                             <div class="form-group">
                                 <label for="playerName">Player Name *</label>
                                 <input type="text" id="playerName" name="playerName" class="form-control" required>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="playerEmail">Email *</label>
-                                <input type="email" id="playerEmail" name="email" class="form-control" required>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="playerPhone">Phone Number</label>
-                                <input type="tel" id="playerPhone" name="phone" class="form-control">
                             </div>
                         </form>
                     </div>
@@ -3448,6 +3691,7 @@
         let allPlayers = [];
         let allReferees = [];
         let currentMatch = null;
+        let currentTournamentFormat = null; // Tournament format for current match
 
         // Initialize dashboard
         document.addEventListener('DOMContentLoaded', function() {
@@ -3919,7 +4163,7 @@
                 `${currentMatch.college1Name} vs ${currentMatch.college2Name} | ${new Date(currentMatch.date).toLocaleDateString()} | ${currentMatch.time}`;
 
             // Generate player assignment grid based on match type
-            generatePlayerAssignmentGrid(currentMatch);
+            await generatePlayerAssignmentGrid(currentMatch);
 
             // Populate referee dropdown
             populateMainRefereeDropdown();
@@ -3947,34 +4191,35 @@
 
         async function loadPlayersForMatch() {
             try {
-                console.log('Loading players for match...', currentMatch.email1, currentMatch.email2);
+                console.log('Loading all players for match...', currentMatch.email1, currentMatch.email2);
                 
-                // Load players for college 1
+                // Load ALL players for college 1 (not just available ones)
                 const response1 = await fetch(`/api/admin/college/${encodeURIComponent(currentMatch.email1)}/players`);
                 console.log('College 1 response status:', response1.status);
                 
                 if (response1.ok) {
                     college1Players = await response1.json();
-                    console.log('College 1 players loaded:', college1Players.length, college1Players);
+                    console.log('College 1 all players loaded:', college1Players.length, college1Players);
                 } else {
                     console.error('Failed to load college 1 players:', await response1.text());
                     college1Players = [];
                 }
                 
-                // Load players for college 2
+                // Load ALL players for college 2 (not just available ones)
                 const response2 = await fetch(`/api/admin/college/${encodeURIComponent(currentMatch.email2)}/players`);
                 console.log('College 2 response status:', response2.status);
                 
                 if (response2.ok) {
                     college2Players = await response2.json();
-                    console.log('College 2 players loaded:', college2Players.length, college2Players);
+                    console.log('College 2 all players loaded:', college2Players.length, college2Players);
                 } else {
                     console.error('Failed to load college 2 players:', await response2.text());
                     college2Players = [];
                 }
                 
                 // Show alert about loaded players
-                showAlert(`Loaded ${college1Players.length} players for ${currentMatch.college1Name} and ${college2Players.length} players for ${currentMatch.college2Name}`, 'info');
+                const message = `All players loaded: ${college1Players.length} for ${currentMatch.college1Name} and ${college2Players.length} for ${currentMatch.college2Name}. All players are available for assignment to any match.`;
+                showAlert(message, 'info');
                 
                 // Populate all player dropdowns
                 populateAllPlayerDropdowns();
@@ -3989,26 +4234,26 @@
         }
 
         function populateAllPlayerDropdowns() {
-            // Get currently selected players to exclude them from other dropdowns
-            const selectedPlayers = getSelectedPlayerEmails();
+            // Show ALL players in ALL dropdowns - no restrictions
+            const emptySet = new Set(); // No exclusions
             
-            // Singles matches
-            populatePlayerDropdownWithExclusions('match1_player1', college1Players, selectedPlayers);
-            populatePlayerDropdownWithExclusions('match1_player2', college2Players, selectedPlayers);
-            populatePlayerDropdownWithExclusions('match2_player1', college1Players, selectedPlayers);
-            populatePlayerDropdownWithExclusions('match2_player2', college2Players, selectedPlayers);
-            populatePlayerDropdownWithExclusions('match4_player1', college1Players, selectedPlayers);
-            populatePlayerDropdownWithExclusions('match4_player2', college2Players, selectedPlayers);
+            // Singles matches - show all players from respective colleges
+            populatePlayerDropdownWithExclusions('match1_player1', college1Players, emptySet);
+            populatePlayerDropdownWithExclusions('match1_player2', college2Players, emptySet);
+            populatePlayerDropdownWithExclusions('match2_player1', college1Players, emptySet);
+            populatePlayerDropdownWithExclusions('match2_player2', college2Players, emptySet);
+            populatePlayerDropdownWithExclusions('match4_player1', college1Players, emptySet);
+            populatePlayerDropdownWithExclusions('match4_player2', college2Players, emptySet);
             
-            // Doubles matches
-            populatePlayerDropdownWithExclusions('match3_team1_player1', college1Players, selectedPlayers);
-            populatePlayerDropdownWithExclusions('match3_team1_player2', college1Players, selectedPlayers);
-            populatePlayerDropdownWithExclusions('match3_team2_player1', college2Players, selectedPlayers);
-            populatePlayerDropdownWithExclusions('match3_team2_player2', college2Players, selectedPlayers);
-            populatePlayerDropdownWithExclusions('match5_team1_player1', college1Players, selectedPlayers);
-            populatePlayerDropdownWithExclusions('match5_team1_player2', college1Players, selectedPlayers);
-            populatePlayerDropdownWithExclusions('match5_team2_player1', college2Players, selectedPlayers);
-            populatePlayerDropdownWithExclusions('match5_team2_player2', college2Players, selectedPlayers);
+            // Doubles matches - show all players from respective colleges
+            populatePlayerDropdownWithExclusions('match3_team1_player1', college1Players, emptySet);
+            populatePlayerDropdownWithExclusions('match3_team1_player2', college1Players, emptySet);
+            populatePlayerDropdownWithExclusions('match3_team2_player1', college2Players, emptySet);
+            populatePlayerDropdownWithExclusions('match3_team2_player2', college2Players, emptySet);
+            populatePlayerDropdownWithExclusions('match5_team1_player1', college1Players, emptySet);
+            populatePlayerDropdownWithExclusions('match5_team1_player2', college1Players, emptySet);
+            populatePlayerDropdownWithExclusions('match5_team2_player1', college2Players, emptySet);
+            populatePlayerDropdownWithExclusions('match5_team2_player2', college2Players, emptySet);
         }
 
         function populatePlayerDropdownWithExclusions(selectId, players, excludedPlayerEmails) {
@@ -4017,43 +4262,30 @@
             
             // Get current selection to preserve it
             const currentValue = select.value;
-            let currentPlayerEmail = null;
-            
-            if (currentValue && select.selectedIndex > 0) {
-                // Get email from the selected option's data attribute
-                const selectedOption = select.options[select.selectedIndex];
-                if (selectedOption && selectedOption.getAttribute('data-email')) {
-                    currentPlayerEmail = selectedOption.getAttribute('data-email');
-                }
-            }
             
             select.innerHTML = '<option value="">Select Player</option>';
             
-            console.log(`Populating ${selectId} with ${players.length} players, excluding ${excludedPlayerEmails.size} selected players`);
+            console.log(`Populating ${selectId} with ${players.length} players - showing ALL players`);
             
             players.forEach(player => {
-                const playerEmail = player.email;
+                const playerIdentifier = player.playerIdentifier || player._id;
                 const playerName = player.playerName || player.name;
                 
-                // Show player if:
-                // 1. Not already selected in another dropdown OR
-                // 2. It's the currently selected player in this dropdown
-                if (!excludedPlayerEmails.has(playerEmail) || playerEmail === currentPlayerEmail) {
-                    const option = document.createElement('option');
-                    // Use the player's ObjectId instead of JSON string
-                    option.value = player._id;
-                    option.textContent = playerName;
-                    // Store additional data as data attributes for later use
-                    option.setAttribute('data-name', playerName);
-                    option.setAttribute('data-email', playerEmail);
-                    
-                    // Restore selection if it was the current player
-                    if (playerEmail === currentPlayerEmail) {
-                        option.selected = true;
-                    }
-                    
-                    select.appendChild(option);
+                const option = document.createElement('option');
+                option.value = player._id;
+                option.textContent = playerName;
+                
+                // Store additional data as data attributes for later use
+                option.setAttribute('data-name', playerName);
+                option.setAttribute('data-identifier', playerIdentifier);
+                option.setAttribute('data-id', player._id);
+                
+                // Restore selection if it was the current player
+                if (currentValue && currentValue === player._id) {
+                    option.selected = true;
                 }
+                
+                select.appendChild(option);
             });
         }
 
@@ -4129,9 +4361,7 @@
         }
 
         function validatePlayerSelections() {
-            const selectedPlayers = new Set();
-            let hasConflicts = false;
-            
+            // Allow same players to be selected for multiple matches - no validation needed
             const allPlayerSelects = [
                 'match1_player1', 'match1_player2',
                 'match2_player1', 'match2_player2',
@@ -4142,35 +4372,17 @@
                 'match5_team2_player1', 'match5_team2_player2'
             ];
             
-            // Reset all borders first
+            // Reset all borders to normal (no red highlighting for duplicates)
             allPlayerSelects.forEach(selectId => {
                 const select = document.getElementById(selectId);
                 if (select) {
                     select.style.borderColor = '';
+                    select.style.backgroundColor = '';
                 }
             });
             
-            // Check for duplicates (shouldn't happen with our filtering, but good to check)
-            allPlayerSelects.forEach(selectId => {
-                const select = document.getElementById(selectId);
-                if (select && select.value) {
-                    const selectedOption = select.options[select.selectedIndex];
-                    if (selectedOption) {
-                        const playerEmail = selectedOption.getAttribute('data-email');
-                        const playerName = selectedOption.getAttribute('data-name');
-                        
-                        if (selectedPlayers.has(playerEmail)) {
-                            hasConflicts = true;
-                            select.style.borderColor = 'red';
-                            console.warn(`Duplicate player selection detected: ${playerName} in ${selectId}`);
-                        } else {
-                            selectedPlayers.add(playerEmail);
-                        }
-                    }
-                }
-            });
-            
-            return !hasConflicts;
+            // No duplicate validation - same players can be selected for multiple matches
+            return true; // Always return true - no conflicts allowed
         }
 
         function setProgressStep(step) {
@@ -4259,7 +4471,7 @@
             return statusTexts[status] || 'Unknown Status';
         }
 
-        function loadMatchForSetup() {
+        async function loadMatchForSetup() {
             const matchId = document.getElementById('matchSelect').value;
             const setupForm = document.getElementById('setupForm');
             
@@ -4271,10 +4483,13 @@
             currentMatch = matches.find(m => m._id === matchId);
             if (!currentMatch) return;
 
+            // Load tournament format for this match
+            await loadTournamentFormat(matchId);
+
             // Update match details
             document.getElementById('matchTitle').textContent = `${currentMatch.matchNo} Setup`;
             document.getElementById('matchDetails').textContent = 
-                `${currentMatch.college1Name} vs ${currentMatch.college2Name} | ${new Date(currentMatch.date).toLocaleDateString()} | ${currentMatch.time}`;
+                `${currentMatch.college1Name} vs ${currentMatch.college2Name} | ${new Date(currentMatch.date).toLocaleDateString()} | ${currentMatch.time} | Round: ${currentMatch.round || 'round_1'}`;
 
             // Load existing configuration if available
             if (currentMatch.matchSetup) {
@@ -4285,6 +4500,151 @@
 
             setupForm.style.display = 'block';
             updateAssignedRefereesList();
+        }
+
+        // Load tournament format for a match
+        async function loadTournamentFormat(matchId) {
+            console.log('Loading tournament format for match:', matchId);
+            try {
+                const response = await fetch(`/api/admin/match/${matchId}/tournament-format`);
+                console.log('Tournament format response status:', response.status);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('Tournament format API response:', data);
+                    
+                    if (data.success) {
+                        currentTournamentFormat = data.format;
+                        console.log('Tournament format loaded successfully:', currentTournamentFormat);
+                        
+                        // Update UI to show correct number of matches
+                        updateMatchSetupUI();
+                        
+                        return data.format;
+                    } else {
+                        console.error('Tournament format API returned success: false');
+                    }
+                } else {
+                    console.error('Tournament format API failed with status:', response.status);
+                }
+            } catch (error) {
+                console.error('Error loading tournament format:', error);
+            }
+            
+            // Default to best of 3 if API fails
+            console.log('Using default tournament format (best of 3)');
+            currentTournamentFormat = {
+                matchFormat: 'best_of_3',
+                requiredWins: 2,
+                totalMatches: 3,
+                matchTypes: ['singles', 'singles', 'doubles'],
+                matchNames: ['Singles 1', 'Singles 2', 'Doubles 1']
+            };
+            updateMatchSetupUI();
+        }
+
+        // Update match setup UI based on tournament format
+        function updateMatchSetupUI() {
+            console.log('Updating match setup UI with format:', currentTournamentFormat);
+            
+            const matchesContainer = document.getElementById('player-assignment-container');
+            console.log('Found matches container:', !!matchesContainer);
+            
+            if (!matchesContainer || !currentTournamentFormat) {
+                console.error('Missing container or tournament format');
+                return;
+            }
+
+            // Clear existing matches
+            matchesContainer.innerHTML = '';
+            console.log('Cleared existing matches, creating', currentTournamentFormat.totalMatches, 'new matches');
+
+            // Create matches based on tournament format
+            for (let i = 1; i <= currentTournamentFormat.totalMatches; i++) {
+                const matchType = currentTournamentFormat.matchTypes[i - 1];
+                const matchName = currentTournamentFormat.matchNames[i - 1];
+                
+                console.log(`Creating match ${i}: ${matchName} (${matchType})`);
+                const matchHTML = createMatchHTML(i, matchType, matchName);
+                matchesContainer.innerHTML += matchHTML;
+            }
+
+            // Show format info
+            const formatInfo = document.getElementById('tournament-format-info');
+            console.log('Found format info element:', !!formatInfo);
+            
+            if (formatInfo) {
+                const formatDisplay = `
+                    <div class="tournament-format-info">
+                        <strong>${currentTournamentFormat.matchFormat.replace('_', ' ').toUpperCase()}</strong> - 
+                        Need ${currentTournamentFormat.requiredWins} wins to advance
+                    </div>
+                `;
+                formatInfo.innerHTML = formatDisplay;
+                console.log('Updated format info:', formatDisplay);
+            }
+
+            // Reload players and referees for the new structure
+            console.log('Loading players and populating dropdowns');
+            loadPlayersForMatch();
+            populateAllPlayerDropdowns();
+        }
+
+        // Create HTML for a single match based on type
+        function createMatchHTML(matchNumber, matchType, matchName) {
+            if (matchType === 'singles') {
+                return `
+                    <div class="match-section singles-match">
+                        <h4><i class="fas fa-user"></i> ${matchName}</h4>
+                        <div class="player-assignments">
+                            <div class="team-section">
+                                <label>Team 1 Player:</label>
+                                <select id="match${matchNumber}_player1" class="player-select" required>
+                                    <option value="">Select Player</option>
+                                </select>
+                            </div>
+                            <div class="vs-divider">VS</div>
+                            <div class="team-section">
+                                <label>Team 2 Player:</label>
+                                <select id="match${matchNumber}_player2" class="player-select" required>
+                                    <option value="">Select Player</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                return `
+                    <div class="match-section doubles-match">
+                        <h4><i class="fas fa-users"></i> ${matchName}</h4>
+                        <div class="player-assignments">
+                            <div class="team-section">
+                                <h5><i class="fas fa-users"></i> Team 1</h5>
+                                <label>Player 1:</label>
+                                <select id="match${matchNumber}_team1_player1" class="player-select" required>
+                                    <option value="">Select Player</option>
+                                </select>
+                                <label>Player 2:</label>
+                                <select id="match${matchNumber}_team1_player2" class="player-select" required>
+                                    <option value="">Select Player</option>
+                                </select>
+                            </div>
+                            <div class="vs-divider">VS</div>
+                            <div class="team-section">
+                                <h5><i class="fas fa-users"></i> Team 2</h5>
+                                <label>Player 1:</label>
+                                <select id="match${matchNumber}_team2_player1" class="player-select" required>
+                                    <option value="">Select Player</option>
+                                </select>
+                                <label>Player 2:</label>
+                                <select id="match${matchNumber}_team2_player2" class="player-select" required>
+                                    <option value="">Select Player</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
         }
 
         function loadExistingSetup(setup) {
@@ -4423,14 +4783,15 @@
         // Helper function to get player data from select element
         function getPlayerData(selectId) {
             const select = document.getElementById(selectId);
-            if (!select || !select.value) return { name: '', email: '' };
+            if (!select || !select.value) return { name: '', identifier: '', id: '' };
             
             const selectedOption = select.options[select.selectedIndex];
-            if (!selectedOption) return { name: '', email: '' };
+            if (!selectedOption) return { name: '', identifier: '', id: '' };
             
             return {
                 name: selectedOption.getAttribute('data-name') || '',
-                email: selectedOption.getAttribute('data-email') || ''
+                identifier: selectedOption.getAttribute('data-identifier') || '',
+                id: selectedOption.getAttribute('data-id') || ''
             };
         }
         
@@ -4439,9 +4800,14 @@
                 showAlert('No match selected for saving', 'error');
                 return;
             }
+
+            if (!currentTournamentFormat) {
+                showAlert('Tournament format not loaded. Please refresh and try again.', 'error');
+                return;
+            }
             
             // Validate that referee is selected
-            const mainReferee = document.getElementById('main_referee');
+            const mainReferee = document.getElementById('main-referee');
             if (!mainReferee || !mainReferee.value) {
                 showAlert('Please select a referee before saving', 'error');
                 return;
@@ -4453,141 +4819,96 @@
                 const refereeOption = mainReferee.querySelector(`option[value="${refereeId}"]`);
                 const refereeName = refereeOption ? refereeOption.textContent : '';
 
-                // Collect all player assignments for boys match (5 sub-matches)
+                // Collect all player assignments based on tournament format
                 const subMatches = [];
                 let playerCount = 0;
-                let hasErrors = false;
+                const matchConfigurations = {};
 
-                // Match 1 - Singles
-                const match1Player1 = document.getElementById('match1_player1');
-                const match1Player2 = document.getElementById('match1_player2');
-                
-                if (match1Player1 && match1Player2 && match1Player1.value && match1Player2.value) {
-                    subMatches.push({
-                        matchNumber: 1,
+                // Iterate through matches based on tournament format
+                for (let i = 1; i <= currentTournamentFormat.totalMatches; i++) {
+                    const matchType = currentTournamentFormat.matchTypes[i - 1];
+                    const matchNumber = i;
+                    
+                    let subMatch = {
+                        matchNumber: matchNumber,
                         refereeId: refereeId,
-                        type: 'singles',
-                        team1Player: match1Player1.value,
-                        team2Player: match1Player2.value
-                    });
-                    playerCount += 2;
+                        type: matchType
+                    };
+                    
+                    if (matchType === 'singles') {
+                        const player1 = document.getElementById(`match${i}_player1`);
+                        const player2 = document.getElementById(`match${i}_player2`);
+                        
+                        if (player1 && player2 && player1.value && player2.value) {
+                            subMatch.team1Player = player1.value;
+                            subMatch.team2Player = player2.value;
+                            playerCount += 2;
+                        }
+                    } else if (matchType === 'doubles') {
+                        const team1Player1 = document.getElementById(`match${i}_team1_player1`);
+                        const team1Player2 = document.getElementById(`match${i}_team1_player2`);
+                        const team2Player1 = document.getElementById(`match${i}_team2_player1`);
+                        const team2Player2 = document.getElementById(`match${i}_team2_player2`);
+                        
+                        if (team1Player1 && team1Player2 && team2Player1 && team2Player2 &&
+                            team1Player1.value && team1Player2.value && team2Player1.value && team2Player2.value) {
+                            subMatch.team1Player1 = team1Player1.value;
+                            subMatch.team1Player2 = team1Player2.value;
+                            subMatch.team2Player1 = team2Player1.value;
+                            subMatch.team2Player2 = team2Player2.value;
+                            playerCount += 4;
+                        }
+                    }
+
+                    // Use default match configuration (removed individual match configs)
+                    subMatch.numberOfSets = 3; // Default: Best of 3
+                    subMatch.maxSetPoints = 21; // Default: 21 points per set
+                    
+                    matchConfigurations[`match${i}`] = {
+                        numberOfSets: subMatch.numberOfSets,
+                        maxSetPoints: subMatch.maxSetPoints
+                    };
+
+                    subMatches.push(subMatch);
                 }
 
-                // Match 2 - Singles
-                const match2Player1 = document.getElementById('match2_player1');
-                const match2Player2 = document.getElementById('match2_player2');
+                // Debug: Log what we collected
+                console.log('Collected subMatches:', subMatches);
+                console.log('Player count:', playerCount);
+                console.log('Tournament format:', currentTournamentFormat);
                 
-                if (match2Player1 && match2Player2 && match2Player1.value && match2Player2.value) {
-                    subMatches.push({
-                        matchNumber: 2,
-                        refereeId: refereeId,
-                        type: 'singles',
-                        team1Player: match2Player1.value,
-                        team2Player: match2Player2.value
-                    });
-                    playerCount += 2;
-                }
-
-                // Match 3 - Doubles
-                const match3Team1Player1 = document.getElementById('match3_team1_player1');
-                const match3Team1Player2 = document.getElementById('match3_team1_player2');
-                const match3Team2Player1 = document.getElementById('match3_team2_player1');
-                const match3Team2Player2 = document.getElementById('match3_team2_player2');
-                
-                if (match3Team1Player1 && match3Team1Player2 && match3Team2Player1 && match3Team2Player2 &&
-                    match3Team1Player1.value && match3Team1Player2.value && match3Team2Player1.value && match3Team2Player2.value) {
-                    subMatches.push({
-                        matchNumber: 3,
-                        refereeId: refereeId,
-                        type: 'doubles',
-                        team1Player1: match3Team1Player1.value,
-                        team1Player2: match3Team1Player2.value,
-                        team2Player1: match3Team2Player1.value,
-                        team2Player2: match3Team2Player2.value
-                    });
-                    playerCount += 4;
-                }
-
-                // Match 4 - Singles
-                const match4Player1 = document.getElementById('match4_player1');
-                const match4Player2 = document.getElementById('match4_player2');
-                
-                if (match4Player1 && match4Player2 && match4Player1.value && match4Player2.value) {
-                    subMatches.push({
-                        matchNumber: 4,
-                        refereeId: refereeId,
-                        type: 'singles',
-                        team1Player: match4Player1.value,
-                        team2Player: match4Player2.value
-                    });
-                    playerCount += 2;
-                }
-
-                // Match 5 - Doubles
-                const match5Team1Player1 = document.getElementById('match5_team1_player1');
-                const match5Team1Player2 = document.getElementById('match5_team1_player2');
-                const match5Team2Player1 = document.getElementById('match5_team2_player1');
-                const match5Team2Player2 = document.getElementById('match5_team2_player2');
-                
-                if (match5Team1Player1 && match5Team1Player2 && match5Team2Player1 && match5Team2Player2 &&
-                    match5Team1Player1.value && match5Team1Player2.value && match5Team2Player1.value && match5Team2Player2.value) {
-                    subMatches.push({
-                        matchNumber: 5,
-                        refereeId: refereeId,
-                        type: 'doubles',
-                        team1Player1: match5Team1Player1.value,
-                        team1Player2: match5Team1Player2.value,
-                        team2Player1: match5Team2Player1.value,
-                        team2Player2: match5Team2Player2.value
-                    });
-                    playerCount += 4;
-                }
-
                 // Validate that we have some assignments
                 if (subMatches.length === 0) {
                     showAlert('Please assign at least some players before saving', 'error');
                     return;
                 }
 
-                // Get individual match configuration values
-                const matchConfigurations = {
-                    match1: {
-                        numberOfSets: parseInt(document.getElementById('match1_numberOfSets').value || '3'),
-                        maxSetPoints: parseInt(document.getElementById('match1_maxSetPoints').value || '21')
-                    },
-                    match2: {
-                        numberOfSets: parseInt(document.getElementById('match2_numberOfSets').value || '3'),
-                        maxSetPoints: parseInt(document.getElementById('match2_maxSetPoints').value || '21')
-                    },
-                    match3: {
-                        numberOfSets: parseInt(document.getElementById('match3_numberOfSets').value || '3'),
-                        maxSetPoints: parseInt(document.getElementById('match3_maxSetPoints').value || '21')
-                    },
-                    match4: {
-                        numberOfSets: parseInt(document.getElementById('match4_numberOfSets').value || '3'),
-                        maxSetPoints: parseInt(document.getElementById('match4_maxSetPoints').value || '21')
-                    },
-                    match5: {
-                        numberOfSets: parseInt(document.getElementById('match5_numberOfSets').value || '3'),
-                        maxSetPoints: parseInt(document.getElementById('match5_maxSetPoints').value || '21')
-                    }
-                };
-
-                // Add configuration to each sub-match
-                subMatches.forEach(subMatch => {
-                    const matchKey = `match${subMatch.matchNumber}`;
-                    if (matchConfigurations[matchKey]) {
-                        subMatch.numberOfSets = matchConfigurations[matchKey].numberOfSets;
-                        subMatch.maxSetPoints = matchConfigurations[matchKey].maxSetPoints;
+                // Validate all required matches are assigned
+                const incompleteMatches = [];
+                subMatches.forEach((sm, index) => {
+                    if (sm.type === 'singles') {
+                        if (!sm.team1Player || !sm.team2Player) {
+                            incompleteMatches.push(`${currentTournamentFormat.matchNames[index]}`);
+                        }
+                    } else if (sm.type === 'doubles') {
+                        if (!sm.team1Player1 || !sm.team1Player2 || !sm.team2Player1 || !sm.team2Player2) {
+                            incompleteMatches.push(`${currentTournamentFormat.matchNames[index]}`);
+                        }
                     }
                 });
+                
+                if (incompleteMatches.length > 0) {
+                    showAlert(`Please complete player assignments for: ${incompleteMatches.join(', ')}`, 'error');
+                    return;
+                }
 
                 // Prepare assignment data
                 const assignmentData = {
                     matchId: currentMatch._id,
                     gender: 'boys',
                     subMatches: subMatches,
-                    matchConfigurations: matchConfigurations
+                    matchConfigurations: matchConfigurations,
+                    tournamentFormat: currentTournamentFormat
                 };
 
                 console.log('Saving match assignment:', assignmentData);
@@ -4600,6 +4921,14 @@
                     },
                     body: JSON.stringify(assignmentData)
                 });
+                
+                console.log('Response status:', response.status, response.statusText);
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('Error response body:', errorText);
+                    throw new Error(`HTTP ${response.status}: ${errorText}`);
+                }
                 
                 const result = await response.json();
                 
@@ -4632,13 +4961,27 @@
                     currentMatch = null;
                     
                     // Refresh the matches list to get updated data
-                    setTimeout(() => {
+                    setTimeout(async () => {
                         refreshMatchCards();
                         loadAllMatches(); // Also refresh the main matches view
+                        
+                        // Next match setups will load fresh player data
+                        
+                        // Clear player cache so next match setup will load fresh data
+                        college1Players = [];
+                        college2Players = [];
                     }, 600);
                     
                 } else {
-                    showAlert('Error saving match setup: ' + (result.error || result.message || 'Unknown error'), 'error');
+                    // Check if error is about already assigned players
+                    if (result.error && result.error.includes('already assigned')) {
+                        showAlert('Error: ' + result.error, 'error');
+                        
+                        // Reload player dropdowns
+                        populateAllPlayerDropdowns();
+                    } else {
+                        showAlert('Error saving match setup: ' + (result.error || result.message || 'Unknown error'), 'error');
+                    }
                 }
             } catch (error) {
                 console.error('Error saving match setup:', error);
@@ -4657,11 +5000,8 @@
                 return;
             }
 
-            // Check for player conflicts
-            if (!validatePlayerSelections()) {
-                showAlert('Please resolve player conflicts (players selected multiple times)', 'error');
-                return;
-            }
+            // Allow same players to be assigned to multiple matches - no conflict check needed
+            // validatePlayerSelections() is no longer used for validation since duplicates are allowed
 
             // Get individual match configuration values
             const mainReferee = document.getElementById('main_referee').value;
@@ -5196,14 +5536,10 @@
                 // Populate form with existing data
                 document.getElementById('playerId').value = playerData._id;
                 document.getElementById('playerName').value = playerData.playerName;
-                document.getElementById('playerEmail').value = playerData.email;
-                document.getElementById('playerPhone').value = playerData.phone || '';
             } else {
                 // Clear form for new player
                 document.getElementById('playerId').value = '';
                 document.getElementById('playerName').value = '';
-                document.getElementById('playerEmail').value = '';
-                document.getElementById('playerPhone').value = '';
             }
             
             // Show modal
@@ -5223,8 +5559,6 @@
             
             const playerData = {
                 playerName: formData.get('playerName'),
-                email: formData.get('email'),
-                phone: formData.get('phone'),
                 gender: formData.get('gender'),
                 collegeId: formData.get('collegeId')
             };
@@ -5234,8 +5568,8 @@
             console.log('Current College Data:', currentCollegeData);
             
             // Validate required fields
-            if (!playerData.playerName || !playerData.email) {
-                showAlert('Please fill in all required fields', 'error');
+            if (!playerData.playerName) {
+                showAlert('Please fill in player name', 'error');
                 return;
             }
             
@@ -5791,6 +6125,54 @@
                     background-color: var(--dark-gray);
                     transform: translateY(-2px);
                 }
+
+                .btn-success {
+                    background-color: var(--success);
+                    color: var(--white);
+                    border: 1px solid var(--success);
+                }
+
+                .btn-success:hover {
+                    background-color: #218838;
+                    border-color: #1e7e34;
+                    transform: translateY(-2px);
+                }
+
+                .btn-warning {
+                    background-color: var(--warning);
+                    color: var(--dark-gray);
+                    border: 1px solid var(--warning);
+                }
+
+                .btn-warning:hover {
+                    background-color: #e0a800;
+                    border-color: #d39e00;
+                    transform: translateY(-2px);
+                }
+
+                /* Match Format Indicators */
+                .format-badge {
+                    display: inline-block;
+                    padding: 6px 12px;
+                    border-radius: 20px;
+                    font-size: 0.8rem;
+                    font-weight: 700;
+                    text-transform: uppercase;
+                    letter-spacing: 0.5px;
+                    margin-left: 10px;
+                }
+
+                .format-best-of-3 {
+                    background: linear-gradient(45deg, #ff9800, #ffb74d);
+                    color: white;
+                    box-shadow: 0 2px 8px rgba(255, 152, 0, 0.3);
+                }
+
+                .format-best-of-5 {
+                    background: linear-gradient(45deg, #4caf50, #66bb6a);
+                    color: white;
+                    box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
+                }
                 
                 /* Row and Column Layout Support */
                 .row {
@@ -5830,7 +6212,7 @@
         document.head.insertAdjacentHTML('beforeend', additionalStyles);
 
         // New simplified assignment functions
-        function generatePlayerAssignmentGrid(match) {
+        async function generatePlayerAssignmentGrid(match) {
             const container = document.getElementById('player-assignment-container');
             container.innerHTML = '';
 
@@ -5839,11 +6221,20 @@
                 return;
             }
 
-            // Determine if this is boys or girls match (boys have 5 matches, girls have 3)
-            // For now, assume boys matches (5 matches: 3 singles + 2 doubles)
-            const isBoysMatch = true; // You can modify this logic based on your match object structure
-            
             console.log('Generating player assignment grid for match:', match);
+            
+            // Load tournament format for this match first
+            await loadTournamentFormat(match._id);
+            
+            // If we have tournament format, use it to generate the grid
+            if (currentTournamentFormat) {
+                console.log('Using tournament format to generate grid:', currentTournamentFormat);
+                updateMatchSetupUI();
+                return;
+            }
+
+            // Fallback to old logic if tournament format not available
+            console.log('No tournament format available, using fallback logic');
             
             let assignmentHtml = '<div class="match-assignments-grid">';
             
@@ -6075,8 +6466,11 @@
 
 
         function populateMainRefereeDropdown() {
-            const select = document.getElementById('main_referee');
-            if (!select) return;
+            const select = document.getElementById('main-referee');
+            if (!select) {
+                console.log('Main referee dropdown not found');
+                return;
+            }
 
             // Clear existing options
             select.innerHTML = '<option value="">Select Referee</option>';
@@ -6088,6 +6482,8 @@
                 option.textContent = `${referee.name} - ${referee.refEmail}`;
                 select.appendChild(option);
             });
+            
+            console.log('Populated main referee dropdown with', allReferees.length, 'referees');
         }
 
         async function assignPlayersAndReferee() {
@@ -6159,9 +6555,11 @@
                     
                     assignments.match1Singles = {
                         player1Name: player1Data.name,
-                        player1Email: player1Data.email,
+                        player1Identifier: player1Data.identifier,
+                        player1Id: player1Data.id,
                         player2Name: player2Data.name,
-                        player2Email: player2Data.email
+                        player2Identifier: player2Data.identifier,
+                        player2Id: player2Data.id
                     };
                 }
                 
@@ -6175,9 +6573,11 @@
                     
                     assignments.match2Singles = {
                         player1Name: player1Data.name,
-                        player1Email: player1Data.email,
+                        player1Identifier: player1Data.identifier,
+                        player1Id: player1Data.id,
                         player2Name: player2Data.name,
-                        player2Email: player2Data.email
+                        player2Identifier: player2Data.identifier,
+                        player2Id: player2Data.id
                     };
                 }
                 
@@ -6199,13 +6599,17 @@
                     
                     assignments.match3Doubles = {
                         team1Player1Name: team1Player1Data.name,
-                        team1Player1Email: team1Player1Data.email,
+                        team1Player1Identifier: team1Player1Data.identifier,
+                        team1Player1Id: team1Player1Data.id,
                         team1Player2Name: team1Player2Data.name,
-                        team1Player2Email: team1Player2Data.email,
+                        team1Player2Identifier: team1Player2Data.identifier,
+                        team1Player2Id: team1Player2Data.id,
                         team2Player1Name: team2Player1Data.name,
-                        team2Player1Email: team2Player1Data.email,
+                        team2Player1Identifier: team2Player1Data.identifier,
+                        team2Player1Id: team2Player1Data.id,
                         team2Player2Name: team2Player2Data.name,
-                        team2Player2Email: team2Player2Data.email
+                        team2Player2Identifier: team2Player2Data.identifier,
+                        team2Player2Id: team2Player2Data.id
                     };
                 }
                 
