@@ -481,7 +481,7 @@ function evaluateSetState(){
  */
 async function handleSetWin(winnerIndex){
     const loserIndex = 1 - winnerIndex;
-    const winnerName = document.getElementById(`name${winnerIndex}`).textContent.trim() || `Player ${winnerIndex + 1}`;
+    const winnerName = document.getElementById(`name${winnerIndex}`).textContent.trim() || `College ${winnerIndex + 1}`;
     const score = `${state.scores[winnerIndex]}-${state.scores[loserIndex]}`;
     
     // Record the set result
@@ -570,7 +570,7 @@ function undoLastAction() {
    ------------------------- */
 function showSetWinConfirmation(winnerIndex) {
     state.pendingSetWin = winnerIndex;
-    const winnerName = document.getElementById(`name${winnerIndex}`).textContent.trim() || `Player ${winnerIndex + 1}`;
+    const winnerName = document.getElementById(`name${winnerIndex}`).textContent.trim() || `College ${winnerIndex + 1}`;
     const score = `${state.scores[winnerIndex]}-${state.scores[1-winnerIndex]}`;
     
     setWinConfirmText.innerHTML = `<strong>${winnerName}</strong> would win Set ${state.currentSet} with a score of ${score}. Confirm?`;
@@ -804,7 +804,7 @@ function updateAllUI(){
     
     displayMaxPointsEl.textContent = state.maxPoints;
     displayNumberOfSetsEl.textContent = state.matchData ? state.matchData.numberOfSets : '3';
-    initialServerIndicatorEl.textContent = document.getElementById('name0').textContent.trim() || 'Player 1';
+    initialServerIndicatorEl.textContent = document.getElementById('name0').textContent.trim() || 'College 1';
     
     // Update tournament context
     const tournamentRoundEl = document.getElementById('tournamentRound');
@@ -849,7 +849,7 @@ function updateAllUI(){
    ------------------------- */
 function showMatchWinner(winnerIdx){
     winnerTitle.textContent = 'Match Winner';
-    const name = document.getElementById(`name${winnerIdx}`).textContent.trim() || `Player ${winnerIdx+1}`;
+    const name = document.getElementById(`name${winnerIdx}`).textContent.trim() || `College ${winnerIdx+1}`;
     winnerText.innerHTML = `<strong>${name}</strong> wins the match (${state.setsWon[winnerIdx]} - ${state.setsWon[1-winnerIdx]})`;
     
     // Generate match summary
@@ -881,7 +881,7 @@ function generateMatchSummary() {
 }
 
 function showSetCompletionPopup(winnerIndex) {
-    const winnerName = document.getElementById(`name${winnerIndex}`).textContent.trim() || `Player ${winnerIndex + 1}`;
+    const winnerName = document.getElementById(`name${winnerIndex}`).textContent.trim() || `College ${winnerIndex + 1}`;
     
     setCompletionText.innerHTML = `<strong>${winnerName}</strong> won Set ${state.currentSet}!`;
     
@@ -1098,9 +1098,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         state.maxPoints = matchData.maxSetPoint || 21;
         state.maxSetsToWin = Math.floor((matchData.numberOfSets || 3) / 2 + 1) || 2;
         
-        // Set player/team names
-        document.getElementById('name0').textContent = matchData.playerName1 || 'Player 1';
-        document.getElementById('name1').textContent = matchData.playerName2 || 'Player 2';
+        // Set college names instead of player names
+        document.getElementById('name0').textContent = matchData.playerName1 || 'College 1';
+        document.getElementById('name1').textContent = matchData.playerName2 || 'College 2';
         
         // Set initial server based on backend data
         if (matchData.firstServePlayer) {

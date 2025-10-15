@@ -26,8 +26,10 @@ router.get('/get-match-info', async (req, res) => {
             matchNo: `${matchType.toUpperCase()}_${match._id}`,
             college1Name: match.college1Name,
             college2Name: match.college2Name,
-            playerName1: match.college1Name,
-            playerName2: match.college2Name,
+            playerName1: match.college1Name, // Use college name instead of player name
+            playerName2: match.college2Name, // Use college name instead of player name
+            displayName1: match.college1Name, // Explicitly for display
+            displayName2: match.college2Name, // Explicitly for display
             maxSets: 5, // All tournaments now use 5-match format
             maxSetPoint: 21,
             set: match.scorecard.sets.map((set, index) => ({
@@ -135,11 +137,32 @@ router.post('/complete-match', async (req, res) => {
         match.scorecard.matchCompleted = true;
         match.scorecard.matchWinner = winnerIndex === 0 ? match.college1Name : match.college2Name;
         match.overallWinner = winnerIndex === 0 ? 'team1' : 'team2';
+        match.winnerEmail = winnerIndex === 0 ? match.email1 : match.email2;
         match.setInProgress = false;
+        match.matchCompletedAt = new Date();
         
         await match.save();
         
-        res.json({ success: true });
+        // Advance winner college round and clear loser round using utility function
+        try {
+            const { collegeInfo } = require('../database/schema');
+            const { advanceCollegeRound } = require('../utils/matchUtils');
+            
+            // Winner & loser emails (college level)
+            const winnerCollegeEmail = match.winnerEmail;
+            const loserCollegeEmail = (winnerCollegeEmail === match.email1) ? match.email2 : match.email1;
+            
+            // Use utility function to advance rounds
+            const result = await advanceCollegeRound(winnerCollegeEmail, loserCollegeEmail, matchType, collegeInfo);
+            
+            if (!result.success) {
+                console.error('Failed to advance college rounds:', result.error);
+            }
+        } catch (e) {
+            console.error('Error advancing college rounds:', e);
+        }
+        
+        res.json({ success: true, message: 'Match completed and rounds updated' });
     } catch (error) {
         console.error('Complete match error:', error);
         res.status(500).json({ success: false, message: 'Server error' });

@@ -738,6 +738,114 @@ router.delete('/referees/:refereeId', async (req, res) => {
     }
 });
 
+// Add new college
+router.post('/colleges', async (req, res) => {
+    try {
+        const { collegeName, email, password, contactNumber, managerName } = req.body;
+
+        // Validate required fields
+        if (!collegeName || !email || !password) {
+            return res.status(400).json({ success: false, error: 'Missing required fields' });
+        }
+
+        // Check if college already exists
+        const existingCollege = await collegeInfo.findOne({ email: email });
+        if (existingCollege) {
+            return res.status(400).json({ success: false, error: 'College with this email already exists' });
+        }
+
+        // Create new college - match the actual schema
+        const newCollege = new collegeInfo({
+            collegeName: collegeName,
+            email: email,
+            password: password,
+            phone: contactNumber ? parseInt(contactNumber) : null,
+            managerName: managerName || '',
+            currentRoundBoys: 'round_1',
+            currentRoundGirls: 'round_1',
+            isMatchAllocateBoys: false,
+            isMatchAllocateGirls: false,
+            matchesBoys: [],
+            matchesGirls: [],
+            playerInfoIdBoys: [],
+            playerInfoIdGirls: []
+        });
+
+        await newCollege.save();
+        res.json({ success: true, college: newCollege, message: 'College added successfully' });
+    } catch (error) {
+        console.error('Error adding college:', error);
+        res.status(500).json({ success: false, error: 'Server error' });
+    }
+});
+
+// Update college
+router.put('/colleges/:collegeId', async (req, res) => {
+    try {
+        const collegeId = req.params.collegeId;
+        const { collegeName, email, password, contactNumber, managerName } = req.body;
+
+        const updateData = {
+            collegeName: collegeName,
+            email: email,
+            phone: contactNumber ? parseInt(contactNumber) : null,
+            managerName: managerName || ''
+        };
+        
+        // Only update password if provided
+        if (password && password.trim() !== '') {
+            updateData.password = password;
+        }
+
+        const updatedCollege = await collegeInfo.findByIdAndUpdate(collegeId, updateData, { new: true });
+        
+        if (!updatedCollege) {
+            return res.status(404).json({ success: false, error: 'College not found' });
+        }
+
+        res.json({ success: true, college: updatedCollege, message: 'College updated successfully' });
+    } catch (error) {
+        console.error('Error updating college:', error);
+        res.status(500).json({ success: false, error: 'Server error' });
+    }
+});
+
+// Delete college
+router.delete('/colleges/:collegeId', async (req, res) => {
+    try {
+        const collegeId = req.params.collegeId;
+        
+        // First delete all players associated with this college
+        const college = await collegeInfo.findById(collegeId);
+        if (!college) {
+            return res.status(404).json({ success: false, error: 'College not found' });
+        }
+        
+        // Delete all players associated with this college
+        await playerInfoId.deleteMany({ 
+            $or: [
+                { email: college.email },
+                { collegeEmail: college.email }
+            ]
+        });
+        
+        // Delete the college
+        const deletedCollege = await collegeInfo.findByIdAndDelete(collegeId);
+        
+        if (!deletedCollege) {
+            return res.status(404).json({ success: false, error: 'College not found' });
+        }
+
+        res.json({ 
+            success: true, 
+            message: 'College and all associated players deleted successfully' 
+        });
+    } catch (error) {
+        console.error('Error deleting college:', error);
+        res.status(500).json({ success: false, error: 'Server error' });
+    }
+});
+
 // Get matches with filters
 router.get('/matches', async (req, res) => {
     try {

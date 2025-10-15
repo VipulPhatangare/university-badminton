@@ -387,18 +387,12 @@ router.get('/get-match-info', requireReferee, async (req, res) => {
             return res.status(404).json({ success: false, message: 'Submatch not found' });
         }
         
-        // Determine player names based on match type
+        // Use college names instead of player names for privacy
         let playerName1, playerName2;
         
-        // Check if it's a singles or doubles match
-        if (submatchKey.includes('Singles')) {
-            playerName1 = submatch.player1Name;
-            playerName2 = submatch.player2Name;
-        } else {
-            // For doubles, combine player names
-            playerName1 = `${submatch.team1Player1Name} / ${submatch.team1Player2Name}`;
-            playerName2 = `${submatch.team2Player1Name} / ${submatch.team2Player2Name}`;
-        }
+        // Always use college names regardless of singles or doubles
+        playerName1 = match.college1Name;
+        playerName2 = match.college2Name;
         
         // Get the court number, server, and match settings
         const courtNumber = submatch.matchSettings?.courtNumber || 1;

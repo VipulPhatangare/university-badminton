@@ -64,28 +64,33 @@ router.get('/matches/:email/:status', async (req, res) => {
 // Get college players
 router.get('/players/:email', async (req, res) => {
     try {
-        const college = await collegeInfo.findOne({ email: req.params.email });
-        if (!college) {
-            return res.status(404).json({ message: 'College not found' });
-        }
+        const collegeEmail = req.params.email;
         
-        // Get boys players
-        let boysPlayers = [];
-        if (college.playerInfoIdBoys && college.playerInfoIdBoys.length > 0) {
-            const boysPromises = college.playerInfoIdBoys.map(id => 
-                playerInfoId.findById(id).catch(() => null)
-            );
-            boysPlayers = (await Promise.all(boysPromises)).filter(p => p !== null);
-        }
+        // Get boys players using collegeEmail field
+        const boysPlayers = await playerInfoId.find({ 
+            $and: [
+                {
+                    $or: [
+                        { email: collegeEmail },
+                        { collegeEmail: collegeEmail }
+                    ]
+                },
+                { gender: 'male' }
+            ]
+        });
         
-        // Get girls players
-        let girlsPlayers = [];
-        if (college.playerInfoIdGirls && college.playerInfoIdGirls.length > 0) {
-            const girlsPromises = college.playerInfoIdGirls.map(id => 
-                playerInfoId.findById(id).catch(() => null)
-            );
-            girlsPlayers = (await Promise.all(girlsPromises)).filter(p => p !== null);
-        }
+        // Get girls players using collegeEmail field
+        const girlsPlayers = await playerInfoId.find({ 
+            $and: [
+                {
+                    $or: [
+                        { email: collegeEmail },
+                        { collegeEmail: collegeEmail }
+                    ]
+                },
+                { gender: 'female' }
+            ]
+        });
         
         res.json({
             boys: boysPlayers,
@@ -112,6 +117,29 @@ router.post('/players/:email', async (req, res) => {
         const college = await collegeInfo.findOne({ email: collegeEmail });
         if (!college) {
             return res.status(404).json({ message: 'College not found' });
+        }
+        
+        // Check player limits first by counting existing players
+        const genderToCheck = (gender.toLowerCase() === 'male' || gender.toLowerCase() === 'boys') ? 'male' : 'female';
+        const maxPlayers = genderToCheck === 'male' ? 7 : 5;
+        
+        const existingPlayersCount = await playerInfoId.countDocuments({ 
+            $and: [
+                {
+                    $or: [
+                        { email: collegeEmail },
+                        { collegeEmail: collegeEmail }
+                    ]
+                },
+                { gender: genderToCheck }
+            ]
+        });
+        
+        if (existingPlayersCount >= maxPlayers) {
+            const teamType = genderToCheck === 'male' ? 'Boys' : 'Girls';
+            return res.status(400).json({ 
+                message: `${teamType} team is full! Maximum ${maxPlayers} players allowed.` 
+            });
         }
         
         // Generate unique player identifier
@@ -144,7 +172,7 @@ router.post('/players/:email', async (req, res) => {
         // Create new player
         const newPlayer = new playerInfoId({
             playerName,
-            gender,
+            gender: genderToCheck,
             email: generatedEmail,
             collegeEmail: college.email,
             collegeName: college.collegeName,
@@ -152,37 +180,6 @@ router.post('/players/:email', async (req, res) => {
         });
         
         await newPlayer.save();
-        
-        // Check player limits before adding
-        if (gender.toLowerCase() === 'male' || gender.toLowerCase() === 'boys') {
-            if (!college.playerInfoIdBoys) college.playerInfoIdBoys = [];
-            
-            // Check if boys team is already full (max 7 players)
-            if (college.playerInfoIdBoys.length >= 7) {
-                // Delete the created player since we can't add them
-                await playerInfoId.findByIdAndDelete(newPlayer._id);
-                return res.status(400).json({ 
-                    message: 'Boys team is full! Maximum 7 boys players allowed.' 
-                });
-            }
-            
-            college.playerInfoIdBoys.push(newPlayer._id);
-        } else {
-            if (!college.playerInfoIdGirls) college.playerInfoIdGirls = [];
-            
-            // Check if girls team is already full (max 5 players)
-            if (college.playerInfoIdGirls.length >= 5) {
-                // Delete the created player since we can't add them
-                await playerInfoId.findByIdAndDelete(newPlayer._id);
-                return res.status(400).json({ 
-                    message: 'Girls team is full! Maximum 5 girls players allowed.' 
-                });
-            }
-            
-            college.playerInfoIdGirls.push(newPlayer._id);
-        }
-        
-        await college.save();
         
         res.status(201).json(newPlayer);
     } catch (error) {
@@ -196,16 +193,12 @@ router.delete('/players/:email/:playerId', async (req, res) => {
     try {
         const { email, playerId } = req.params;
         
-        // Remove player from college's list
-        const college = await collegeInfo.findOne({ email });
-        if (college) {
-            college.playerInfoIdBoys = college.playerInfoIdBoys?.filter(id => id.toString() !== playerId) || [];
-            college.playerInfoIdGirls = college.playerInfoIdGirls?.filter(id => id.toString() !== playerId) || [];
-            await college.save();
-        }
+        // Delete player directly
+        const deletedPlayer = await playerInfoId.findByIdAndDelete(playerId);
         
-        // Delete player
-        await playerInfoId.findByIdAndDelete(playerId);
+        if (!deletedPlayer) {
+            return res.status(404).json({ message: 'Player not found' });
+        }
         
         res.json({ message: 'Player deleted successfully' });
     } catch (error) {

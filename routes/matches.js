@@ -191,41 +191,20 @@ router.post('/:matchId/complete-bye', async (req, res) => {
         // 2. Update the college's currentRound status
         // 3. Send notifications to the college
         
-        // Advance winner college round (similar to referee.js logic)
+        // Advance winner college round using utility function
         const { collegeInfo } = require('../database/schema');
+        const { advanceCollegeRound } = require('../utils/matchUtils');
         
         try {
-            const rounds = ['round_1', 'round_2', 'quater', 'semi', 'final'];
             const winnerCollegeEmail = match.email1;
             
-            // Load the winning college
-            const winnerCollege = await collegeInfo.findOne({ email: winnerCollegeEmail });
+            // For bye matches, there's no loser college (or loser is null/undefined)
+            const result = await advanceCollegeRound(winnerCollegeEmail, null, matchType, collegeInfo);
             
-            if (winnerCollege) {
-                const roundField = matchType === 'boys' ? 'currentRoundBoys' : 'currentRoundGirls';
-                const currentRound = winnerCollege[roundField];
-                
-                // Find current round index and advance to next
-                const currentIndex = rounds.indexOf(currentRound);
-                if (currentIndex >= 0 && currentIndex < rounds.length - 1) {
-                    const nextRound = rounds[currentIndex + 1];
-                    
-                    const updateObj = {};
-                    updateObj[roundField] = nextRound;
-                    
-                    // Reset the match allocation status so college can be allocated to new matches in next round
-                    const allocationField = matchType === 'boys' ? 'isMatchAllocateBoys' : 'isMatchAllocateGirls';
-                    updateObj[allocationField] = false;
-                    
-                    await collegeInfo.findOneAndUpdate(
-                        { email: winnerCollegeEmail },
-                        updateObj
-                    );
-                    
-                    console.log(`Advanced college ${winnerCollege.collegeName} from ${currentRound} to ${nextRound} and reset allocation status`);
-                } else {
-                    console.log(`College ${winnerCollege.collegeName} is already in final round or invalid round`);
-                }
+            if (!result.success) {
+                console.error('Failed to advance college round:', result.error);
+            } else {
+                console.log(`Bye match completed: Advanced ${winnerCollegeEmail} to next round`);
             }
         } catch (e) {
             console.error('Error advancing college round:', e);

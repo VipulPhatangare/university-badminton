@@ -18,7 +18,7 @@ const collegeInfoSchema = new mongoose.Schema({
 
 const playerInfoIdSchema = new mongoose.Schema({
     playerName: { type: String, required: true },
-    email: { type: String, required: false, unique: false },  // Made optional and removed unique constraint
+    email: { type: String, required: false},  
     gender: { type: String, required: true, enum: ['male', 'female'] },
     phone: { type: String, required: false },  // Made optional
     collegeEmail: { type: String, required: true },  // Email of the college this player belongs to

@@ -905,8 +905,8 @@
                 <input id="maxSets" type="number" min="1" value="3" title="Number of sets required to win the match" disabled />
                 <label for="initialServer">First Server</label>
                 <select id="initialServer" aria-label="Initial server" disabled>
-                    <option value="0">Player 1</option>
-                    <option value="1">Player 2</option>
+                    <option value="0">College 1</option>
+                    <option value="1">College 2</option>
                 </select>
             </div>
         </div>
@@ -934,7 +934,7 @@
     <div class="match-info" aria-hidden="false">
         <div class="info-pill">Max Points: <strong id="displayMaxPoints">15</strong></div>
         <div class="info-pill">Total Sets: <strong id="displayNumberOfSets">3</strong></div>
-        <div class="info-pill">First Server: <strong id="initialServerIndicator">Player 1</strong></div>
+        <div class="info-pill">First Server: <strong id="initialServerIndicator">College 1</strong></div>
     </div>
 
     <!-- Main content -->
@@ -942,17 +942,17 @@
         <!-- Player 1 -->
         <div class="player" id="player0" data-index="0" aria-live="polite">
             <div class="meta" >
-                <div class="name" id="name0" contenteditable="true" aria-label="Player 1 name">Player 1</div>
+                <div class="name" id="name0" contenteditable="false" aria-label="College 1 name">College 1</div>
                 <div class="sets-won">Sets: <span id="sets0">0</span></div>
             </div>
 
             <div class="center">
                 <div id="advBadge0" class="badge" style="display:none">ADV</div>
-                <div class="score" id="score0" aria-label="Player 1 score">0</div>
+                <div class="score" id="score0" aria-label="College 1 score">0</div>
             </div>
 
             <div class="controls-vertical">
-                <button class="btn inc btn-lg" data-player="0" data-action="inc" aria-label="Add point to player 1">+1 Point</button>
+                <button class="btn inc btn-lg" data-player="0" data-action="inc" aria-label="Add point to college 1">+1 Point</button>
             </div>
 
             <div class="set-won-flash" id="flash0">Set!</div>
@@ -961,17 +961,17 @@
         <!-- Player 2 -->
         <div class="player" id="player1" data-index="1" aria-live="polite">
             <div class="meta" >
-                <div class="name" id="name1" contenteditable="true" aria-label="Player 2 name">Player 2</div>
+                <div class="name" id="name1" contenteditable="false" aria-label="College 2 name">College 2</div>
                 <div class="sets-won">Sets: <span id="sets1">0</span></div>
             </div>
 
             <div class="center">
                 <div id="advBadge1" class="badge" style="display:none">ADV</div>
-                <div class="score" id="score1" aria-label="Player 2 score">0</div>
+                <div class="score" id="score1" aria-label="College 2 score">0</div>
             </div>
 
             <div class="controls-vertical">
-                <button class="btn inc btn-lg" data-player="1" data-action="inc" aria-label="Add point to player 2">+1 Point</button>
+                <button class="btn inc btn-lg" data-player="1" data-action="inc" aria-label="Add point to college 2">+1 Point</button>
             </div>
 
             <div class="set-won-flash" id="flash1">Set!</div>
